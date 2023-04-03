@@ -22,8 +22,8 @@ class fig_control_inputs(object):
         ax.set_yticks([0, 0.5, 1], minor=False)
         ax.set_yticks([0.25, 0.75], minor=True)
 
-        ax.grid(b=True, which='major', color=colors.color_gridlines_major, linestyle='-', linewidth=0.5)
-        ax.grid(b=True, which='minor', color=colors.color_gridlines_minor, linestyle='-', linewidth=0.5, alpha=0.2)
+        ax.grid(visible=True, which='major', color=colors.color_gridlines_major, linestyle='-', linewidth=0.5)
+        ax.grid(visible=True, which='minor', color=colors.color_gridlines_minor, linestyle='-', linewidth=0.5, alpha=0.2)
 
         ax.set_xlabel(settings.label_t)
         ax.set_ylabel(r'control inputs')

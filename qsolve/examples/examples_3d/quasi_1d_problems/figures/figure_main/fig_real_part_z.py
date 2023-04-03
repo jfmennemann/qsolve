@@ -24,7 +24,7 @@ class fig_real_part_z(object):
         
         ax.set_xticks(settings.z_ticks)
         
-        ax.grid(b=True, which='major', color=settings.color_gridlines_major, linestyle='-', linewidth=0.5)
+        ax.grid(visible=True, which='major', color=settings.color_gridlines_major, linestyle='-', linewidth=0.5)
 
         ax.set_ylabel(r'arbitrary units')
 

@@ -19,8 +19,8 @@ class fig_number_imbalance(object):
         ax.set_yticks([-0.2, 0.0, 0.2], minor=False)
         ax.set_yticks([-0.3, -0.1, 0.1, 0.3], minor=True)
 
-        ax.grid(b=True, which='major', color=colors.color_gridlines_major, linestyle='-', linewidth=0.5)
-        ax.grid(b=True, which='minor', color=colors.color_gridlines_minor, linestyle='-', linewidth=0.5, alpha=0.2)
+        ax.grid(visible=True, which='major', color=colors.color_gridlines_major, linestyle='-', linewidth=0.5)
+        ax.grid(visible=True, which='minor', color=colors.color_gridlines_minor, linestyle='-', linewidth=0.5, alpha=0.2)
 
     def update(self,
                number_imbalance_of_times_analysis,

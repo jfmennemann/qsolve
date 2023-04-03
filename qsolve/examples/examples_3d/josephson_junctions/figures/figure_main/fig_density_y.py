@@ -23,7 +23,7 @@ class fig_density_y(object):
         
         ax.set_xticks(settings.y_ticks)
         
-        ax.grid(b=True, which='major', color=settings.color_gridlines_major, linestyle='-', linewidth=0.5)
+        ax.grid(visible=True, which='major', color=settings.color_gridlines_major, linestyle='-', linewidth=0.5)
         
         ax.set_ylabel(settings.label_density)
         
