@@ -101,11 +101,11 @@ def compute_number_imbalance(psi, dx, dy, dz, index_center_x):
 
 def eval_data(solver):
 
-    dx = solver.get('dx')
-    dy = solver.get('dy')
-    dz = solver.get('dz')
+    # dx = solver.get('dx')
+    # dy = solver.get('dy')
+    # dz = solver.get('dz')
 
-    Jx = solver.get('Jx')
+    # Jx = solver.get('Jx')
 
     index_center_x = solver.get('index_center_x')
     index_center_y = solver.get('index_center_y')

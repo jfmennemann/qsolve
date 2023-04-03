@@ -95,7 +95,6 @@ z_min = -20e-6
 z_max = +20e-6
 
 params_potential = {
-    "name": 'harmonic_xy_gaussian_z',
     "omega_x": omega_perp,
     "omega_y": omega_perp,
     "V_ref_gaussian": hbar*omega_perp,
@@ -104,7 +103,7 @@ params_potential = {
 # -------------------------------------------------------------------------------------------------
 
 # -------------------------------------------------------------------------------------------------
-simulation_id = params_potential['name']
+simulation_id = 'test'
 
 simulation_id = simulation_id.replace(".", "_")
 # -------------------------------------------------------------------------------------------------
