@@ -26,7 +26,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="qsolve",
-    version="0.1.5",
+    version="0.1.9",
     author="Jan-Frederik Mennemann",
     author_email="jfmennemann@gmx.de",
     description="qsolve",
@@ -43,7 +43,6 @@ setuptools.setup(
     classifiers=[
         "Programming Language :: Python :: 3",
         "Development Status :: 2 - Pre-Alpha",
-        "Operating System :: POSIX :: Linux",
-        "Environment :: GPU :: NVIDIA CUDA :: 10.2"
+        "Operating System :: POSIX :: Linux"
     ]
 )
