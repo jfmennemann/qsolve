@@ -1,14 +1,3 @@
-# command line: pip install -e . (use for development)
-# command line: pip install .
-# command line: python setup.py build
-# command line: python setup.py install
-# command line: python setup.py develop
-# command line: python setup.py sdist
-
-# upload to https://pypi.org
-# python setup.py sdist bdist_wheel
-# twine upload dist/*
-
 import setuptools
 
 from setuptools import setup, find_packages
