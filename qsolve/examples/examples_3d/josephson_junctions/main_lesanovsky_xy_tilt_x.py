@@ -1,6 +1,3 @@
-import sys
-import torch
-
 from qsolve.solvers.solvers_3d.solver_gpe_3d import SolverGPE3D
 
 import mkl
@@ -21,15 +18,6 @@ from potential_lesanovsky_xy_tilt_x import PotentialLesanovskyXYTiltX
 
 from evaluation import eval_data
 
-# -------------------------------------------------------------------------------------------------
-print("Python version")
-print(sys.version)
-print()
-print("PyTorch version")
-print(torch.__version__)
-print()
-# input()
-# -------------------------------------------------------------------------------------------------
 
 # -------------------------------------------------------------------------------------------------
 num_threads_cpu = 8
