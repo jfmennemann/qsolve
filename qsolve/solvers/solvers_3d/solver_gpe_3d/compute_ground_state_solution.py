@@ -1,7 +1,7 @@
 from qsolve.core import qsolve_core_gpe_3d
 
 
-def compute_ground_state_solution_gpe_3d(self, kwargs):
+def compute_ground_state_solution(self, kwargs):
 
     tau = kwargs["tau"] / self.units.unit_time
 

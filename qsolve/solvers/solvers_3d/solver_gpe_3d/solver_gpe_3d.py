@@ -19,7 +19,8 @@ from qsolve.solvers.solvers_3d.solver_gpe_3d import n_atoms
 from qsolve.solvers.solvers_3d.solver_gpe_3d import energies
 from qsolve.solvers.solvers_3d.solver_gpe_3d import chemical_potential
 
-from .compute_ground_state_solution_gpe_3d import compute_ground_state_solution_gpe_3d
+from .compute_ground_state_solution import compute_ground_state_solution
+
 from qsolve.solvers.solvers_3d.solver_gpe_3d.init_time_evolution import init_time_evolution
 
 from qsolve.core import qsolve_core_gpe_3d
@@ -48,7 +49,7 @@ class SolverGPE3D(object):
         set_psi(self, identifier, kwargs)
 
     def compute_ground_state_solution(self, **kwargs):
-        compute_ground_state_solution_gpe_3d(self, kwargs)
+        compute_ground_state_solution(self, kwargs)
 
     def init_sgpe_z_eff(self, **kwargs):
         qsolve_core_gpe_3d.init_sgpe_z_eff(self, kwargs)
