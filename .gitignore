@@ -6,6 +6,7 @@ __pycache__/
 
 qsolve/core/*
 !qsolve/core/*.pyc
+!qsolve/core/__init__.py
 
 # C extensions
 *.so
