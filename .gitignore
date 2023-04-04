@@ -5,7 +5,6 @@ __pycache__/
 *.pyc
 
 qsolve/core/*
-qsolve/core/*.py
 !qsolve/core/*.pyc
 
 # C extensions
