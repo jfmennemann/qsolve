@@ -8,30 +8,27 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 
-# read the contents of your README file
-# from pathlib import Path
-# this_directory = Path(__file__).parent
-# long_description = (this_directory / "README.md").read_text()
-
 setuptools.setup(
     name="qsolve",
-    version="0.1.9",
+    version="0.2.0",
+    url = "https://github.com/jfmennemann/qsolve",
     author="Jan-Frederik Mennemann",
     author_email="jfmennemann@gmx.de",
-    description="qsolve",
+    description="Numerical methods for the simulation of ultracold atom experiments",
     # long_description=read('README.md'),
-    long_description=long_description,
-    long_description_content_type='text/markdown',
-    # license="MIT",
-    keywords="ultracold atoms, simulations, Gross-Pitaevskii equation, thermal state sampling, time of flight",
-    # url = "http://packages.python.org/an_example_pypi_project",
-    url = "https://github.com/jfmennemann/qsolve",
-    packages=find_packages(where="qsolve"),
-    package_dir={"": "qsolve"},
-    include_package_data=True,
+    # long_description=long_description,
+    # long_description_content_type='text/markdown',
+    packages=setuptools.find_packages(),
+    install_requires=[],
     classifiers=[
-        "Programming Language :: Python :: 3",
-        "Development Status :: 2 - Pre-Alpha",
-        "Operating System :: POSIX :: Linux"
-    ]
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.10',
+    ],
+    include_package_data=True,
+    package_data={'': ['/qsolve/qsolve/core/*.pyc']},
+    # license="MIT",
+    # keywords="ultracold atoms, simulations, Gross-Pitaevskii equation, thermal state sampling, time of flight",
+    # package_dir={"": "qsolve"},
 )
+
