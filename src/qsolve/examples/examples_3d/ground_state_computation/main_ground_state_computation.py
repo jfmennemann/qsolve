@@ -1,4 +1,4 @@
-from qsolve.solvers.solvers_3d.solver_gpe_3d import SolverGPE3D
+from src.qsolve.solvers.solvers_3d.solver_gpe_3d import SolverGPE3D
 
 import mkl
 
