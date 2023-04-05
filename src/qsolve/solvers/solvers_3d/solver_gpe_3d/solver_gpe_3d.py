@@ -1,27 +1,28 @@
-from qsolve.solvers.solvers_3d.solver_gpe_3d.check_python_version import check_python_version
+from .check_python_version import check_python_version
 
-from qsolve.solvers.solvers_3d.solver_gpe_3d.init_seed import init_seed
-from qsolve.solvers.solvers_3d.solver_gpe_3d.init_device import init_device
-from qsolve.solvers.solvers_3d.solver_gpe_3d.init_units import init_units
+from .init_seed import init_seed
+from .init_device import init_device
+from .init_units import init_units
 
-from qsolve.solvers.solvers_3d.solver_gpe_3d.init_grid_3d import init_grid
+from .init_grid_3d import init_grid
 
-from qsolve.solvers.solvers_3d.solver_gpe_3d.init_potential import init_potential
+from .init_potential import init_potential
 
-from qsolve.solvers.solvers_3d.solver_gpe_3d.set_psi import set_psi
-from qsolve.solvers.solvers_3d.solver_gpe_3d.set_V import set_V
+from .set_psi import set_psi
+from .set_V import set_V
 
-from qsolve.solvers.solvers_3d.solver_gpe_3d.getter_functions import get
+from .getter_functions import get
 
-from qsolve.solvers.solvers_3d.solver_gpe_3d import densities
-from qsolve.solvers.solvers_3d.solver_gpe_3d import spectrum
-from qsolve.solvers.solvers_3d.solver_gpe_3d import n_atoms
-from qsolve.solvers.solvers_3d.solver_gpe_3d import energies
-from qsolve.solvers.solvers_3d.solver_gpe_3d import chemical_potential
+from . import densities
+
+from . import spectrum
+from . import n_atoms
+from . import energies
+from . import chemical_potential
 
 from .compute_ground_state_solution import compute_ground_state_solution
 
-from qsolve.solvers.solvers_3d.solver_gpe_3d.init_time_evolution import init_time_evolution
+from .init_time_evolution import init_time_evolution
 
 from qsolve.core import qsolve_core_gpe_3d
 
