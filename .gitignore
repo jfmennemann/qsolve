@@ -4,9 +4,9 @@ __pycache__/
 *$py.class
 *.pyc
 
-qsolve/core/*
-!qsolve/core/*.pyc
-!qsolve/core/__init__.py
+src/qsolve/core/*
+!src/qsolve/core/*.pyc
+!src/qsolve/core/__init__.py
 
 # C extensions
 *.so
