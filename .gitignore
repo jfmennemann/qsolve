@@ -165,4 +165,6 @@ dmypy.json
 
 .idea
 
+*.iml
+
 *.sh
