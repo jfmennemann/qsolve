@@ -1,2 +1,2 @@
-include src/qsolve/core/*.pyc
+include src/qsolve/core/*.so
 
