@@ -16,6 +16,8 @@ from potential_harmonic import Potential
 
 from evaluation import eval_data
 
+from time import time
+
 
 # -------------------------------------------------------------------------------------------------
 num_threads_cpu = 8
@@ -209,7 +211,15 @@ solver.set_V(u=[u1_0, u2_0])
 
 
 # -------------------------------------------------------------------------------------------------
+time_1 = time()
+
 solver.compute_ground_state_solution(N=N, n_iter=20000, tau=0.001e-3, adaptive_tau=True)
+
+time_2 = time()
+
+print('elapsed time: {0:f}'.format(time_2 - time_1))
+
+input()
 
 psi_0 = solver.get('psi_0')
 

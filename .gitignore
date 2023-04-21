@@ -2,14 +2,15 @@
 __pycache__/
 *.py[cod]
 *$py.class
-*.pyc
 
-src/qsolve/core/*
-!src/qsolve/core/*.pyc
-!src/qsolve/core/__init__.py
+# *.pyc
+
+# src/qsolve/core/*
+# !src/qsolve/core/*.pyc
+# !src/qsolve/core/__init__.py
 
 # C extensions
-*.so
+# *.so
 
 # Distribution / packaging
 .Python
