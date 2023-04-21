@@ -16,7 +16,7 @@ from potential_harmonic import Potential
 
 from evaluation import eval_data
 
-from time import time
+from time import time, sleep
 
 
 # -------------------------------------------------------------------------------------------------
@@ -219,7 +219,7 @@ time_2 = time()
 
 print('elapsed time: {0:f}'.format(time_2 - time_1))
 
-input()
+sleep(2)
 
 psi_0 = solver.get('psi_0')
 
