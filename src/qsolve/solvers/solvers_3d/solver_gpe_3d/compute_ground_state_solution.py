@@ -23,7 +23,7 @@ def compute_ground_state_solution(self, kwargs):
 
     N = kwargs["N"]
 
-    psi_0, vec_res, vec_iter = qsolve_core_gpe_3d.compute_ground_state_solution_gpe_3d(
+    psi_0, vec_res, vec_iter = qsolve_core_gpe_3d.compute_ground_state_solution(
         self.V,
         self.dx,
         self.dy,

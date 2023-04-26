@@ -1,4 +1,4 @@
-from qsolve.core import qsolve_core_gpe_3d as qsolve_core
+from qsolve.core import qsolve_core_gpe_3d
 
 
 def compute_chemical_potential(self, identifier, kwargs):
@@ -13,7 +13,7 @@ def compute_chemical_potential(self, identifier, kwargs):
 
     if identifier == "psi":
 
-        mue = qsolve_core.compute_chemical_potential_gpe_3d(
+        mue = qsolve_core_gpe_3d.compute_chemical_potential(
             self.psi,
             self.V,
             self.dx,
@@ -25,7 +25,7 @@ def compute_chemical_potential(self, identifier, kwargs):
 
     elif identifier == "psi_0":
 
-        mue = qsolve_core.compute_chemical_potential_gpe_3d(
+        mue = qsolve_core_gpe_3d.compute_chemical_potential(
             self.psi_0,
             self.V,
             self.dx,
