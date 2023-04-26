@@ -1,0 +1,7 @@
+matplotlib~=3.7.0
+numpy~=1.23.5
+scipy~=1.10.0
+mkl~=2021.4.0
+h5py~=3.7.0
+qsolve~=0.2.6
+setuptools~=65.6.3
