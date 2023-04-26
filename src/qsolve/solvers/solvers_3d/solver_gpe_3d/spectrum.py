@@ -21,7 +21,7 @@ def compute_spectrum_abs_xy(self, identifier, kwargs):
 
             index_z = self.index_center_z_tof_free_gpe
 
-        spectrum_abs_xy = qsolve_core_gpe_3d.compute_spectrum_abs_xy_3d(self.psi_tof_free_gpe, index_z, rescaling)
+        spectrum_abs_xy = qsolve_core_gpe_3d.compute_spectrum_abs_xy(self.psi_tof_free_gpe, index_z, rescaling)
 
     else:
 
@@ -55,7 +55,7 @@ def compute_spectrum_abs_xz(self, identifier, kwargs):
 
             index_y = self.index_center_y_tof_free_gpe
 
-        spectrum_abs_xz = qsolve_core_gpe_3d.compute_spectrum_abs_xz_3d(self.psi_tof_free_gpe, index_y, rescaling)
+        spectrum_abs_xz = qsolve_core_gpe_3d.compute_spectrum_abs_xz(self.psi_tof_free_gpe, index_y, rescaling)
 
     else:
 
