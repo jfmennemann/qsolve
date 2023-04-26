@@ -358,7 +358,7 @@ solver.set_V(u=[u1_0, u2_0])
 # -------------------------------------------------------------------------------------------------
 
 # -------------------------------------------------------------------------------------------------
-solver.compute_ground_state_solution(N=N, n_iter=5000, tau=0.005e-3, tau_adaptive = True)
+solver.compute_ground_state_solution(N=N, n_iter=5000, tau=0.005e-3, tau_adaptive=True)
 
 psi_0 = solver.get('psi_0')
 
