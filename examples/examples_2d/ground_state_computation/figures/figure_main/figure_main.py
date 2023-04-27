@@ -6,16 +6,13 @@ from scipy import constants
 
 import numpy as np
 
-# from .fig_density_xz import fig_density_xz
-from .fig_density_xy import fig_density_xy
+from .fig_density import fig_density
 
 from .fig_density_x import fig_density_x
 from .fig_density_y import fig_density_y
-# from .fig_density_z import fig_density_z
 
 from .fig_real_part_x import fig_real_part_x
 from .fig_real_part_y import fig_real_part_y
-# from .fig_real_part_z import fig_real_part_z
 
 from .fig_control_inputs import fig_control_inputs
 
@@ -64,7 +61,6 @@ class FigureMain(object):
         Jy = y.size
 
         x_ticks = np.array([-5, 0, 5])
-        # y_ticks = np.array([-5, 0, 5])
 
         # -----------------------------------------------------------------------------------------
         if np.round(y_max) == 5:
@@ -204,8 +200,8 @@ class FigureMain(object):
 
         settings.label_V = r'$V \;\, \mathrm{in} \;\, h \times \mathrm{kHz}$'
 
-        settings.label_density = r'$\mathrm{density} \;\, \mathrm{in} \;\, \mathrm{m}^{-3}$'
-        settings.label_density_effective = r'$\mathrm{density} \;\, \mathrm{in} \;\, \mu \mathrm{m}^{-1}$'
+        settings.label_density = r'$\mathrm{density} \;\, \mathrm{in} \;\, \mathrm{m}^{-2}$'
+        # settings.label_density_effective = r'$\mathrm{density} \;\, \mathrm{in} \;\, \mu \mathrm{m}^{-1}$'
 
         settings.label_x = r'$x \;\, \mathrm{in} \;\, \mu \mathrm{m}$'
         settings.label_y = r'$y \;\, \mathrm{in} \;\, \mu \mathrm{m}$'
@@ -263,30 +259,24 @@ class FigureMain(object):
                                               height_ratios=[1, 1, 1])
 
         ax_00 = self.fig.add_subplot(self.gridspec[0, 0])
-        ax_01 = self.fig.add_subplot(self.gridspec[0, 1])
 
         ax_03 = self.fig.add_subplot(self.gridspec[0, 3])
 
         ax_10 = self.fig.add_subplot(self.gridspec[1, 0])
         ax_11 = self.fig.add_subplot(self.gridspec[1, 1])
-        ax_12 = self.fig.add_subplot(self.gridspec[1, 2])
 
         ax_20 = self.fig.add_subplot(self.gridspec[2, 0])
         ax_21 = self.fig.add_subplot(self.gridspec[2, 1])
-        ax_22 = self.fig.add_subplot(self.gridspec[2, 2])
         # -----------------------------------------------------------------------------------------
 
         # -----------------------------------------------------------------------------------------
-        self.fig_density_xy = fig_density_xy(ax_00, settings)
-        # self.fig_density_xy = fig_density_xy(ax_01, settings)
+        self.fig_density_xy = fig_density(ax_00, settings)
 
         self.fig_density_y = fig_density_y(ax_10, settings)
-        # self.fig_density_y = fig_density_y(ax_11, settings)
-        self.fig_density_x = fig_density_x(ax_12, settings)
+        self.fig_density_x = fig_density_x(ax_11, settings)
 
         self.fig_real_part_y = fig_real_part_y(ax_20, settings)
-        # self.fig_real_part_y = fig_real_part_y(ax_21, settings)
-        self.fig_real_part_x = fig_real_part_x(ax_22, settings)
+        self.fig_real_part_x = fig_real_part_x(ax_21, settings)
 
         self.fig_control_inputs = fig_control_inputs(ax_03, settings)
         # -----------------------------------------------------------------------------------------
@@ -301,32 +291,12 @@ class FigureMain(object):
     def update_data(self, data):
 
         self.fig_density_xy.update(data.density_xy)
-        # self.fig_density_xy.update(data.density_xy)
 
         self.fig_density_y.update(data.density_y, data.V_y)
-        # self.fig_density_y.update(data.density_y, data.V_y)
         self.fig_density_x.update(data.density_x, data.V_x)
 
         self.fig_real_part_x.update(data.real_part_x, data.imag_part_x, data.V_x)
         self.fig_real_part_y.update(data.real_part_y, data.imag_part_y, data.V_y)
-        # self.fig_real_part_y.update(data.real_part_z, data.imag_part_z, data.V_z)
-
-    # def update_data_time_evolution(self, data_time_evolution):
-    #
-    #     global_phase_difference_of_times_analysis = data_time_evolution.global_phase_difference_of_times_analysis
-    #     number_imbalance_of_times_analysis = data_time_evolution.number_imbalance_of_times_analysis
-    #
-    #     times_analysis = data_time_evolution.times_analysis
-    #
-    #     nr_times_analysis = data_time_evolution.nr_times_analysis
-    #
-    #     self.fig_global_phase_difference.update(global_phase_difference_of_times_analysis,
-    #                                             times_analysis,
-    #                                             nr_times_analysis)
-    #
-    #     self.fig_number_imbalance.update(number_imbalance_of_times_analysis,
-    #                                      times_analysis,
-    #                                      nr_times_analysis)
 
     def redraw(self):
 

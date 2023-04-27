@@ -101,8 +101,8 @@ omega_z = 2 * np.pi * 100
 
 params_figure_main = {
     'm_atom': m_atom,
-    'density_min': -0.2e20,
-    'density_max': +2.2e20,
+    'density_min': -0.2e14,
+    'density_max': +2.2e14,
     'V_min': -1.0,
     'V_max': 11.0,
     'abs_y_restr': 30e-6

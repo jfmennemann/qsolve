@@ -1,10 +1,12 @@
 import numpy as np
 
 
-class fig_density_xy(object):
+class fig_density(object):
 
     def __init__(self, ax, settings):
-        
+
+        ax.set_title("density", fontsize=settings.fontsize_titles)
+    
         Jx = settings.Jx
         Jy = settings.Jy
 
@@ -13,8 +15,6 @@ class fig_density_xy(object):
         
         ax.set_xticks(settings.y_ticks)
         ax.set_yticks(settings.x_ticks)
-        
-        ax.set_anchor('W')
 
         density_xy = np.zeros((Jx, Jy))
 
@@ -27,7 +27,7 @@ class fig_density_xy(object):
         self.image_density_xy = ax.imshow(density_xy,
                                           extent=[left, right, bottom, top],
                                           cmap=settings.cmap_density,
-                                          aspect='equal',
+                                          aspect='auto',
                                           interpolation='bilinear',
                                           vmin=0,
                                           vmax=1,
