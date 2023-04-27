@@ -127,7 +127,6 @@ class SolverGPE2D(object):
     #     qsolve_core_gpe_3d.init_sgpe_z_eff(self, kwargs)
 
     def set_u_of_times(self, u_of_times):
-
         self.u_of_times = u_of_times
 
     def propagate_gpe(self, **kwargs):

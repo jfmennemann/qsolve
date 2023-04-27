@@ -1,6 +1,3 @@
-from qsolve.potentials.components_2d.harmonic_2d import eval_potential_harmonic_2d
-
-
 class Potential(object):
 
     def __init__(self, params_solver, params_user):
@@ -15,7 +12,7 @@ class Potential(object):
         omega_x = params_user["omega_x"] / unit_frequency
         omega_y = params_user["omega_y"] / unit_frequency
 
-        self.V = eval_potential_harmonic_2d(x_2d, y_2d, omega_x, omega_y, m_atom)
+        self.V = 0.5 * m_atom * (omega_x**2 * x_2d**2 + omega_y**2 * y_2d**2)
 
     def eval(self, u):
 

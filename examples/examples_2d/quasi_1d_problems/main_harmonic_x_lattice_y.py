@@ -1,4 +1,4 @@
-from qsolve.solvers import SolverGPE3D
+from qsolve.solvers import SolverGPE2D
 
 import mkl
 import os
@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 
 from figures.figure_main.figure_main import FigureMain
 
-from potential_harmonic_xy_lattice_z import Potential
+from potential_harmonic_x_lattice_z import Potential
 
 from evaluation import eval_data
 
@@ -68,33 +68,42 @@ a_s = 5.24e-9
 
 omega_perp = 2 * np.pi * 1e3
 
+# Jx = 48
+# Jy = 48
+# Jz = 256
+
 Jx = 48
-Jy = 48
-Jz = 256
+Jy = 256
 
 t_final = 8e-3
 dt = 0.0025e-3
 
+# x_min = -1.5e-6
+# x_max = +1.5e-6
+#
+# y_min = -1.5e-6
+# y_max = +1.5e-6
+#
+# z_min = -20e-6
+# z_max = +20e-6
+
 x_min = -1.5e-6
 x_max = +1.5e-6
 
-y_min = -1.5e-6
-y_max = +1.5e-6
-
-z_min = -20e-6
-z_max = +20e-6
+y_min = -20e-6
+y_max = +20e-6
 
 params_potential = {
-    "name": 'harmonic_xy_lattice_z',
     "omega_x": omega_perp,
-    "omega_y": omega_perp,
     "V_lattice_z_max": 2.0 * omega_perp * hbar,
     "V_lattice_z_m": 8
 }
 # -------------------------------------------------------------------------------------------------
 
+omega_z = 2 * np.pi * 1e3
+
 # -------------------------------------------------------------------------------------------------
-simulation_id = params_potential['name']
+simulation_id = 'harmonic_x_lattice_y'
 
 simulation_id = simulation_id.replace(".", "_")
 # -------------------------------------------------------------------------------------------------
@@ -126,8 +135,9 @@ if export_frames_figure_main:
 # init solver and its potential
 # =================================================================================================
 
-solver = SolverGPE3D(m_atom=m_Rb_87,
+solver = SolverGPE2D(m_atom=m_Rb_87,
                      a_s=a_s,
+                     omega_z=omega_z,
                      seed=1,
                      device='cuda:0',
                      num_threads_cpu=num_threads_cpu)
@@ -136,17 +146,13 @@ solver.init_grid(x_min=x_min,
                  x_max=x_max,
                  y_min=y_min,
                  y_max=y_max,
-                 z_min=z_min,
-                 z_max=z_max,
                  Jx=Jx,
-                 Jy=Jy,
-                 Jz=Jz)
+                 Jy=Jy)
 
 solver.init_potential(Potential, params_potential)
 
 x = solver.get('x')
 y = solver.get('y')
-z = solver.get('z')
 
 
 # =================================================================================================
@@ -255,7 +261,7 @@ params_figure_main = {
 }
 
 # ---------------------------------------------------------------------------------------------
-figure_main = FigureMain(x, y, z, times, params_figure_main)
+figure_main = FigureMain(x, y, times, params_figure_main)
 
 figure_main.fig_control_inputs.update_u(u_of_times)
 
@@ -271,18 +277,18 @@ solver.set_u_of_times(u_of_times)
 
 if export_psi_of_times_analysis:
 
-    psi_of_times_analysis = np.zeros((n_times_analysis, Jx, Jy, Jz), dtype=np.complex128)
+    psi_of_times_analysis = np.zeros((n_times_analysis, Jx, Jy), dtype=np.complex128)
 
 else:
 
     psi_of_times_analysis = None
 
 
-density_z_eff_of_times_analysis = np.zeros((n_times_analysis, Jz), dtype=np.float64)
+# density_z_eff_of_times_analysis = np.zeros((n_times_analysis, Jz), dtype=np.float64)
 
-phase_z_eff_of_times_analysis = np.zeros((n_times_analysis, Jz), dtype=np.float64)
+# phase_z_eff_of_times_analysis = np.zeros((n_times_analysis, Jz), dtype=np.float64)
 
-phase_z_of_times_analysis = np.zeros((n_times_analysis, Jz), dtype=np.float64)
+# phase_z_of_times_analysis = np.zeros((n_times_analysis, Jz), dtype=np.float64)
 
 n_inc = n_mod_times_analysis
 
@@ -300,10 +306,10 @@ while True:
 
         psi_of_times_analysis[nr_times_analysis, :] = data.psi
 
-    density_z_eff_of_times_analysis[nr_times_analysis, :] = data.density_z_eff
+    # density_z_eff_of_times_analysis[nr_times_analysis, :] = data.density_z_eff
 
-    phase_z_eff_of_times_analysis[nr_times_analysis, :] = data.phase_z_eff
-    phase_z_of_times_analysis[nr_times_analysis, :] = data.phase_z
+    # phase_z_eff_of_times_analysis[nr_times_analysis, :] = data.phase_z_eff
+    # phase_z_of_times_analysis[nr_times_analysis, :] = data.phase_z
 
     print('----------------------------------------------------------------------------------------')
     print('t:             {0:1.2f} / {1:1.2f}'.format(t / 1e-3, times[-1] / 1e-3))
@@ -368,10 +374,10 @@ if export_hdf5:
 
         tmp.create_dataset("psi_of_times_analysis", data=psi_of_times_analysis, dtype=np.complex128)
 
-    tmp.create_dataset("density_z_eff_of_times_analysis", data=density_z_eff_of_times_analysis, dtype=np.float64)
+    # tmp.create_dataset("density_z_eff_of_times_analysis", data=density_z_eff_of_times_analysis, dtype=np.float64)
 
-    tmp.create_dataset("phase_z_eff_of_times_analysis", data=phase_z_eff_of_times_analysis, dtype=np.float64)
-    tmp.create_dataset("phase_z_of_times_analysis", data=phase_z_of_times_analysis, dtype=np.float64)
+    # tmp.create_dataset("phase_z_eff_of_times_analysis", data=phase_z_eff_of_times_analysis, dtype=np.float64)
+    # tmp.create_dataset("phase_z_of_times_analysis", data=phase_z_of_times_analysis, dtype=np.float64)
 
     tmp.create_dataset("times", data=times)
     tmp.create_dataset("dt", data=dt)

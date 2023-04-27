@@ -69,25 +69,14 @@ m_Rb_87 = 87 * amu
 
 Jx = 48
 Jy = 256
-# Jz = 256
 
 a_s = 5.24e-9
-
-# x_min = -1.5e-6
-# x_max = +1.5e-6
-#
-# y_min = -1.5e-6
-# y_max = +1.5e-6
-#
-# z_min = -20e-6
-# z_max = +20e-6
 
 x_min = -1.5e-6
 x_max = +1.5e-6
 
 y_min = -20e-6
 y_max = +20e-6
-
 
 params_potential = {
     "omega_x": omega_perp,
@@ -282,12 +271,6 @@ else:
     psi_of_times_analysis = None
 
 
-# density_z_eff_of_times_analysis = np.zeros((n_times_analysis, Jz), dtype=np.float64)
-
-# phase_z_eff_of_times_analysis = np.zeros((n_times_analysis, Jz), dtype=np.float64)
-
-# phase_z_of_times_analysis = np.zeros((n_times_analysis, Jz), dtype=np.float64)
-
 n_inc = n_mod_times_analysis
 
 nr_times_analysis = 0
@@ -303,11 +286,6 @@ while True:
     if export_psi_of_times_analysis:
 
         psi_of_times_analysis[nr_times_analysis, :] = data.psi
-
-    # density_z_eff_of_times_analysis[nr_times_analysis, :] = data.density_z_eff
-
-    # phase_z_eff_of_times_analysis[nr_times_analysis, :] = data.phase_z_eff
-    # phase_z_of_times_analysis[nr_times_analysis, :] = data.phase_z
 
     print('----------------------------------------------------------------------------------------')
     print('t:             {0:1.2f} / {1:1.2f}'.format(t / 1e-3, times[-1] / 1e-3))
@@ -371,11 +349,6 @@ if export_hdf5:
     if export_psi_of_times_analysis:
 
         tmp.create_dataset("psi_of_times_analysis", data=psi_of_times_analysis, dtype=np.complex128)
-
-    # tmp.create_dataset("density_z_eff_of_times_analysis", data=density_z_eff_of_times_analysis, dtype=np.float64)
-
-    # tmp.create_dataset("phase_z_eff_of_times_analysis", data=phase_z_eff_of_times_analysis, dtype=np.float64)
-    # tmp.create_dataset("phase_z_of_times_analysis", data=phase_z_of_times_analysis, dtype=np.float64)
 
     tmp.create_dataset("times", data=times)
     tmp.create_dataset("dt", data=dt)
