@@ -109,14 +109,14 @@ def eval_data(solver):
 
     index_center_x = solver.get('index_center_x')
     index_center_y = solver.get('index_center_y')
-    index_center_z = solver.get('index_center_z')
+    # index_center_z = solver.get('index_center_z')
 
     data = type('', (), {})()
 
     # ---------------------------------------------------------------------------------------------
     V = solver.get('V')
 
-    V_x = V[:, index_center_y, index_center_z].squeeze()
+    V_x = V[:, index_center_y].squeeze()
 
     # index_x1, index_x2 = get_indices_x1_x2(V_x, Jx, index_center_x)
 
@@ -128,16 +128,16 @@ def eval_data(solver):
     # data.V_z_x1 = V[index_x1, index_center_y, :].squeeze()
     # data.V_z_x2 = V[index_x2, index_center_y, :].squeeze()
 
-    data.V_y = V[index_center_x, :, index_center_z].squeeze()
-    data.V_z = V[index_center_x, index_center_y, :].squeeze()
+    data.V_y = V[index_center_x, :].squeeze()
+    # data.V_z = V[index_center_x, index_center_y, :].squeeze()
     # ---------------------------------------------------------------------------------------------
 
     # ---------------------------------------------------------------------------------------------
     psi = solver.get('psi')
 
-    psi_x = psi[:, index_center_y, index_center_z].squeeze()
-    psi_y = psi[index_center_x, :, index_center_z].squeeze()
-    psi_z = psi[index_center_x, index_center_y, :].squeeze()
+    psi_x = psi[:, index_center_y].squeeze()
+    psi_y = psi[index_center_x, :].squeeze()
+    # psi_z = psi[index_center_x, index_center_y, :].squeeze()
 
     # psi_y_x1 = psi[index_x1, :, index_center_z].squeeze()
     # psi_y_x2 = psi[index_x2, :, index_center_z].squeeze()
@@ -145,14 +145,16 @@ def eval_data(solver):
     # psi_z_x1 = psi[index_x1, index_center_y, :].squeeze()
     # psi_z_x2 = psi[index_x2, index_center_y, :].squeeze()
 
-    psi_xz = psi[:, index_center_y, :].squeeze()
-    psi_xy = psi[:, :, index_center_z].squeeze()
+    # psi_xy = psi[:, index_center_y, :].squeeze()
+    # psi_xy = psi[:, :, index_center_z].squeeze()
+
+    psi_xy = psi
 
     data.psi = psi
 
     data.psi_x = psi_x
     data.psi_y = psi_y
-    data.psi_z = psi_z
+    # data.psi_z = psi_z
 
     # data.psi_y_x1 = psi_y_x1
     # data.psi_y_x2 = psi_y_x2
@@ -160,8 +162,8 @@ def eval_data(solver):
     # data.psi_z_x1 = psi_z_x1
     # data.psi_z_x2 = psi_z_x2
 
-    data.psi_xz = psi_xz
     data.psi_xy = psi_xy
+    # data.psi_xy = psi_xy
     # ---------------------------------------------------------------------------------------------
 
     # ---------------------------------------------------------------------------------------------
@@ -169,7 +171,7 @@ def eval_data(solver):
 
     data.density_x = np.abs(psi_x) ** 2
     data.density_y = np.abs(psi_y) ** 2
-    data.density_z = np.abs(psi_z) ** 2
+    # data.density_z = np.abs(psi_z) ** 2
 
     # data.density_y_x1 = np.abs(psi_y_x1) ** 2
     # data.density_y_x2 = np.abs(psi_y_x2) ** 2
@@ -177,18 +179,18 @@ def eval_data(solver):
     # data.density_z_x1 = np.abs(psi_z_x1) ** 2
     # data.density_z_x2 = np.abs(psi_z_x2) ** 2
 
-    data.density_xz = np.abs(psi_xz) ** 2 / density_max
     data.density_xy = np.abs(psi_xy) ** 2 / density_max
+    # data.density_xy = np.abs(psi_xy) ** 2 / density_max
     # ---------------------------------------------------------------------------------------------
 
     # ---------------------------------------------------------------------------------------------
     data.real_part_x = np.real(psi_x)
     data.real_part_y = np.real(psi_y)
-    data.real_part_z = np.real(psi_z)
+    # data.real_part_z = np.real(psi_z)
 
     data.imag_part_x = np.imag(psi_x)
     data.imag_part_y = np.imag(psi_y)
-    data.imag_part_z = np.imag(psi_z)
+    # data.imag_part_z = np.imag(psi_z)
     # ---------------------------------------------------------------------------------------------
 
     # ---------------------------------------------------------------------------------------------
@@ -234,30 +236,3 @@ def eval_data(solver):
 
     return data
 
-
-def eval_data_tof(solver):
-
-    data_tof = type('', (), {})()
-
-    # ---------------------------------------------------------------------------------------------
-    data_tof.density_xy_tof_gpe = solver.compute_density_xy('psi_tof_gpe', rescaling=True)
-    data_tof.density_xz_tof_gpe = solver.compute_density_xz('psi_tof_gpe', rescaling=True)
-
-    data_tof.density_xy_mask_tof_gpe = data_tof.density_xy_tof_gpe > 1e-6
-    data_tof.density_xz_mask_tof_gpe = data_tof.density_xz_tof_gpe > 1e-6
-    # ---------------------------------------------------------------------------------------------
-
-    # ---------------------------------------------------------------------------------------------
-    data_tof.spectrum_abs_xz_tof_gpe = solver.compute_spectrum_abs_xz('psi_tof_gpe', rescaling=True)
-    data_tof.spectrum_abs_xy_tof_gpe = solver.compute_spectrum_abs_xy('psi_tof_gpe', rescaling=True)
-
-    data_tof.spectrum_abs_xz_mask_tof_gpe = data_tof.spectrum_abs_xz_tof_gpe > 1e-3
-    data_tof.spectrum_abs_xy_mask_tof_gpe = data_tof.spectrum_abs_xy_tof_gpe > 1e-3
-    # ---------------------------------------------------------------------------------------------
-
-    # ---------------------------------------------------------------------------------------------
-    data_tof.density_xz_tof_final = solver.compute_density_xz('psi_f_tof_free_schroedinger', rescaling=True)
-    data_tof.density_xy_tof_final = solver.compute_density_xy('psi_f_tof_free_schroedinger', rescaling=True)
-    # ---------------------------------------------------------------------------------------------
-
-    return data_tof

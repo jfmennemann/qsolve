@@ -6,16 +6,16 @@ from scipy import constants
 
 import numpy as np
 
-from .fig_density_xz import fig_density_xz
+# from .fig_density_xz import fig_density_xz
 from .fig_density_xy import fig_density_xy
 
 from .fig_density_x import fig_density_x
 from .fig_density_y import fig_density_y
-from .fig_density_z import fig_density_z
+# from .fig_density_z import fig_density_z
 
 from .fig_real_part_x import fig_real_part_x
 from .fig_real_part_y import fig_real_part_y
-from .fig_real_part_z import fig_real_part_z
+# from .fig_real_part_z import fig_real_part_z
 
 from .fig_control_inputs import fig_control_inputs
 
@@ -24,7 +24,7 @@ from .. style import colors
 
 class FigureMain(object):
 
-    def __init__(self, x, y, z, times, params):
+    def __init__(self, x, y, times, params):
 
         hbar = constants.hbar
 
@@ -36,82 +36,76 @@ class FigureMain(object):
         V_min = params['V_min']
         V_max = params['V_max']
 
-        abs_z_restr = params['abs_z_restr'] / 1e-6
+        abs_y_restr = params['abs_y_restr'] / 1e-6
 
         x = x / 1e-6
         y = y / 1e-6
-        z = z / 1e-6
 
-        indices_z_restr = np.abs(z) < abs_z_restr
+        indices_y_restr = np.abs(y) < abs_y_restr
 
         times = times / 1e-3
 
         Jx = x.shape[0]
         Jy = y.shape[0]
-        Jz = z.shape[0]
 
         dx = x[1] - x[0]
         dy = y[1] - y[0]
-        dz = z[1] - z[0]
 
         x_min = x[0]
         y_min = y[0]
-        z_min = z[0]
 
         x_max = x_min + Jx * dx
         y_max = y_min + Jy * dy
-        z_max = z_min + Jz * dz
         
         t_min = times[0]
         t_max = times[-1]
 
         Jx = x.size
         Jy = y.size
-        Jz = z.size
 
         x_ticks = np.array([-5, 0, 5])
-        y_ticks = np.array([-5, 0, 5])
+        # y_ticks = np.array([-5, 0, 5])
 
         # -----------------------------------------------------------------------------------------
-        if np.round(z_max) == 5:
+        if np.round(y_max) == 5:
 
-            z_ticks = np.array([-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5])
+            y_ticks = np.array([-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5])
 
-        elif np.round(z_max) == 10:
+        elif np.round(y_max) == 10:
 
-            z_ticks = np.array([-10, -5, 0, 5, 10])
+            y_ticks = np.array([-10, -5, 0, 5, 10])
 
-        elif np.round(z_max) == 20:
+        elif np.round(y_max) == 20:
 
-            z_ticks = np.array([-20, -10, 0, 10, 20])
+            y_ticks = np.array([-20, -10, 0, 10, 20])
 
-        elif np.round(z_max) == 40:
+        elif np.round(y_max) == 40:
 
-            z_ticks = np.array([-40, -30, -20, -10, 0, 10, 20, 30, 40])
+            y_ticks = np.array([-40, -30, -20, -10, 0, 10, 20, 30, 40])
 
-        elif np.round(z_max) == 50:
+        elif np.round(y_max) == 50:
 
-            z_ticks = np.array([-50, -40, -30, -20, -10, 0, 10, 20, 30, 40, 50])
+            y_ticks = np.array([-50, -40, -30, -20, -10, 0, 10, 20, 30, 40, 50])
 
-        elif np.round(z_max) == 60:
+        elif np.round(y_max) == 60:
 
-            z_ticks = np.array([-60, -40, -20, 0, 20, 40, 60])
+            y_ticks = np.array([-60, -40, -20, 0, 20, 40, 60])
 
-        elif np.round(z_max) == 80:
+        elif np.round(y_max) == 80:
 
-            z_ticks = np.array([-80, -60, -40, -20, 0, 20, 40, 60, 80])
+            y_ticks = np.array([-80, -60, -40, -20, 0, 20, 40, 60, 80])
 
-        elif np.round(z_max) == 100:
+        elif np.round(y_max) == 100:
 
-            z_ticks = np.array([-100, -80, -60, -40, -20, 0, 20, 40, 60, 80, 100])
+            y_ticks = np.array([-100, -80, -60, -40, -20, 0, 20, 40, 60, 80, 100])
 
-        elif np.round(z_max) == 200:
+        elif np.round(y_max) == 200:
 
-            z_ticks = np.array([-200, -160, -120, -80, -40, 0, 40, 80, 120, 160, 200])
+            y_ticks = np.array([-200, -160, -120, -80, -40, 0, 40, 80, 120, 160, 200])
 
         else:
 
-            z_ticks = np.array([z_min, z_max])
+            y_ticks = np.array([y_min, y_max])
         # -----------------------------------------------------------------------------------------
 
         # -----------------------------------------------------------------------------------------
@@ -183,28 +177,22 @@ class FigureMain(object):
         settings.V_min = V_min
         settings.V_max = V_max
 
-        settings.indices_z_restr = indices_z_restr
+        settings.indices_y_restr = indices_y_restr
 
         settings.x = x
         settings.y = y
-        settings.z = z
 
         settings.Jx = Jx
         settings.Jy = Jy
-        settings.Jz = Jz
 
         settings.x_ticks = x_ticks
         settings.y_ticks = y_ticks
-        settings.z_ticks = z_ticks
 
         settings.x_min = x_min
         settings.x_max = x_max
 
         settings.y_min = y_min
         settings.y_max = y_max
-
-        settings.z_min = z_min
-        settings.z_max = z_max
 
         settings.times = times
 
@@ -289,15 +277,15 @@ class FigureMain(object):
         # -----------------------------------------------------------------------------------------
 
         # -----------------------------------------------------------------------------------------
-        self.fig_density_xz = fig_density_xz(ax_00, settings)
-        self.fig_density_xy = fig_density_xy(ax_01, settings)
+        self.fig_density_xy = fig_density_xy(ax_00, settings)
+        # self.fig_density_xy = fig_density_xy(ax_01, settings)
 
-        self.fig_density_z = fig_density_z(ax_10, settings)
-        self.fig_density_y = fig_density_y(ax_11, settings)
+        self.fig_density_y = fig_density_y(ax_10, settings)
+        # self.fig_density_y = fig_density_y(ax_11, settings)
         self.fig_density_x = fig_density_x(ax_12, settings)
 
-        self.fig_real_part_z = fig_real_part_z(ax_20, settings)
-        self.fig_real_part_y = fig_real_part_y(ax_21, settings)
+        self.fig_real_part_y = fig_real_part_y(ax_20, settings)
+        # self.fig_real_part_y = fig_real_part_y(ax_21, settings)
         self.fig_real_part_x = fig_real_part_x(ax_22, settings)
 
         self.fig_control_inputs = fig_control_inputs(ax_03, settings)
@@ -312,16 +300,16 @@ class FigureMain(object):
 
     def update_data(self, data):
 
-        self.fig_density_xz.update(data.density_xz)
         self.fig_density_xy.update(data.density_xy)
+        # self.fig_density_xy.update(data.density_xy)
 
-        self.fig_density_z.update(data.density_z, data.V_z)
         self.fig_density_y.update(data.density_y, data.V_y)
+        # self.fig_density_y.update(data.density_y, data.V_y)
         self.fig_density_x.update(data.density_x, data.V_x)
 
         self.fig_real_part_x.update(data.real_part_x, data.imag_part_x, data.V_x)
         self.fig_real_part_y.update(data.real_part_y, data.imag_part_y, data.V_y)
-        self.fig_real_part_z.update(data.real_part_z, data.imag_part_z, data.V_z)
+        # self.fig_real_part_y.update(data.real_part_z, data.imag_part_z, data.V_z)
 
     # def update_data_time_evolution(self, data_time_evolution):
     #

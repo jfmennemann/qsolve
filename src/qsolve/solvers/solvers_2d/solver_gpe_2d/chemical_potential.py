@@ -18,7 +18,6 @@ def compute_chemical_potential(self, identifier, kwargs):
             self.V,
             self.dx,
             self.dy,
-            self.dz,
             self.hbar,
             self.m_atom,
             self.g)

@@ -74,15 +74,11 @@ a_s = 5.24e-9
 x_min = -5e-6
 x_max = +5e-6
 
-y_min = -5e-6
-y_max = +5e-6
-
-z_min = -10e-6
-z_max = +10e-6
+y_min = -10e-6
+y_max = +10e-6
 
 Jx = 50
-Jy = 50
-Jz = 100
+Jy = 100
 
 t_final = 4e-3
 
@@ -90,11 +86,18 @@ dt = 0.001e-3
 
 n_mod_times_analysis = 100
 
+# params_potential = {
+#     "omega_x": 2 * np.pi * 200,
+#     "omega_y": 2 * np.pi * 100,
+#     "omega_z": 2 * np.pi * 50
+# }
+
 params_potential = {
     "omega_x": 2 * np.pi * 200,
-    "omega_y": 2 * np.pi * 100,
-    "omega_z": 2 * np.pi * 50
+    "omega_y": 2 * np.pi * 50
 }
+
+omega_z = 2 * np.pi * 100
 
 params_figure_main = {
     'm_atom': m_atom,
@@ -102,7 +105,7 @@ params_figure_main = {
     'density_max': +2.2e20,
     'V_min': -1.0,
     'V_max': 11.0,
-    'abs_z_restr': 30e-6
+    'abs_y_restr': 30e-6
 }
 # =================================================================================================
 
@@ -149,6 +152,7 @@ if export_frames_figure_tof:
 
 solver = SolverGPE2D(m_atom=m_Rb_87,
                      a_s=a_s,
+                     omega_z=omega_z,
                      seed=1,
                      device='cuda:0',
                      num_threads=num_threads_cpu)
@@ -157,11 +161,8 @@ solver.init_grid(x_min=x_min,
                  x_max=x_max,
                  y_min=y_min,
                  y_max=y_max,
-                 z_min=z_min,
-                 z_max=z_max,
                  Jx=Jx,
-                 Jy=Jy,
-                 Jz=Jz)
+                 Jy=Jy)
 
 solver.init_potential(Potential, params_potential)
 
@@ -247,7 +248,7 @@ solver.set_psi('numpy', array=psi_0)
 # =================================================================================================
 
 # -------------------------------------------------------------------------------------------------
-figure_main = FigureMain(x, y, z, times, params_figure_main)
+figure_main = FigureMain(x, y, times, params_figure_main)
 
 figure_main.fig_control_inputs.update_u(u1_of_times, u2_of_times)
 
