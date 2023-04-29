@@ -15,7 +15,7 @@ class fig_density_y(object):
 
         # -----------------------------------------------------------------------------------------
         self.line_density_y, = ax.plot(settings.y, zeros_like(settings.y), linewidth=1, linestyle='-',
-                                          color=colors.wet_asphalt, label=r'$\rho$')
+                                          color=colors.wet_asphalt, label=r'$\rho(x=0, y)$')
 
         ax.set_xlim(settings.y_min, settings.y_max)
         
@@ -38,7 +38,7 @@ class fig_density_y(object):
         ax_V_y = ax.twinx()
 
         self.line_V_y, = ax_V_y.plot(settings.y, zeros_like(settings.y), linewidth=1, linestyle='-',
-                                     color=colors.sun_flower, label=r'$V$')
+                                     color=colors.sun_flower, label=r'$V(x=0,y)$')
 
         ax_V_y.set_xlim(settings.y_min, settings.y_max)
         ax_V_y.set_ylim(settings.V_min, settings.V_max)

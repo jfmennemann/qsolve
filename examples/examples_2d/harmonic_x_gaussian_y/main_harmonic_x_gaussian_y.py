@@ -81,7 +81,7 @@ y_max = +20e-6
 params_potential = {
     "omega_x": omega_perp,
     "omega_z": 2 * np.pi * 1e3,  # third dimension
-    "V_ref_gaussian": hbar*omega_perp,
+    "V_ref_gaussian": 2 * hbar * omega_perp,
     "sigma_gaussian": 1e-6
 }
 # -------------------------------------------------------------------------------------------------
@@ -239,8 +239,8 @@ print()
 params_figure_main = {
     "density_max":  density_0_max,
     "density_z_eff_max": 400,
-    "V_min": -1.0,
-    "V_max": 11.0,
+    "V_min": -0.5,
+    "V_max": +4.5,
     "sigma_z_min": 0.2,
     "sigma_z_max": 0.6,
     "m_atom": m_Rb_87

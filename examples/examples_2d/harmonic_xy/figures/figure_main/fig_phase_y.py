@@ -5,7 +5,7 @@ from numpy import pi
 from .. style import colors
 
 
-class fig_real_part_y(object):
+class fig_phase_y(object):
 
     def __init__(self, ax, settings):
 
@@ -14,8 +14,7 @@ class fig_real_part_y(object):
         self.m_atom = settings.m_atom
 
         # -----------------------------------------------------------------------------------------
-        self.line_real_part_y, = ax.plot(settings.y, zeros_like(settings.y), linewidth=1, linestyle='-', color=colors.wet_asphalt, label=r'$\Re\, \psi$')
-        self.line_imag_part_y, = ax.plot(settings.y, zeros_like(settings.y), linewidth=1, linestyle='-', color=colors.peter_river, label=r'$\Im\, \psi$')
+        self.line_phase_y, = ax.plot(settings.y, zeros_like(settings.y), linewidth=1, linestyle='-', color=colors.wet_asphalt, label=r'$\Re\, \psi$')
 
         ax.set_xlim(settings.y_min, settings.y_max)
 
@@ -53,7 +52,6 @@ class fig_real_part_y(object):
         
         V_y = V_y / scaling_V
         
-        self.line_real_part_y.set_ydata(real_part_y)
-        self.line_imag_part_y.set_ydata(imag_part_y)
+        self.line_phase_y.set_ydata(real_part_y)
 
         self.line_V_y.set_ydata(V_y)

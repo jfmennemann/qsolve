@@ -285,8 +285,9 @@ class FigureMain(object):
 
     def update_data(self, data):
 
-        self.fig_density.update(data.density_xy)
+        self.fig_density.update(data.density)
 
+        self.fig_density_x.update(data.density_x, data.V_x)
         self.fig_density_y.update(data.density_y, data.V_y)
 
         self.fig_real_part_x.update(data.real_part_x, data.imag_part_x, data.V_x)

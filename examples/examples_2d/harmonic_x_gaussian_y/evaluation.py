@@ -47,25 +47,27 @@ def eval_data(solver):
     # ---------------------------------------------------------------------------------------------
     density = np.real(psi * np.conj(psi))
 
-    density_max = np.max(density)
-
+    density_x = np.abs(psi_x) ** 2
     density_y = np.abs(psi_y) ** 2
 
-    density_xy = density
+    density_max = np.max(density)
+
+    # density_xy = density
 
     if density_max > 0:
 
-        density_xy = density_xy / density_max
+        density = density / density_max
 
-    density_y_eff = dx * np.sum(density, (1, ), keepdims=False)
+    # density_y_eff = dx * np.sum(density, (1, ), keepdims=False)
 
     data.density = density
 
+    data.density_x = density_x
     data.density_y = density_y
 
-    data.density_xy = density_xy
+    # data.density_xy = density_xy
 
-    data.density_y_eff = density_y_eff
+    # data.density_y_eff = density_y_eff
     # ---------------------------------------------------------------------------------------------
 
     # ---------------------------------------------------------------------------------------------

@@ -5,7 +5,7 @@ class fig_density(object):
 
     def __init__(self, ax, settings):
 
-        ax.set_title("density", fontsize=settings.fontsize_titles)
+        ax.set_title(r'$|\psi(x,y)|$', fontsize=settings.fontsize_titles)
     
         Jx = settings.Jx
         Jy = settings.Jy

@@ -240,8 +240,8 @@ density_0_max = np.max(density_0)
 params_figure_main = {
     "density_max":  density_0_max,
     "density_z_eff_max": 400,
-    "V_min": -1.0,
-    "V_max": 11.0,
+    "V_min": -0.5,
+    "V_max": +4.5,
     "sigma_z_min": 0.2,
     "sigma_z_max": 0.6,
     "m_atom": m_Rb_87
