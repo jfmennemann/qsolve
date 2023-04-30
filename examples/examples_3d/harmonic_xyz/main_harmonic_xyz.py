@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 
 from figures.figure_main.figure_main import FigureMain
 
-from potential_harmonic import Potential
+from potential_harmonic_xyz import Potential
 
 from evaluation import eval_data
 
