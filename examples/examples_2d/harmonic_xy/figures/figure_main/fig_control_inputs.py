@@ -7,8 +7,11 @@ class fig_control_inputs(object):
 
     def __init__(self, ax, settings):
 
-        self.line_u1_of_times, = ax.plot(settings.times, np.zeros_like(settings.times), linewidth=1, linestyle='-', color=colors.wet_asphalt, label=r'$u_1$')
-        self.line_u2_of_times, = ax.plot(settings.times, np.zeros_like(settings.times), linewidth=1, linestyle='--', color=colors.wet_asphalt, label=r'$u_2$')
+        self.line_u1_of_times, = ax.plot(settings.times, np.zeros_like(settings.times), linewidth=0.75,
+                                         linestyle='-', color=colors.wet_asphalt, label=r'$u_1$')
+
+        # self.line_u2_of_times, = ax.plot(settings.times, np.zeros_like(settings.times), linewidth=0.75,
+        # linestyle='--', color=colors.wet_asphalt, label=r'$u_2$')
 
         self.line_t_indicator, = ax.plot([0, 0], [-0.25, 1.25], linewidth=1, linestyle='--', color=colors.wet_asphalt)
 
@@ -33,7 +36,7 @@ class fig_control_inputs(object):
     def update_u(self, u1_of_times, u2_of_times):
 
         self.line_u1_of_times.set_ydata(u1_of_times)
-        self.line_u2_of_times.set_ydata(u2_of_times)
+        # self.line_u2_of_times.set_ydata(u2_of_times)
 
     def update_t(self, t):
 

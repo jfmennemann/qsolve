@@ -77,8 +77,8 @@ x_max = +5e-6
 y_min = -10e-6
 y_max = +10e-6
 
-Jx = 50
-Jy = 100
+Jx = 64
+Jy = 128
 
 t_final = 4e-3
 
@@ -206,7 +206,7 @@ solver.set_V(u=[u1_0, u2_0])
 # -------------------------------------------------------------------------------------------------
 time_1 = time()
 
-solver.compute_ground_state_solution(N=N, n_iter=20000, tau=0.001e-3, adaptive_tau=True)
+solver.compute_ground_state_solution(N=N, n_iter=5000, tau=0.001e-3, adaptive_tau=True)
 
 time_2 = time()
 
@@ -302,7 +302,7 @@ data_time_evolution = type('', (), {})()
 
 if export_psi_of_times_analysis:
 
-    data_time_evolution.psi_of_times_analysis = np.zeros((n_times_analysis, Jx, Jy, Jz), dtype=np.complex128)
+    data_time_evolution.psi_of_times_analysis = np.zeros((n_times_analysis, Jx, Jy), dtype=np.complex128)
 
 else:
 
@@ -332,9 +332,6 @@ while True:
 
         data_time_evolution.psi_of_times_analysis[nr_times_analysis, :] = data.psi
 
-    # data_time_evolution.global_phase_difference_of_times_analysis[nr_times_analysis] = data.global_phase_difference
-    # data_time_evolution.number_imbalance_of_times_analysis[nr_times_analysis] = data.number_imbalance
-
     data_time_evolution.nr_times_analysis = nr_times_analysis
 
     print('----------------------------------------------------------------------------------------')
@@ -349,8 +346,6 @@ while True:
 
         # -----------------------------------------------------------------------------------------
         figure_main.update_data(data)
-
-        # figure_main.update_data_time_evolution(data_time_evolution)
 
         figure_main.fig_control_inputs.update_t(t)
 

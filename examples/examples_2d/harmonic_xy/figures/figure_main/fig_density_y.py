@@ -15,7 +15,7 @@ class fig_density_y(object):
 
         # -----------------------------------------------------------------------------------------
         self.line_density_y, = ax.plot(settings.y, zeros_like(settings.y), linewidth=1, linestyle='-',
-                                          color=colors.wet_asphalt, label=r'$\rho(x=0, y)$')
+                                          color=colors.wet_asphalt, label=r'$\rho$')
 
         ax.set_xlim(settings.y_min, settings.y_max)
         
@@ -29,23 +29,26 @@ class fig_density_y(object):
         
         ax.set_ylabel(settings.label_density)
 
-        ax.legend(loc='upper left', bbox_to_anchor=(0.0, 1.0), fancybox=False, framealpha=1.0, ncol=1)
-
-        ax.set_title('$x=0$', fontsize=settings.fontsize_titles)
+        ax.set_title(r'$x=0$', fontsize=settings.fontsize_titles)
         # -----------------------------------------------------------------------------------------
 
         # -----------------------------------------------------------------------------------------
-        ax_V_y = ax.twinx()
+        ax2 = ax.twinx()
 
-        self.line_V_y, = ax_V_y.plot(settings.y, zeros_like(settings.y), linewidth=1, linestyle='-',
-                                     color=colors.sun_flower, label=r'$V(x=0,y)$')
+        self.line_V_y, = ax2.plot(settings.y, zeros_like(settings.y), linewidth=settings.linewidth_V, linestyle='-',
+                                     color=settings.linecolor_V, label=r'$V$')
 
-        ax_V_y.set_xlim(settings.y_min, settings.y_max)
-        ax_V_y.set_ylim(settings.V_min, settings.V_max)
+        ax2.set_xlim(settings.y_min, settings.y_max)
+        ax2.set_ylim(settings.V_min, settings.V_max)
 
-        ax_V_y.set_ylabel(settings.label_V)
+        ax2.set_ylabel(settings.label_V)
+        # -----------------------------------------------------------------------------------------
 
-        ax_V_y.legend(loc='upper right', bbox_to_anchor=(1.0, 1.0), fancybox=False, framealpha=1.0, ncol=1)
+        # -----------------------------------------------------------------------------------------
+        lines, labels = ax.get_legend_handles_labels()
+        lines2, labels2 = ax2.get_legend_handles_labels()
+        ax2.legend(lines + lines2, labels + labels2,
+                   loc='upper right', bbox_to_anchor=(1.0, 1.25), fancybox=True, framealpha=1, ncol=1)
         # -----------------------------------------------------------------------------------------
 
     def update(self, density_y, V_y):

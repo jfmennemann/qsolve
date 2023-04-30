@@ -22,7 +22,7 @@ class fig_density(object):
         bottom = settings.x_min
         top = settings.x_max
 
-        self.image_density = ax.imshow(
+        self.image = ax.imshow(
             density,
             extent=[left, right, bottom, top],
             cmap=settings.cmap_density,
@@ -32,21 +32,10 @@ class fig_density(object):
             vmax=1,
             origin='lower')
 
-        # ax.set_title(r'$|\psi(x,y)|^2$', fontsize=settings.fontsize_titles)
-        # ax.set_title(r'$|\rho(x,y)|^2 \, / \, \max \, |\rho(x,y)|^2$', fontsize=settings.fontsize_titles)
-        ax.set_title('density', fontsize=settings.fontsize_titles)
-
-        # self.flag_1st_function_call = False
-        # self.density_max = None
+        ax.set_title(r'$\rho$ (scaled)', fontsize=settings.fontsize_titles)
 
     def update(self, density):
 
-        # if not self.flag_1st_function_call:
-        #
-        #     self.density_max = 2 * np.max(density)
-        #
-        #     self.flag_1st_function_call = True
-        #
-        # self.image_density_xy.set_data(density / self.density_max)
+        density_scaled = density / np.max(density)
 
-        self.image_density.set_data(density)
+        self.image.set_data(density_scaled)

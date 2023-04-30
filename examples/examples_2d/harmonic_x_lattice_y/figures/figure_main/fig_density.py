@@ -5,18 +5,16 @@ class fig_density(object):
 
     def __init__(self, ax, settings):
 
-        ax.set_title("density", fontsize=settings.fontsize_titles)
-    
         Jx = settings.Jx
         Jy = settings.Jy
 
         ax.set_xlabel(settings.label_y)
         ax.set_ylabel(settings.label_x)
-        
+
         ax.set_xticks(settings.y_ticks)
         ax.set_yticks(settings.x_ticks)
 
-        density_xy = np.zeros((Jx, Jy))
+        density = np.zeros((Jx, Jy))
 
         left = settings.y_min
         right = settings.y_max
@@ -24,15 +22,20 @@ class fig_density(object):
         bottom = settings.x_min
         top = settings.x_max
 
-        self.image_density = ax.imshow(density_xy,
-                                          extent=[left, right, bottom, top],
-                                          cmap=settings.cmap_density,
-                                          aspect='auto',
-                                          interpolation='bilinear',
-                                          vmin=0,
-                                          vmax=1,
-                                          origin='lower')
+        self.image = ax.imshow(
+            density,
+            extent=[left, right, bottom, top],
+            cmap=settings.cmap_density,
+            aspect='auto',
+            interpolation='bilinear',
+            vmin=0,
+            vmax=1,
+            origin='lower')
+
+        ax.set_title(r'$\rho$ (scaled)', fontsize=settings.fontsize_titles)
 
     def update(self, density):
 
-        self.image_density.set_data(density)
+        density_scaled = density / np.max(density)
+
+        self.image.set_data(density_scaled)

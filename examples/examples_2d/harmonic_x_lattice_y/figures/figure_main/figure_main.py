@@ -11,6 +11,8 @@ from .fig_density import fig_density
 from .fig_density_x import fig_density_x
 from .fig_density_y import fig_density_y
 
+from .fig_real_part import fig_real_part
+
 from .fig_real_part_x import fig_real_part_x
 from .fig_real_part_y import fig_real_part_y
 
@@ -33,8 +35,12 @@ class FigureMain(object):
         V_min = params['V_min']
         V_max = params['V_max']
 
+        # abs_y_restr = params['abs_y_restr'] / 1e-6
+
         x = x / 1e-6
         y = y / 1e-6
+
+        # indices_y_restr = np.abs(y) < abs_y_restr
 
         times = times / 1e-3
 
@@ -56,9 +62,10 @@ class FigureMain(object):
         Jx = x.size
         Jy = y.size
 
-        # -----------------------------------------------------------------------------------------
-        x_ticks = np.array([x_min, 0, x_max])
-        # -----------------------------------------------------------------------------------------
+        Lx = Jx * dx
+        Ly = Jy * dy
+
+        x_ticks = np.array([-5, 0, 5])
 
         # -----------------------------------------------------------------------------------------
         if np.round(y_max) == 5:
@@ -171,6 +178,8 @@ class FigureMain(object):
         settings.V_min = V_min
         settings.V_max = V_max
 
+        # settings.indices_y_restr = indices_y_restr
+
         settings.x = x
         settings.y = y
 
@@ -194,29 +203,27 @@ class FigureMain(object):
         settings.t_ticks_major = t_ticks_major
         settings.t_ticks_minor = t_ticks_minor
 
-        settings.label_V = r'$V \;\, \mathrm{in} \;\, h \times \mathrm{kHz}$'
+        # settings.label_V = r'$V \;\, \mathrm{in} \;\, h \times \mathrm{kHz}$'
+        settings.label_V = r'$h \times \mathrm{kHz}$'
+        settings.linecolor_V = colors.alizarin
+        settings.linewidth_V = 1.1
 
-        settings.label_density = r'$\mathrm{density} \;\, \mathrm{in} \;\, \mathrm{m}^{-2}$'
+        # settings.label_density = r'$\mathrm{density} \;\, \mathrm{in} \;\, \mathrm{m}^{-2}$'
+        settings.label_density = r'$\mathrm{m}^{-2}$'
 
         settings.label_x = r'$x \;\, \mathrm{in} \;\, \mu \mathrm{m}$'
         settings.label_y = r'$y \;\, \mathrm{in} \;\, \mu \mathrm{m}$'
-        settings.label_z = r'$z \;\, \mathrm{in} \;\, \mu \mathrm{m}$'
 
         settings.label_t = r'$t \;\, \mathrm{in} \;\, \mathrm{ms}$'
 
-        # settings.cmap_density = plt.get_cmap('CMRmap')
         settings.cmap_density = colors.cmap_density
 
-        settings.cmap_phase = plt.get_cmap('PRGn')
-        # settings.cmap_phase = colors.colormap_2
+        settings.cmap_real_part = colors.cmap_real_part
 
         settings.color_gridlines_major = colors.color_gridlines_major
         settings.color_gridlines_minor = colors.color_gridlines_minor
 
-        settings.framealpha = 1.0
-        settings.fancybox = False
-
-        settings.fontsize_titles = 11
+        settings.fontsize_titles = 10
         # -----------------------------------------------------------------------------------------
 
         # -----------------------------------------------------------------------------------------
@@ -235,8 +242,8 @@ class FigureMain(object):
         # -----------------------------------------------------------------------------------------
 
         # -----------------------------------------------------------------------------------------
-        n_pixels_x = 1400
-        n_pixels_y = 700
+        n_pixels_x = 1200
+        n_pixels_y = 800
 
         pos_x = 2560 - n_pixels_x
         pos_y = 0
@@ -245,35 +252,55 @@ class FigureMain(object):
         # -----------------------------------------------------------------------------------------
 
         # -----------------------------------------------------------------------------------------
-        self.gridspec = self.fig.add_gridspec(nrows=3, ncols=4,
+        if Ly > Lx:
+
+            width_ratios = [1.25, 1, 2]
+
+        elif Ly < Lx:
+
+            width_ratios = [1, 1.25, 2]
+
+        else:
+
+            width_ratios = [1, 1, 2]
+
+        self.gridspec = self.fig.add_gridspec(nrows=4, ncols=3,
                                               left=0.055, right=0.985,
                                               bottom=0.08, top=0.95,
-                                              wspace=0.5,
+                                              wspace=0.35,
                                               hspace=0.7,
-                                              width_ratios=[2, 1, 1, 2],
-                                              height_ratios=[1, 1, 1])
+                                              width_ratios=width_ratios,
+                                              height_ratios=[1, 1, 1, 1])
 
         ax_00 = self.fig.add_subplot(self.gridspec[0, 0])
-
-        ax_03 = self.fig.add_subplot(self.gridspec[0, 3])
-
         ax_10 = self.fig.add_subplot(self.gridspec[1, 0])
-        ax_11 = self.fig.add_subplot(self.gridspec[1, 1])
-
         ax_20 = self.fig.add_subplot(self.gridspec[2, 0])
-        ax_21 = self.fig.add_subplot(self.gridspec[2, 1])
+        ax_30 = self.fig.add_subplot(self.gridspec[3, 0])
+
+        ax_11 = self.fig.add_subplot(self.gridspec[1, 1])
+        ax_31 = self.fig.add_subplot(self.gridspec[3, 1])
+
+        ax_02 = self.fig.add_subplot(self.gridspec[0, 2])
         # -----------------------------------------------------------------------------------------
 
         # -----------------------------------------------------------------------------------------
         self.fig_density = fig_density(ax_00, settings)
 
         self.fig_density_y = fig_density_y(ax_10, settings)
+
+        self.fig_real_part = fig_real_part(ax_20, settings)
+
+        self.fig_real_part_y = fig_real_part_y(ax_30, settings)
+
+
+        self.fig_real_part_x = fig_real_part_x(ax_31, settings)
+
+
         self.fig_density_x = fig_density_x(ax_11, settings)
 
-        self.fig_real_part_y = fig_real_part_y(ax_20, settings)
-        self.fig_real_part_x = fig_real_part_x(ax_21, settings)
 
-        self.fig_control_inputs = fig_control_inputs(ax_03, settings)
+
+        self.fig_control_inputs = fig_control_inputs(ax_02, settings)
         # -----------------------------------------------------------------------------------------
 
         # -----------------------------------------------------------------------------------------
@@ -285,11 +312,15 @@ class FigureMain(object):
 
     def update_data(self, data):
 
-        self.fig_density.update(data.density_xy)
+        self.fig_density.update(data.density)
 
+        self.fig_density_x.update(data.density_x, data.V_x)
         self.fig_density_y.update(data.density_y, data.V_y)
 
+        self.fig_real_part.update(data.psi)
+
         self.fig_real_part_x.update(data.real_part_x, data.imag_part_x, data.V_x)
+
         self.fig_real_part_y.update(data.real_part_y, data.imag_part_y, data.V_y)
 
     def redraw(self):

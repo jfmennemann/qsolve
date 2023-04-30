@@ -1,7 +1,7 @@
 import numpy as np
 
 
-class fig_phase(object):
+class fig_imaginary_part(object):
 
     def __init__(self, ax, settings):
 
@@ -22,7 +22,7 @@ class fig_phase(object):
         bottom = settings.x_min
         top = settings.x_max
 
-        self.image_phase = ax.imshow(
+        self.image = ax.imshow(
             phase,
             extent=[left, right, bottom, top],
             cmap=settings.cmap_phase,
@@ -32,19 +32,17 @@ class fig_phase(object):
             vmax=+1,
             origin='lower')
 
+        # ax.set_title('phase', fontsize=settings.fontsize_titles)
         # ax.set_title(r'$|\psi(x,y)|^2$', fontsize=settings.fontsize_titles)
-        # ax.set_title(r'$\cos \varphi(x,y)$', fontsize=settings.fontsize_titles)
-        ax.set_title('phase', fontsize=settings.fontsize_titles)
-
-        # self.flag_1st_function_call = False
-        # self.density_max = None
+        # ax.set_title(r'$\sigma(\rho(x,y)) \, \cos \varphi(x,y)$', fontsize=settings.fontsize_titles)
+        ax.set_title(r'$\Im\, \psi$ (scaled)', fontsize=settings.fontsize_titles)
 
     def update(self, psi):
 
         density = np.abs(psi)**2
 
-        alpha = density / np.max(density)
+        density_max = np.max(density)
 
-        image_phase = alpha * np.cos(np.angle(psi))
+        imaginary_part = np.imag(psi) / np.sqrt(density_max)
 
-        self.image_phase.set_data(image_phase)
+        self.image.set_data(imaginary_part)

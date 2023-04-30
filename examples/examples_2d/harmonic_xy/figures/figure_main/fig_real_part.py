@@ -1,7 +1,7 @@
 import numpy as np
 
 
-class fig_density(object):
+class fig_real_part(object):
 
     def __init__(self, ax, settings):
 
@@ -14,7 +14,7 @@ class fig_density(object):
         ax.set_xticks(settings.y_ticks)
         ax.set_yticks(settings.x_ticks)
 
-        density = np.zeros((Jx, Jy))
+        phase = np.zeros((Jx, Jy))
 
         left = settings.y_min
         right = settings.y_max
@@ -23,19 +23,23 @@ class fig_density(object):
         top = settings.x_max
 
         self.image = ax.imshow(
-            density,
+            phase,
             extent=[left, right, bottom, top],
-            cmap=settings.cmap_density,
+            cmap=settings.cmap_real_part,
             aspect='auto',
             interpolation='bilinear',
-            vmin=0,
-            vmax=1,
+            vmin=-1,
+            vmax=+1,
             origin='lower')
 
-        ax.set_title(r'$\rho$ (scaled)', fontsize=settings.fontsize_titles)
+        ax.set_title(r'$\operatorname{Re}{\psi}$ (scaled)', fontsize=settings.fontsize_titles)
 
-    def update(self, density):
+    def update(self, psi):
 
-        density_scaled = density / np.max(density)
+        density = np.abs(psi)**2
 
-        self.image.set_data(density_scaled)
+        density_max = np.max(density)
+
+        real_part = np.real(psi) / np.sqrt(density_max)
+
+        self.image.set_data(real_part)

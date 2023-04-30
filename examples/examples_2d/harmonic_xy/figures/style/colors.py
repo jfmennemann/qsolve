@@ -15,7 +15,6 @@ white = '#ffffff'
 # -------------------------------------------------------------------------------------------------
 
 
-
 # flat_ui_palette_v1
 
 peter_river = '#3498db'
@@ -82,34 +81,26 @@ cmap_density = make_cmap(colors, positions=positions)
 # -------------------------------------------------------------------------------------------------
 
 
-
 # -------------------------------------------------------------------------------------------------
 # colormap real part
 
-# colors_tmp = [radical_red_rgb, black_rgb, peter_river_rgb]
-# positions_tmp = [0.0, 0.5, 1.0]
-#
-# cmap_real_part = make_cmap(colors_tmp, positions=positions_tmp)
-#
-# color_1_tmp = cmap_real_part(0.25)
-# color_2_tmp = cmap_real_part(0.75)
-#
-# colors_tmp = [radical_red_rgb, color_1_tmp, black_rgb, color_2_tmp, peter_river_rgb]
-# positions_tmp = [0.0, 0.4, 0.5, 0.6, 1.0]
-#
-# cmap_real_part = make_cmap(colors_tmp, positions=positions_tmp)
+colors_tmp = [radical_red_rgb, black_rgb, peter_river_rgb]
+positions_tmp = [0.0, 0.5, 1.0]
 
-cmap_real = matplotlib.cm.PRGn
+cmap_real_part = make_cmap(colors_tmp, positions=positions_tmp)
+
+color_1_tmp = cmap_real_part(0.25)
+color_2_tmp = cmap_real_part(0.75)
+
+colors_tmp = [radical_red_rgb, color_1_tmp, black_rgb, color_2_tmp, peter_river_rgb]
+positions_tmp = [0.0, 0.4, 0.5, 0.6, 1.0]
+
+cmap_real_part = make_cmap(colors_tmp, positions=positions_tmp)
+
+# cmap_real = matplotlib.cm.PRGn
+
+cmap_real_part = matplotlib.cm.RdBu
 # -------------------------------------------------------------------------------------------------
-
-# -------------------------------------------------------------------------------------------------
-# colormap imaginary part
-
-cmap_imag = matplotlib.cm.PRGn
-# -------------------------------------------------------------------------------------------------
-
-
-
 
 # cmap = matplotlib.cm.PiYG
 # cmap = matplotlib.cm.PRGn

@@ -14,8 +14,11 @@ class fig_real_part_y(object):
         self.m_atom = settings.m_atom
 
         # -----------------------------------------------------------------------------------------
-        self.line_real_part_y, = ax.plot(settings.y, zeros_like(settings.y), linewidth=1, linestyle='-', color=colors.wet_asphalt, label=r'$\Re\, \psi$')
-        self.line_imag_part_y, = ax.plot(settings.y, zeros_like(settings.y), linewidth=1, linestyle='-', color=colors.peter_river, label=r'$\Im\, \psi$')
+        self.line_real_part_y, = ax.plot(settings.y, zeros_like(settings.y), linewidth=1, linestyle='-',
+                                         color=colors.wet_asphalt, label=r'$\operatorname{Re}{\psi}$')
+
+        self.line_imag_part_y, = ax.plot(settings.y, zeros_like(settings.y), linewidth=1, linestyle='--',
+                                         color=colors.wet_asphalt, label=r'$\operatorname{Im}{\psi}$')
 
         ax.set_xlim(settings.y_min, settings.y_max)
 
@@ -27,22 +30,28 @@ class fig_real_part_y(object):
         
         ax.grid(visible=True, which='major', color=settings.color_gridlines_major, linestyle='-', linewidth=0.5)
 
-        ax.set_ylabel(r'arbitrary units')
+        ax.set_ylabel(r'$\mathrm{m}^{-1}$')
 
-        ax.legend(loc='lower right', bbox_to_anchor=(1.0, 0.0), fancybox=settings.fancybox, framealpha=settings.framealpha, ncol=1)
-
-        ax.set_title(r'$x=0$')
+        ax.set_title(r'$x=0$', fontsize=settings.fontsize_titles)
         # -----------------------------------------------------------------------------------------
 
         # -----------------------------------------------------------------------------------------
-        ax_V_y = ax.twinx()
+        ax2 = ax.twinx()
     
-        self.line_V_y, = ax_V_y.plot(settings.y, zeros_like(settings.y), linewidth=1, linestyle='-', color=colors.sun_flower)
+        self.line_V_y, = ax2.plot(settings.y, zeros_like(settings.y),
+                                     linewidth=settings.linewidth_V, linestyle='-', color=settings.linecolor_V, label=r'$V$')
 
-        ax_V_y.set_xlim(settings.y_min, settings.y_max)
-        ax_V_y.set_ylim(settings.V_min, settings.V_max)
+        ax2.set_xlim(settings.y_min, settings.y_max)
+        ax2.set_ylim(settings.V_min, settings.V_max)
         
-        ax_V_y.set_ylabel(settings.label_V)
+        ax2.set_ylabel(settings.label_V)
+        # -----------------------------------------------------------------------------------------
+
+        # -----------------------------------------------------------------------------------------
+        lines, labels = ax.get_legend_handles_labels()
+        lines2, labels2 = ax2.get_legend_handles_labels()
+        ax2.legend(lines + lines2, labels + labels2,
+                   loc='upper right', bbox_to_anchor=(1.0, 1.25), fancybox=True, framealpha=1, ncol=1)
         # -----------------------------------------------------------------------------------------
 
     def update(self, real_part_y, imag_part_y, V_y):
