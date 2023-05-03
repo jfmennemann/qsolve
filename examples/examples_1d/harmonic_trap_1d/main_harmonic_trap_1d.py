@@ -84,6 +84,10 @@ n_mod_times_analysis = 100
 
 n_control_inputs = 1
 
+# omega_start = {"name": "omega_start", "value": 2 * np.pi * 40, "unit": "frequency"}
+# omega_final = {"name": "omega_final", "value": 2 * np.pi * 20, "unit": "frequency"}
+# omega_perp = {"name": "omega_perp", "value": 2 * np.pi * 1000, "unit": "frequency"}
+
 params_potential = {
     "omega_start": 2 * np.pi * 40,
     "omega_final": 2 * np.pi * 20,

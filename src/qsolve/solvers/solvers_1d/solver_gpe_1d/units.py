@@ -1,4 +1,4 @@
-from math import sqrt
+import math
 
 
 class Units(object):
@@ -19,13 +19,15 @@ class Units(object):
 
         self.unit_energy = unit_mass * (unit_length * unit_length) / (unit_time * unit_time)
 
-        # self.unit_wave_function = 1.0 / sqrt(unit_length * unit_length * unit_length)
-        # self.unit_wave_function = 1.0 / sqrt(unit_length * unit_length)
-        self.unit_wave_function = 1.0 / sqrt(unit_length)
-
         # self.unit_density = 1.0 / (unit_length * unit_length * unit_length)
         # self.unit_density = 1.0 / (unit_length * unit_length)
         self.unit_density = 1.0 / unit_length
+
+        # self.unit_wave_function = 1.0 / sqrt(unit_length * unit_length * unit_length)
+        # self.unit_wave_function = 1.0 / sqrt(unit_length * unit_length)
+        # self.unit_wave_function = 1.0 / sqrt(unit_length)
+
+        self.unit_wave_function = math.sqrt(self.unit_density)
 
         self.unit_hbar = (unit_mass * unit_length * unit_length) / unit_time
 
