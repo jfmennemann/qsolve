@@ -1,24 +1,16 @@
-class Potential(object):
+def eval_V(x, u, p, t, psi):
 
-    def __init__(self, params_solver, params_user):
+    omega_start = p["omega_start"]
+    omega_final = p["omega_final"]
 
-        self.x = params_solver["x"]
+    m_atom = p["m_atom"]
 
-        self.m_atom = params_solver["m_atom"]
+    u = u[0]
 
-        unit_frequency = params_solver["unit_frequency"]
+    assert(0 <= u <= 1)
 
-        self.omega_start = params_user["omega_start"] / unit_frequency
-        self.omega_final = params_user["omega_final"] / unit_frequency
+    omega = omega_start + u * (omega_final - omega_start)
 
-    def eval(self, u):
+    V = 0.5 * m_atom * omega ** 2 * x ** 2
 
-        u = u[0]
-
-        assert(0 <= u <= 1)
-
-        omega = self.omega_start + u * (self.omega_final - self.omega_start)
-
-        V = 0.5 * self.m_atom * omega ** 2 * self.x ** 2
-
-        return u * V
+    return V

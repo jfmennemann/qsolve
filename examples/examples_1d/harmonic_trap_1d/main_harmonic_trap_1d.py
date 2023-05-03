@@ -10,11 +10,11 @@ import matplotlib.pyplot as plt
 
 from time import time, sleep
 
-
+from qsolve.units import Units1D
 from qsolve.solvers import SolverGPE1D
 from qsolve.figures import FigureMain1D
 
-from potential_harmonic_trap_1d import Potential
+from potential_harmonic_trap_1d import eval_V
 
 from get_data import get_data
 
@@ -87,12 +87,18 @@ n_control_inputs = 1
 # omega_start = {"name": "omega_start", "value": 2 * np.pi * 40, "unit": "frequency"}
 # omega_final = {"name": "omega_final", "value": 2 * np.pi * 20, "unit": "frequency"}
 # omega_perp = {"name": "omega_perp", "value": 2 * np.pi * 1000, "unit": "frequency"}
+# =================================================================================================
+
+units = Units1D(m_atom)
 
 params_potential = {
-    "omega_start": 2 * np.pi * 40,
-    "omega_final": 2 * np.pi * 20,
-    "omega_perp": 2 * np.pi * 1000
+    "omega_start": 2 * np.pi * 40 / units.unit_frequency,
+    "omega_final": 2 * np.pi * 20 / units.unit_frequency,
+    # "omega_perp": 2 * np.pi * 1000 / units.unit_frequency,
+    "m_atom": m_atom / units.unit_mass
 }
+
+omega_perp = 2 * np.pi * 1000
 
 params_figure_main = {
     'm_atom': m_atom,
@@ -104,6 +110,8 @@ params_figure_main = {
     'n_control_inputs': n_control_inputs
 }
 # =================================================================================================
+
+
 
 # -------------------------------------------------------------------------------------------------
 simulation_id = 'test'
@@ -146,18 +154,17 @@ if export_frames_figure_tof:
 # init solver and its potential
 # =================================================================================================
 
-solver = SolverGPE1D(m_atom=m_Rb_87,
-                     a_s=a_s,
-                     omega_perp=params_potential["omega_perp"],
-                     seed=1,
-                     device='cuda:0',
-                     num_threads=num_threads_cpu)
-
-solver.init_grid(x_min=x_min,
-                 x_max=x_max,
-                 Jx=Jx)
-
-solver.init_potential(Potential, params_potential)
+solver = SolverGPE1D(
+    x_min=x_min,
+    x_max=x_max,
+    Jx=Jx,
+    m_atom=m_Rb_87,
+    a_s=a_s,
+    omega_perp=omega_perp,
+    seed=1,
+    device='cuda:0',
+    num_threads=num_threads_cpu,
+    units=units)
 
 x = solver.get('x')
 
@@ -193,7 +200,9 @@ u_of_times[0, :] = np.ones_like(times)
 # -------------------------------------------------------------------------------------------------
 u1_0 = u_of_times[0, 0]
 
-solver.set_V(u=[u1_0])
+u_0 = u_of_times[0]
+
+solver.set_V(eval_V, u_0, params_potential, 0.0)
 # -------------------------------------------------------------------------------------------------
 
 
@@ -359,7 +368,7 @@ while True:
     if n < n_times - n_inc:
 
         # solver.propagate_gpe(n_start=n, n_inc=n_inc, mue_shift=mue_psi_0)
-        solver.propagate_gpe(n_start=n, n_inc=n_inc, mue_shift=0.0)
+        solver.propagate_gpe(eval_V=eval_V, p=params_potential, n_start=n, n_inc=n_inc, mue_shift=0.0)
 
         n = n + n_inc
 

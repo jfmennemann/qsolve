@@ -1,5 +1,7 @@
 import torch
 
+import numpy as np
+
 import sys
 
 import math
@@ -8,16 +10,7 @@ from scipy import constants
 
 from qsolve.core import qsolve_core_gpe_1d
 
-from .units import Units
-
-from .init_device import init_device
-
-from .init_grid_1d import init_grid
-
-from .init_potential import init_potential
-
 from .set_psi import set_psi
-from .set_V import set_V
 
 from .getter_functions import get
 
@@ -33,6 +26,8 @@ from .chemical_potential import compute_chemical_potential
 from .compute_ground_state_solution import compute_ground_state_solution
 
 from .init_time_evolution import init_time_evolution
+
+from qsolve.utils.primes import get_prime_factors
 
 
 class SolverGPE1D(object):
@@ -61,7 +56,29 @@ class SolverGPE1D(object):
         # -----------------------------------------------------------------------------------------
 
         # -----------------------------------------------------------------------------------------
-        init_device(self, kwargs)
+        if 'device' in kwargs:
+
+            if kwargs['device'] == 'cuda:0':
+
+                self.device = torch.device('cuda:0')
+
+            elif kwargs['device'] == 'cpu':
+
+                self.device = torch.device('cpu')
+
+            else:
+
+                message = 'device \'{0:s}\' not supported'.format(kwargs['device'])
+
+                raise Exception(message)
+
+        else:
+
+            self.device = torch.device('cpu')
+
+        if 'num_threads_cpu' in kwargs:
+
+            torch.set_num_threads(kwargs['num_threads_cpu'])
         # -----------------------------------------------------------------------------------------
 
         # -----------------------------------------------------------------------------------------
@@ -71,16 +88,7 @@ class SolverGPE1D(object):
         # -----------------------------------------------------------------------------------------
 
         # -----------------------------------------------------------------------------------------
-        unit_mass = kwargs['m_atom']
-        unit_length = 1e-6
-        unit_time = unit_mass * (unit_length * unit_length) / hbar_si
-
-        unit_electric_current = mu_B_si / (unit_length * unit_length)
-        unit_temperature = (unit_mass * unit_length * unit_length) / (k_B_si * unit_time * unit_time)
-        # -----------------------------------------------------------------------------------------
-
-        # -----------------------------------------------------------------------------------------
-        self.units = Units(unit_length, unit_time, unit_mass, unit_electric_current, unit_temperature)
+        self.units = kwargs['units']
         # -----------------------------------------------------------------------------------------
 
         # -----------------------------------------------------------------------------------------
@@ -106,16 +114,38 @@ class SolverGPE1D(object):
         assert (self.m_atom == 1.0)
         # -----------------------------------------------------------------------------------------
 
+        # -----------------------------------------------------------------------------------------
+        self.x_min = kwargs['x_min'] / self.units.unit_length
+        self.x_max = kwargs['x_max'] / self.units.unit_length
+
+        self.Jx = kwargs['Jx']
+
+        prime_factors_Jx = get_prime_factors(self.Jx)
+
+        assert (np.max(prime_factors_Jx) < 11)
+
+        assert (self.Jx % 2 == 0)
+
+        x = np.linspace(self.x_min, self.x_max, self.Jx, endpoint=False)
+
+        self.index_center_x = np.argmin(np.abs(x))
+
+        assert (np.abs(x[self.index_center_x]) < 1e-14)
+
+        self.dx = x[1] - x[0]
+
+        self.Lx = self.Jx * self.dx
+
+        self.x = torch.tensor(x, dtype=torch.float64, device=self.device)
+        # -----------------------------------------------------------------------------------------
+
+        self.psi = None
+
         self.u_of_times = None
 
-    def init_grid(self, **kwargs):
-        init_grid(self, kwargs)
+    def set_V(self, eval_V, u, p, t):
 
-    def init_potential(self, potential, params):
-        init_potential(self, potential, params)
-
-    def set_V(self, **kwargs):
-        set_V(self, kwargs)
+        self.V = eval_V(self.x, u, p, t, self.psi)
 
     def set_psi(self, identifier, **kwargs):
         set_psi(self, identifier, kwargs)
@@ -123,21 +153,18 @@ class SolverGPE1D(object):
     def compute_ground_state_solution(self, **kwargs):
         compute_ground_state_solution(self, kwargs)
 
-    # def init_sgpe_z_eff(self, **kwargs):
-    #     qsolve_core_gpe_3d.init_sgpe_z_eff(self, kwargs)
-
     def set_u_of_times(self, u_of_times):
         self.u_of_times = u_of_times
 
     def propagate_gpe(self, **kwargs):
-
         qsolve_core_gpe_1d.propagate_gpe(self, kwargs)
-
-    # def propagate_sgpe_z_eff(self, **kwargs):
-    #     qsolve_core_gpe_2d.propagate_sgpe_z_eff(self, kwargs)
 
     def init_time_evolution(self, **kwargs):
         init_time_evolution(self, kwargs)
+
+    @property
+    def name(self):
+        return ...
 
     def get(self, identifier, **kwargs):
         return get(self, identifier, kwargs)
@@ -159,3 +186,9 @@ class SolverGPE1D(object):
 
     def compute_E_interaction(self, identifier, **kwargs):
         return compute_E_interaction(self, identifier, kwargs)
+
+    # def init_sgpe_z_eff(self, **kwargs):
+    #     qsolve_core_gpe_3d.init_sgpe_z_eff(self, kwargs)
+
+    # def propagate_sgpe_z_eff(self, **kwargs):
+    #     qsolve_core_gpe_2d.propagate_sgpe_z_eff(self, kwargs)
