@@ -10,8 +10,6 @@ import matplotlib.pyplot as plt
 
 from time import time, sleep
 
-# from qsolve.units import Units1D
-
 from qsolve.units import Units
 from qsolve.solvers import SolverGPE1D
 from qsolve.figures import FigureMain1D
