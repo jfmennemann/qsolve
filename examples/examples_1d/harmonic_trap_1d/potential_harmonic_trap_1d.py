@@ -1,4 +1,4 @@
-def eval_V(x, u, p, t, psi):
+def eval_V(x, t, u, p, c=None):
 
     omega_start = p["omega_start"]
     omega_final = p["omega_final"]

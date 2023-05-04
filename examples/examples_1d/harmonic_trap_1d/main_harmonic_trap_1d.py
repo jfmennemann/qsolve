@@ -10,7 +10,9 @@ import matplotlib.pyplot as plt
 
 from time import time, sleep
 
-from qsolve.units import Units1D
+# from qsolve.units import Units1D
+
+from qsolve.units import Units
 from qsolve.solvers import SolverGPE1D
 from qsolve.figures import FigureMain1D
 
@@ -83,13 +85,9 @@ dt = 0.001e-3
 n_mod_times_analysis = 100
 
 n_control_inputs = 1
-
-# omega_start = {"name": "omega_start", "value": 2 * np.pi * 40, "unit": "frequency"}
-# omega_final = {"name": "omega_final", "value": 2 * np.pi * 20, "unit": "frequency"}
-# omega_perp = {"name": "omega_perp", "value": 2 * np.pi * 1000, "unit": "frequency"}
 # =================================================================================================
 
-units = Units1D(m_atom)
+units = Units.solver_units(m_atom, dim=1)
 
 params_potential = {
     "omega_start": 2 * np.pi * 40 / units.unit_frequency,
@@ -110,8 +108,6 @@ params_figure_main = {
     'n_control_inputs': n_control_inputs
 }
 # =================================================================================================
-
-
 
 # -------------------------------------------------------------------------------------------------
 simulation_id = 'test'
@@ -155,6 +151,7 @@ if export_frames_figure_tof:
 # =================================================================================================
 
 solver = SolverGPE1D(
+    eval_V=eval_V,
     x_min=x_min,
     x_max=x_max,
     Jx=Jx,
@@ -202,7 +199,9 @@ u1_0 = u_of_times[0, 0]
 
 u_0 = u_of_times[0]
 
-solver.set_V(eval_V, u_0, params_potential, 0.0)
+t_0 = 0.0
+
+solver.set_V(t_0, u_0, params_potential)
 # -------------------------------------------------------------------------------------------------
 
 
@@ -368,7 +367,7 @@ while True:
     if n < n_times - n_inc:
 
         # solver.propagate_gpe(n_start=n, n_inc=n_inc, mue_shift=mue_psi_0)
-        solver.propagate_gpe(eval_V=eval_V, p=params_potential, n_start=n, n_inc=n_inc, mue_shift=0.0)
+        solver.propagate_gpe(p=params_potential, n_start=n, n_inc=n_inc, mue_shift=0.0)
 
         n = n + n_inc
 

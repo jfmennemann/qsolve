@@ -34,6 +34,8 @@ class SolverGPE1D(object):
 
     def __init__(self, **kwargs):
 
+        self.eval_V = kwargs['eval_V']
+
         # -----------------------------------------------------------------------------------------
         print("Python version:")
         print(sys.version)
@@ -139,13 +141,13 @@ class SolverGPE1D(object):
         self.x = torch.tensor(x, dtype=torch.float64, device=self.device)
         # -----------------------------------------------------------------------------------------
 
+        self.V = None
         self.psi = None
 
         self.u_of_times = None
 
-    def set_V(self, eval_V, u, p, t):
-
-        self.V = eval_V(self.x, u, p, t, self.psi)
+    def set_V(self, t, u, p):
+        self.V = self.eval_V(self.x, t, u, p)
 
     def set_psi(self, identifier, **kwargs):
         set_psi(self, identifier, kwargs)
