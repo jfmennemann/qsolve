@@ -10,11 +10,12 @@ import matplotlib.pyplot as plt
 
 from time import time, sleep
 
-from qsolve.units import Units
+
 from qsolve.solvers import SolverGPE1D
 from qsolve.figures import FigureMain1D
+from qsolve import Parameter
 
-from potential_harmonic_trap_1d import eval_V
+from potential_harmonic_trap_1d import calc_V
 
 from get_data import get_data
 
@@ -67,8 +68,6 @@ N = 3500
 
 m_Rb_87 = 87 * amu
 
-m_atom = m_Rb_87
-
 a_s = 5.24e-9
 
 x_min = -40e-6
@@ -85,19 +84,17 @@ n_mod_times_analysis = 100
 n_control_inputs = 1
 # =================================================================================================
 
-units = Units.solver_units(m_atom, dim=1)
+nu_start = 40
+nu_final = 20
 
-params_potential = {
-    "omega_start": 2 * np.pi * 40 / units.unit_frequency,
-    "omega_final": 2 * np.pi * 20 / units.unit_frequency,
-    # "omega_perp": 2 * np.pi * 1000 / units.unit_frequency,
-    "m_atom": m_atom / units.unit_mass
+parameters_potential = {
+    "nu_start": Parameter(value=nu_start, dimension='frequency'),
+    "nu_final": Parameter(value=nu_final, dimension='frequency')
 }
 
 omega_perp = 2 * np.pi * 1000
 
-params_figure_main = {
-    'm_atom': m_atom,
+parameters_figure_main = {
     'density_min': -20,
     'density_max': +220,
     'V_min': -0.5,
@@ -149,7 +146,7 @@ if export_frames_figure_tof:
 # =================================================================================================
 
 solver = SolverGPE1D(
-    eval_V=eval_V,
+    calc_V=calc_V,
     x_min=x_min,
     x_max=x_max,
     Jx=Jx,
@@ -158,8 +155,7 @@ solver = SolverGPE1D(
     omega_perp=omega_perp,
     seed=1,
     device='cuda:0',
-    num_threads=num_threads_cpu,
-    units=units)
+    num_threads=num_threads_cpu)
 
 x = solver.get('x')
 
@@ -193,13 +189,11 @@ u_of_times[0, :] = np.ones_like(times)
 # =================================================================================================
 
 # -------------------------------------------------------------------------------------------------
-u1_0 = u_of_times[0, 0]
+solver.init_potential(calc_V, parameters_potential)
 
-u_0 = u_of_times[0]
+solver.update_parameters_potential(parameters_potential)
 
-t_0 = 0.0
-
-solver.set_V(t_0, u_0, params_potential)
+solver.set_V(u=u_of_times[0])
 # -------------------------------------------------------------------------------------------------
 
 
@@ -241,7 +235,7 @@ solver.set_psi('numpy', array=psi_0)
 # =================================================================================================
 
 # -------------------------------------------------------------------------------------------------
-figure_main = FigureMain1D(x, times, params_figure_main)
+figure_main = FigureMain1D(x, times, parameters_figure_main)
 
 figure_main.fig_control_inputs.update_u(u_of_times)
 
@@ -365,7 +359,7 @@ while True:
     if n < n_times - n_inc:
 
         # solver.propagate_gpe(n_start=n, n_inc=n_inc, mue_shift=mue_psi_0)
-        solver.propagate_gpe(p=params_potential, n_start=n, n_inc=n_inc, mue_shift=0.0)
+        solver.propagate_gpe(n_start=n, n_inc=n_inc, mue_shift=0.0)
 
         n = n + n_inc
 

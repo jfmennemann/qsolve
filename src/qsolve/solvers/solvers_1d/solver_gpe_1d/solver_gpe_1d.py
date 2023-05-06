@@ -10,31 +10,21 @@ from scipy import constants
 
 from qsolve.core import qsolve_core_gpe_1d
 
-from .set_psi import set_psi
-
 from .getter_functions import get
-
-from .n_atoms import compute_n_atoms
 
 from .energies import compute_E_total
 from .energies import compute_E_kinetic
 from .energies import compute_E_potential
 from .energies import compute_E_interaction
 
-from .chemical_potential import compute_chemical_potential
-
-from .compute_ground_state_solution import compute_ground_state_solution
-
-from .init_time_evolution import init_time_evolution
-
-from qsolve.utils.primes import get_prime_factors
+from qsolve.primes import get_prime_factors
+from qsolve.units import Units
+# from qsolve.parameter import Parameter
 
 
 class SolverGPE1D(object):
 
     def __init__(self, **kwargs):
-
-        self.eval_V = kwargs['eval_V']
 
         # -----------------------------------------------------------------------------------------
         print("Python version:")
@@ -90,7 +80,7 @@ class SolverGPE1D(object):
         # -----------------------------------------------------------------------------------------
 
         # -----------------------------------------------------------------------------------------
-        self.units = kwargs['units']
+        self.units = Units.solver_units(kwargs['m_atom'], dim=1)
         # -----------------------------------------------------------------------------------------
 
         # -----------------------------------------------------------------------------------------
@@ -141,28 +131,149 @@ class SolverGPE1D(object):
         self.x = torch.tensor(x, dtype=torch.float64, device=self.device)
         # -----------------------------------------------------------------------------------------
 
+        self.q = {
+            "hbar": self.hbar,
+            "mu_B": self.mu_B,
+            "k_B": self.k_B,
+            "m_atom": self.m_atom
+        }
+
+        self.p = None
+
         self.V = None
+        self.calc_V = None
+
+        self.psi_0 = None
         self.psi = None
+
+        self.t_final = None
+        self.dt = None
+        self.n_time_steps = None
+        self.n_times = None
+        self.times = None
 
         self.u_of_times = None
 
-    def set_V(self, t, u, p):
-        self.V = self.eval_V(self.x, t, u, p)
+        self.vec_res_ground_state_computation = None
+        self.vec_iter_ground_state_computation = None
+
+    def init_potential(self, calc_V, parameters_potential):
+
+        self.calc_V = calc_V
+
+        self.p = {}
+
+        for key, p in parameters_potential.items():
+
+            if p.dimension == 'frequency':
+                value_solver = p.value / self.units.unit_frequency
+            elif p.dimension == 'mass':
+                value_solver = p.value / self.units.unit_mass
+            else:
+                # message = 'compute_chemical_potential(self, identifier, **kwargs): ' \
+                #           'identifier \'{0:s}\'not supported'.format(identifier)
+                raise Exception('unknown dimension')
+
+            self.p[key] = value_solver
+
+    def update_parameters_potential(self, parameters_potential):
+
+        self.p = {}
+
+        for key, p in parameters_potential.items():
+
+            if p.dimension == 'frequency':
+                value_solver = p.value / self.units.unit_frequency
+            elif p.dimension == 'mass':
+                value_solver = p.value / self.units.unit_mass
+            else:
+                # message = 'compute_chemical_potential(self, identifier, **kwargs): ' \
+                #           'identifier \'{0:s}\'not supported'.format(identifier)
+                raise Exception('unknown dimension')
+
+            self.p[key] = value_solver
+
+    def set_V(self, t=None, u=None):
+
+        if t is not None:
+
+            t = t / self.units.unit_time
+
+        self.V = self.calc_V(self.x, t, u, self.p, self.q)
 
     def set_psi(self, identifier, **kwargs):
-        set_psi(self, identifier, kwargs)
+
+        if identifier == 'numpy':
+
+            array_numpy = kwargs['array']
+
+            self.psi = torch.tensor(array_numpy / self.units.unit_wave_function, device=self.device)
+
+        else:
+
+            error_message = 'set_psi(identifier, **kwargs): identifier \'{0:s}\' not supported'.format(identifier)
+
+            exit(error_message)
 
     def compute_ground_state_solution(self, **kwargs):
-        compute_ground_state_solution(self, kwargs)
+
+        tau = kwargs["tau"] / self.units.unit_time
+
+        n_iter = kwargs["n_iter"]
+
+        if n_iter < 2500:
+
+            message = 'compute_ground_state_solution(self, **kwargs): n_iter should not be smaller than 2500'
+
+            raise Exception(message)
+
+        if "adaptive_tau" in kwargs:
+
+            adaptive_tau = kwargs["adaptive_tau"]
+
+        else:
+
+            adaptive_tau = True
+
+        N = kwargs["N"]
+
+        psi_0, vec_res, vec_iter = qsolve_core_gpe_1d.compute_ground_state_solution(
+            self.V,
+            self.dx,
+            tau,
+            adaptive_tau,
+            n_iter,
+            N,
+            self.hbar,
+            self.m_atom,
+            self.g)
+
+        self.psi_0 = psi_0
+
+        self.vec_res_ground_state_computation = vec_res
+        self.vec_iter_ground_state_computation = vec_iter
 
     def set_u_of_times(self, u_of_times):
         self.u_of_times = u_of_times
 
     def propagate_gpe(self, **kwargs):
+
         qsolve_core_gpe_1d.propagate_gpe(self, kwargs)
 
     def init_time_evolution(self, **kwargs):
-        init_time_evolution(self, kwargs)
+
+        self.t_final = kwargs["t_final"] / self.units.unit_time
+        self.dt = kwargs["dt"] / self.units.unit_time
+
+        self.n_time_steps = int(np.round(self.t_final / self.dt))
+
+        self.n_times = self.n_time_steps + 1
+
+        assert (np.abs(self.n_time_steps * self.dt - self.t_final)) < 1e-14
+
+        self.times = self.dt * np.arange(self.n_times)
+
+        assert (np.abs(self.times[-1] - self.t_final)) < 1e-14
 
     @property
     def name(self):
@@ -172,10 +283,67 @@ class SolverGPE1D(object):
         return get(self, identifier, kwargs)
 
     def compute_n_atoms(self, identifier):
-        return compute_n_atoms(self, identifier)
+
+        if identifier == "psi":
+
+            n_atoms = qsolve_core_gpe_1d.compute_n_atoms(self.psi, self.dx)
+
+        elif identifier == "psi_0":
+
+            n_atoms = qsolve_core_gpe_1d.compute_n_atoms(self.psi_0, self.dx)
+
+        else:
+
+            message = 'identifier \'{0:s}\' not supported for this operation'.format(identifier)
+
+            raise Exception(message)
+
+        return n_atoms
 
     def compute_chemical_potential(self, identifier, **kwargs):
-        return compute_chemical_potential(self, identifier, kwargs)
+
+        if "units" in kwargs:
+
+            units = kwargs["units"]
+
+        else:
+
+            units = "si_units"
+
+        if identifier == "psi":
+
+            mue = qsolve_core_gpe_1d.compute_chemical_potential(
+                self.psi,
+                self.V,
+                self.dx,
+                self.hbar,
+                self.m_atom,
+                self.g)
+
+        elif identifier == "psi_0":
+
+            mue = qsolve_core_gpe_1d.compute_chemical_potential(
+                self.psi_0,
+                self.V,
+                self.dx,
+                self.hbar,
+                self.m_atom,
+                self.g)
+
+        else:
+
+            message = 'compute_chemical_potential(self, identifier, **kwargs): ' \
+                      'identifier \'{0:s}\'not supported'.format(identifier)
+
+            raise Exception(message)
+
+        if units == "si_units":
+
+            return self.units.unit_energy * mue
+
+        else:
+
+            return mue
 
     def compute_E_total(self, identifier, **kwargs):
         return compute_E_total(self, identifier, kwargs)

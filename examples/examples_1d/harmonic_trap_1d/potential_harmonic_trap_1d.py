@@ -1,13 +1,17 @@
-def eval_V(x, t, u, p, c=None):
+import numpy as np
 
-    omega_start = p["omega_start"]
-    omega_final = p["omega_final"]
 
-    m_atom = p["m_atom"]
+def calc_V(x, t, u, p, q):
+
+    nu_start = p["nu_start"]
+    nu_final = p["nu_final"]
+
+    m_atom = q["m_atom"]
+
+    omega_start = 2 * np.pi * nu_start
+    omega_final = 2 * np.pi * nu_final
 
     u = u[0]
-
-    assert(0 <= u <= 1)
 
     omega = omega_start + u * (omega_final - omega_start)
 

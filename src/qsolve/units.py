@@ -25,7 +25,7 @@ class Units:
     unit_k_B: float = field(default=1.0)
 
     @classmethod
-    def solver_units(cls, m_atom: float, dim: int = 3) -> 'Units':
+    def solver_units(cls, m_atom: float, dim: int) -> 'Units':
 
         # -----------------------------------------------------------------------------------------
         hbar_si = constants.hbar

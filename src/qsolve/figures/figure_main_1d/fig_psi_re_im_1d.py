@@ -15,8 +15,6 @@ class fig_psi_re_im_1d(object):
 
         self.hbar = settings.hbar
 
-        self.m_atom = settings.m_atom
-
         # -----------------------------------------------------------------------------------------
         self.line_psi_re, = ax.plot(
             settings.x, zeros_like(settings.x), linewidth=1, linestyle='-',

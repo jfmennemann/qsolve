@@ -20,8 +20,6 @@ class FigureMain1D(object):
 
         n_control_inputs = params["n_control_inputs"]
 
-        m_atom = params['m_atom']
-
         density_min = -0.2 * params["density_max"]
         density_max = +1.2 * params["density_max"]
 
@@ -104,7 +102,6 @@ class FigureMain1D(object):
         settings = type('', (), {})()
 
         settings.hbar = constants.hbar
-        settings.m_atom = m_atom
 
         settings.n_control_inputs = n_control_inputs
 

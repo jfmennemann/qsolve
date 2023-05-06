@@ -2,7 +2,7 @@ import torch
 
 import numpy as np
 
-from qsolve.utils.primes import get_prime_factors
+from qsolve.primes import get_prime_factors
 
 
 def init_grid(self, kwargs):
