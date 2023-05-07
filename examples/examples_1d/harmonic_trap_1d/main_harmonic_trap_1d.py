@@ -158,6 +158,10 @@ solver = SolverGPE1D(
     num_threads=num_threads_cpu)
 
 x = solver.get('x')
+print(x)
+x = solver._x
+print(x)
+# input()
 
 # -------------------------------------------------------------------------------------------------
 solver.init_time_evolution(t_final=t_final, dt=dt)
