@@ -70,7 +70,6 @@ n_mod_times_analysis = 100
 n_control_inputs = 1
 # =================================================================================================
 
-
 parameters_potential = {'nu_start': [40, "Hz"],
                         'nu_final': [20, "Hz"]}
 
@@ -128,15 +127,14 @@ if export_frames_figure_tof:
 
 solver = SolverGPE1D(
     calc_V=calc_V,
-    x_min=x_min,
-    x_max=x_max,
-    Jx=Jx,
     m_atom=m_Rb_87,
     a_s=a_s,
     omega_perp=omega_perp,
     seed=1,
     device='cuda:0',
     num_threads=num_threads_cpu)
+
+solver.init_grid(x_min=x_min, x_max = x_max, Jx=Jx)
 
 # -------------------------------------------------------------------------------------------------
 solver.init_time_evolution(t_final=t_final, dt=dt)

@@ -62,9 +62,7 @@ class SolverGPE1D(object):
             torch.set_num_threads(kwargs['num_threads_cpu'])
         # -----------------------------------------------------------------------------------------
 
-        # -----------------------------------------------------------------------------------------
         self.units = Units.solver_units(kwargs['m_atom'], dim=1)
-        # -----------------------------------------------------------------------------------------
 
         # -----------------------------------------------------------------------------------------
         self._hbar = scipy.constants.hbar / self.units.unit_hbar
@@ -89,24 +87,15 @@ class SolverGPE1D(object):
         assert (self._m_atom == 1.0)
         # -----------------------------------------------------------------------------------------
 
-        # -----------------------------------------------------------------------------------------
-        self._x_min = kwargs['x_min'] / self.units.unit_length
-        self._x_max = kwargs['x_max'] / self.units.unit_length
+        self._x = None
 
-        self._Jx = kwargs['Jx']
+        self._x_min = None
+        self._x_max = None
 
-        assert (np.max(get_prime_factors(self._Jx)) < 11)
+        self._Lx = None
 
-        assert (self._Jx % 2 == 0)
-
-        _x = np.linspace(self._x_min, self._x_max, self._Jx, endpoint=False)
-
-        self._dx = _x[1] - _x[0]
-
-        self._Lx = self._Jx * self._dx
-
-        self._x = torch.tensor(_x, dtype=torch.float64, device=self.device)
-        # -----------------------------------------------------------------------------------------
+        self._Jx = None
+        self._dx = None
 
         self._V = None
         self.calc_V = None
@@ -132,6 +121,25 @@ class SolverGPE1D(object):
         }
 
         self.p = None
+
+    def init_grid(self, **kwargs):
+
+        self._x_min = kwargs['x_min'] / self.units.unit_length
+        self._x_max = kwargs['x_max'] / self.units.unit_length
+
+        self._Jx = kwargs['Jx']
+
+        assert (np.max(get_prime_factors(self._Jx)) < 11)
+
+        assert (self._Jx % 2 == 0)
+
+        _x = np.linspace(self._x_min, self._x_max, self._Jx, endpoint=False)
+
+        self._dx = _x[1] - _x[0]
+
+        self._Lx = self._Jx * self._dx
+
+        self._x = torch.tensor(_x, dtype=torch.float64, device=self.device)
 
     def init_potential(self, calc_V, parameters_potential):
 
