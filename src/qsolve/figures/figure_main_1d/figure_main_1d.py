@@ -203,10 +203,10 @@ class FigureMain1D(object):
         plt.pause(0.001)
         # -----------------------------------------------------------------------------------------
 
-    def update_data(self, data):
+    def update_data(self, psi, V):
 
-        self.fig_psi_abs_squared_1d.update(data.psi, data.V)
-        self.fig_psi_re_im_1d.update(data.psi, data.V)
+        self.fig_psi_abs_squared_1d.update(psi, V)
+        self.fig_psi_re_im_1d.update(psi, V)
 
     def redraw(self):
 

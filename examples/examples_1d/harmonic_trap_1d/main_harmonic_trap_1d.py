@@ -1,23 +1,17 @@
+from qsolve.solvers import SolverGPE1D
+from qsolve.figures import FigureMain1D
+
+from potential_harmonic_trap_1d import calc_V
+
 import mkl
 
 import os
 
 import numpy as np
 
-from scipy import constants
+import scipy
 
 import matplotlib.pyplot as plt
-
-from time import time, sleep
-
-
-from qsolve.solvers import SolverGPE1D
-from qsolve.figures import FigureMain1D
-from qsolve import Parameter
-
-from potential_harmonic_trap_1d import calc_V
-
-from get_data import get_data
 
 
 # -------------------------------------------------------------------------------------------------
@@ -32,25 +26,17 @@ assert(mkl.get_max_threads() == num_threads_cpu)
 # -------------------------------------------------------------------------------------------------
 
 # -------------------------------------------------------------------------------------------------
-pi = constants.pi
+pi = scipy.constants.pi
 
-hbar = constants.hbar
+hbar = scipy.constants.hbar
 
-amu = constants.physical_constants["atomic mass constant"][0]  # atomic mass unit
-
-mu_B = constants.physical_constants["Bohr magneton"][0]
-
-k_B = constants.Boltzmann
+amu = scipy.constants.physical_constants["atomic mass constant"][0]
 # -------------------------------------------------------------------------------------------------
 
 # -------------------------------------------------------------------------------------------------
 # close figures from previous simulation
 
 plt.close('all')
-# -------------------------------------------------------------------------------------------------
-
-# -------------------------------------------------------------------------------------------------
-visualization = True
 # -------------------------------------------------------------------------------------------------
 
 # -------------------------------------------------------------------------------------------------
@@ -84,23 +70,18 @@ n_mod_times_analysis = 100
 n_control_inputs = 1
 # =================================================================================================
 
-nu_start = 40
-nu_final = 20
 
-parameters_potential = {
-    "nu_start": Parameter(value=nu_start, dimension='frequency'),
-    "nu_final": Parameter(value=nu_final, dimension='frequency')
-}
+parameters_potential = {'nu_start': [40, "Hz"],
+                        'nu_final': [20, "Hz"]}
 
 omega_perp = 2 * np.pi * 1000
 
-parameters_figure_main = {
-    'density_min': -20,
-    'density_max': +220,
-    'V_min': -0.5,
-    'V_max': +4.5,
-    'x_ticks': np.array([-40, -20, 0, 20, 40]),
-    'n_control_inputs': n_control_inputs
+parameters_figure_main = {'density_min': -20,
+                          'density_max': +220,
+                          'V_min': -0.5,
+                          'V_max': +4.5,
+                          'x_ticks': np.array([-40, -20, 0, 20, 40]),
+                          'n_control_inputs': n_control_inputs
 }
 # =================================================================================================
 
@@ -157,16 +138,10 @@ solver = SolverGPE1D(
     device='cuda:0',
     num_threads=num_threads_cpu)
 
-x = solver.get('x')
-print(x)
-x = solver._x
-print(x)
-# input()
-
 # -------------------------------------------------------------------------------------------------
 solver.init_time_evolution(t_final=t_final, dt=dt)
 
-times = solver.get('times')
+times = solver.times
 
 n_times = times.size
 # -------------------------------------------------------------------------------------------------
@@ -176,7 +151,7 @@ times_analysis = times[0::n_mod_times_analysis]
 
 n_times_analysis = times_analysis.size
 
-assert (abs(times_analysis[-1] - t_final) < 1e-14)
+assert (abs(times_analysis[-1] - t_final) / abs(t_final) < 1e-14)
 # -------------------------------------------------------------------------------------------------
 
 # =================================================================================================
@@ -189,69 +164,35 @@ u_of_times[0, :] = np.ones_like(times)
 
 
 # =================================================================================================
-# compute ground state solution psi_0
+# compute ground state solution
 # =================================================================================================
 
-# -------------------------------------------------------------------------------------------------
 solver.init_potential(calc_V, parameters_potential)
 
-solver.update_parameters_potential(parameters_potential)
-
 solver.set_V(u=u_of_times[0])
-# -------------------------------------------------------------------------------------------------
 
+psi_0 = solver.compute_ground_state_solution(n_atoms=N, n_iter=5000, tau=0.001e-3, adaptive_tau=True)
 
-# -------------------------------------------------------------------------------------------------
-time_1 = time()
+# =================================================================================================
+# set wave function to ground state solution
+# =================================================================================================
 
-solver.compute_ground_state_solution(N=N, n_iter=5000, tau=0.001e-3, adaptive_tau=True)
+solver.psi = psi_0
 
-time_2 = time()
+N_0 = solver.compute_n_atoms()
+mue_0 = solver.compute_chemical_potential()
+E_total_0 = solver.compute_total_energy()
+E_kinetic_0 = solver.compute_kinetic_energy()
+E_interaction_0 = solver.compute_interaction_energy()
+E_potential_0 = solver.compute_potential_energy()
 
-print('elapsed time: {0:f}'.format(time_2 - time_1))
-
-sleep(2)
-
-psi_0 = solver.get('psi_0')
-
-N_psi_0 = solver.compute_n_atoms('psi_0')
-mue_psi_0 = solver.compute_chemical_potential('psi_0')
-E_psi_0 = solver.compute_E_total('psi_0')
-
-vec_res = solver.get('vec_res_ground_state_computation')
-vec_iter = solver.get('vec_iter_ground_state_computation')
-
-print('N_psi_0 = {:1.16e}'.format(N_psi_0))
-print('mue_psi_0 / h: {0:1.6} kHz'.format(mue_psi_0 / (1e3 * (2 * pi * hbar))))
-print('E_psi_0 / (N_psi_0*h): {0:1.6} kHz'.format(E_psi_0 / (1e3 * (2 * pi * hbar * N_psi_0))))
+print('N_0 = {:1.16e}'.format(N_0))
+print('mue_0 / h: {0:1.6} kHz'.format(mue_0 / (1e3 * (2 * pi * hbar))))
+print('E_total_0 / (N_0*h): {0:1.6} kHz'.format(E_total_0 / (1e3 * (2 * pi * hbar * N_0))))
+print('E_kinetic_0 / (N_0*h): {0:1.6} kHz'.format(E_kinetic_0 / (1e3 * (2 * pi * hbar * N_0))))
+print('E_potential_0 / (N_0*h): {0:1.6} kHz'.format(E_potential_0 / (1e3 * (2 * pi * hbar * N_0))))
+print('E_interaction_0 / (N_0*h): {0:1.6} kHz'.format(E_interaction_0 / (1e3 * (2 * pi * hbar * N_0))))
 print()
-# -------------------------------------------------------------------------------------------------
-
-# =================================================================================================
-# set wave function psi to ground state solution psi_0
-# =================================================================================================
-
-solver.set_psi('numpy', array=psi_0)
-
-
-# =================================================================================================
-# init figure
-# =================================================================================================
-
-# -------------------------------------------------------------------------------------------------
-figure_main = FigureMain1D(x, times, parameters_figure_main)
-
-figure_main.fig_control_inputs.update_u(u_of_times)
-
-figure_main.fig_control_inputs.update_t(0.0)
-# -------------------------------------------------------------------------------------------------
-
-# -------------------------------------------------------------------------------------------------
-data = get_data(solver)
-
-figure_main.update_data(data)
-
-figure_main.redraw()
 # -------------------------------------------------------------------------------------------------
 
 
@@ -271,11 +212,8 @@ ax_00 = fig.add_subplot(gridspec[0, 0])
 
 ax_00.set_yscale('log')
 
-# x_values = vec_iter[1:]
-# y_values = vec_res[1:]
-
-x_values = vec_iter
-y_values = vec_res
+x_values = solver.vec_iter_ground_state_computation
+y_values = solver.vec_res_ground_state_computation
 
 plt.plot(x_values, y_values, linewidth=1, linestyle='-', color='k')
 
@@ -286,6 +224,25 @@ plt.xlabel(r'number of iterations')
 plt.ylabel(r'relative residual error')
 
 plt.grid(visible=True, which='major', color='k', linestyle='-', linewidth=0.5)
+# -------------------------------------------------------------------------------------------------
+
+
+# =================================================================================================
+# init figure
+# =================================================================================================
+
+# -------------------------------------------------------------------------------------------------
+figure_main = FigureMain1D(solver.x, times, parameters_figure_main)
+
+figure_main.fig_control_inputs.update_u(u_of_times)
+
+figure_main.fig_control_inputs.update_t(0.0)
+# -------------------------------------------------------------------------------------------------
+
+# -------------------------------------------------------------------------------------------------
+figure_main.update_data(solver.psi, solver.V)
+
+figure_main.redraw()
 # -------------------------------------------------------------------------------------------------
 
 
@@ -324,45 +281,40 @@ while True:
 
     t = times[n]
 
-    data = get_data(solver)
+    psi = solver.psi
+    V = solver.V
+
+    N = solver.compute_n_atoms()
 
     if export_psi_of_times_analysis:
 
-        data_time_evolution.psi_of_times_analysis[nr_times_analysis, :] = data.psi
+        data_time_evolution.psi_of_times_analysis[nr_times_analysis, :] = psi
 
     data_time_evolution.nr_times_analysis = nr_times_analysis
 
-    print('----------------------------------------------------------------------------------------')
-    print('t: {0:1.2f} / {1:1.2f}'.format(t / 1e-3, times[-1] / 1e-3))
-    print('n: {0:4d} / {1:4d}'.format(n, n_times))
-    print()
-    print('N: {0:1.4f}'.format(data.N))
-    print('----------------------------------------------------------------------------------------')
-    print()
+    print('t: {0:1.2f} / {1:1.2f}, n: {2:4d} / {3:4d}, N:{4:4f}'.format(t / 1e-3, times[-1] / 1e-3, n, n_times, N))
 
-    if visualization:
+    # ---------------------------------------------------------------------------------------------
+    figure_main.update_data(psi, V)
 
-        # -----------------------------------------------------------------------------------------
-        figure_main.update_data(data)
+    figure_main.fig_control_inputs.update_t(t)
 
-        figure_main.fig_control_inputs.update_t(t)
+    figure_main.redraw()
 
-        figure_main.redraw()
+    if export_frames_figure_main:
 
-        if export_frames_figure_main:
+        filepath = path_frames_figure_main + 'frame_' + str(nr_frame_figure_main).zfill(5) + '.png'
 
-            filepath = path_frames_figure_main + 'frame_' + str(nr_frame_figure_main).zfill(5) + '.png'
+        figure_main.export(filepath)
 
-            figure_main.export(filepath)
-
-            nr_frame_figure_main = nr_frame_figure_main + 1
-        # -----------------------------------------------------------------------------------------
+        nr_frame_figure_main = nr_frame_figure_main + 1
+    # ---------------------------------------------------------------------------------------------
 
     nr_times_analysis = nr_times_analysis + 1
 
     if n < n_times - n_inc:
 
-        # solver.propagate_gpe(n_start=n, n_inc=n_inc, mue_shift=mue_psi_0)
+        # solver.propagate_gpe(n_start=n, n_inc=n_inc, mue_shift=mue_0)
         solver.propagate_gpe(n_start=n, n_inc=n_inc, mue_shift=0.0)
 
         n = n + n_inc
