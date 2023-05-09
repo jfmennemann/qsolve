@@ -1,7 +1,7 @@
 from qsolve.solvers import SolverGPE1D
 from qsolve.figures import FigureMain1D
 
-from potential_harmonic_trap_1d import calc_V
+from potential_harmonic_trap_1d import compute_external_potential
 
 import mkl
 
@@ -75,6 +75,10 @@ parameters_potential = {'nu_start': [40, "Hz"],
 
 omega_perp = 2 * np.pi * 1000
 
+parameters_grid = {'x_min': [x_min, "m"],
+                   'x_max': [x_max, "m"],
+                   'Jx': Jx}
+
 parameters_figure_main = {'density_min': -20,
                           'density_max': +220,
                           'V_min': -0.5,
@@ -126,7 +130,7 @@ if export_frames_figure_tof:
 # =================================================================================================
 
 solver = SolverGPE1D(
-    calc_V=calc_V,
+    calc_V=compute_external_potential,
     m_atom=m_Rb_87,
     a_s=a_s,
     omega_perp=omega_perp,
@@ -134,7 +138,8 @@ solver = SolverGPE1D(
     device='cuda:0',
     num_threads=num_threads_cpu)
 
-solver.init_grid(x_min=x_min, x_max = x_max, Jx=Jx)
+solver.init_grid(parameters_grid)
+
 
 # -------------------------------------------------------------------------------------------------
 solver.init_time_evolution(t_final=t_final, dt=dt)
@@ -165,7 +170,7 @@ u_of_times[0, :] = np.ones_like(times)
 # compute ground state solution
 # =================================================================================================
 
-solver.init_potential(calc_V, parameters_potential)
+solver.init_potential(compute_external_potential, parameters_potential)
 
 solver.set_V(u=u_of_times[0])
 
@@ -195,33 +200,29 @@ print()
 
 
 # -------------------------------------------------------------------------------------------------
-fig = plt.figure("figure_residual_error", figsize=(6, 5), facecolor="white")
+fig_2 = plt.figure(2, figsize=(6, 4))
 
-gridspec = fig.add_gridspec(
-        nrows=1, ncols=1,
-        left=0.175, right=0.95,
-        bottom=0.125, top=0.95,
-        wspace=0.5,
-        hspace=0.7,
-        width_ratios=[1],
-        height_ratios=[1])
+fig_2.subplots_adjust(left=0.175, right=0.95, bottom=0.2, top=0.9)
 
-ax_00 = fig.add_subplot(gridspec[0, 0])
+ax = fig_2.add_subplot(111)
 
-ax_00.set_yscale('log')
+ax.set_yscale('log')
+
+ax.set_title('ground state computation')
 
 x_values = solver.vec_iter_ground_state_computation
 y_values = solver.vec_res_ground_state_computation
 
-plt.plot(x_values, y_values, linewidth=1, linestyle='-', color='k')
+plt.plot(x_values, y_values, linewidth=1.25, linestyle='-', color='k')
 
-ax_00.set_xlim(0, 1.1 * x_values[-1])
-ax_00.set_ylim(1e-8, 1)
+ax.set_xlim(-0.02 * abs(x_values[-1]), 1.02 * x_values[-1])
+ax.set_ylim(1e-8, 1)
 
-plt.xlabel(r'number of iterations')
-plt.ylabel(r'relative residual error')
+plt.xlabel(r'number of iterations', labelpad=12)
+plt.ylabel(r'relative residual error', labelpad=12)
 
 plt.grid(visible=True, which='major', color='k', linestyle='-', linewidth=0.5)
+plt.grid(visible=True, which='minor', color='k', linestyle='-', linewidth=0.25)
 # -------------------------------------------------------------------------------------------------
 
 

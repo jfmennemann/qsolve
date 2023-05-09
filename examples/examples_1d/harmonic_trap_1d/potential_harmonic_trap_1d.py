@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def calc_V(x, t, u, p, q):
+def compute_external_potential(x, t, u, p, q):
 
     nu_start = p["nu_start"]
     nu_final = p["nu_final"]
