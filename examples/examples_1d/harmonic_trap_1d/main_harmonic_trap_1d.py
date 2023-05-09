@@ -75,10 +75,6 @@ parameters_potential = {'nu_start': [40, "Hz"],
 
 omega_perp = 2 * np.pi * 1000
 
-parameters_grid = {'x_min': [x_min, "m"],
-                   'x_max': [x_max, "m"],
-                   'Jx': Jx}
-
 parameters_figure_main = {'density_min': -20,
                           'density_max': +220,
                           'V_min': -0.5,
@@ -138,7 +134,7 @@ solver = SolverGPE1D(
     device='cuda:0',
     num_threads=num_threads_cpu)
 
-solver.init_grid(parameters_grid)
+solver.init_grid(x_min=x_min, x_max=x_max, Jx=Jx)
 
 
 # -------------------------------------------------------------------------------------------------

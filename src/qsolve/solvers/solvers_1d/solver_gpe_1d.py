@@ -97,8 +97,8 @@ class SolverGPE1D(object):
         self._Jx = None
         self._dx = None
 
-        self._V = None
         self._compute_external_potential = None
+        self._V = None
 
         self._psi = None
 
@@ -122,12 +122,12 @@ class SolverGPE1D(object):
 
         self._p = None
 
-    def init_grid(self, parameters_grid):
+    def init_grid(self, **kwargs):
 
-        self._x_min = parameters_grid['x_min'][0] / self._units.unit_length
-        self._x_max = parameters_grid['x_max'][0] / self._units.unit_length
+        self._x_min = kwargs['x_min'] / self._units.unit_length
+        self._x_max = kwargs['x_max'] / self._units.unit_length
 
-        self._Jx = parameters_grid['Jx']
+        self._Jx = kwargs['Jx']
 
         assert (np.max(get_prime_factors(self._Jx)) < 11)
 
