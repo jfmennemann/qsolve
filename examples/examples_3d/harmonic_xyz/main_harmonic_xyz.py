@@ -20,7 +20,7 @@ from time import time, sleep
 
 
 # -------------------------------------------------------------------------------------------------
-num_threads_cpu = 8
+num_threads_cpu = 6
 
 os.environ["OMP_NUM_THREADS"] = str(num_threads_cpu)
 os.environ["MKL_NUM_THREADS"] = str(num_threads_cpu)
