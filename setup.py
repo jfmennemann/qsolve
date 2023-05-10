@@ -10,7 +10,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="qsolve",
-    version="0.2.7",
+    version="0.2.8",
     url = "https://github.com/jfmennemann/qsolve",
     author="Jan-Frederik Mennemann",
     author_email="jfmennemann@gmx.de",
@@ -30,6 +30,6 @@ setuptools.setup(
     ],
     # package_data={'': ['/qsolve/qsolve/core/*.pyc']},
     # license="MIT",
-    keywords="ultracold atoms, simulations, Gross-Pitaevskii equation, thermal state sampling, time of flight"
+    keywords="ultracold atoms, classical fields simulations, Gross-Pitaevskii equation, thermal state sampling, time of flight"
 )
 
