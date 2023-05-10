@@ -11,6 +11,8 @@ import numpy as np
 
 import scipy
 
+from scipy.interpolate import pchip_interpolate
+
 import matplotlib.pyplot as plt
 
 
@@ -41,29 +43,22 @@ plt.close('all')
 
 # -------------------------------------------------------------------------------------------------
 export_frames_figure_main = False
-export_frames_figure_tof = False
-
-export_hdf5 = False
-
-export_psi_of_times_analysis = False
 # -------------------------------------------------------------------------------------------------
 
 
 # =================================================================================================
-N = 3500
+n_atoms = 3500
 
 m_Rb_87 = 87 * amu
-
-a_s = 5.24e-9
 
 x_min = -40e-6
 x_max = +40e-6
 
 Jx = 128
 
-t_final = 20e-3
+t_final = 8e-3
 
-dt = 0.001e-3
+dt = 0.0005e-3
 
 n_mod_times_analysis = 100
 
@@ -73,51 +68,33 @@ n_control_inputs = 1
 parameters_potential = {'nu_start': [40, "Hz"],
                         'nu_final': [20, "Hz"]}
 
-omega_perp = 2 * np.pi * 1000
-
 parameters_figure_main = {'density_min': -20,
                           'density_max': +220,
                           'V_min': -0.5,
                           'V_max': +4.5,
                           'x_ticks': np.array([-40, -20, 0, 20, 40]),
-                          'n_control_inputs': n_control_inputs
-}
+                          't_ticks': np.array([0, 2, 4, 6, 8]),
+                          'n_control_inputs': n_control_inputs}
 # =================================================================================================
 
 # -------------------------------------------------------------------------------------------------
-simulation_id = 'test'
+simulation_id = 'harmonic_trap_1d'
 
 simulation_id = simulation_id.replace(".", "_")
-# -------------------------------------------------------------------------------------------------
-
-# -------------------------------------------------------------------------------------------------
-# hdf5
-
-path_f_hdf5 = "./data_hdf5/"
-
-filepath_f_hdf5 = path_f_hdf5 + simulation_id + ".hdf5"
 # -------------------------------------------------------------------------------------------------
 
 # -------------------------------------------------------------------------------------------------
 # frames
 
 path_frames_figure_main = "./frames/frames_figure_main/" + simulation_id + "/"
-path_frames_figure_tof = "./frames/frames_figure_tof/" + simulation_id + "/"
 
 nr_frame_figure_main = 0
-nr_frame_figure_tof = 0
 
 if export_frames_figure_main:
 
     if not os.path.exists(path_frames_figure_main):
 
         os.makedirs(path_frames_figure_main)
-
-if export_frames_figure_tof:
-
-    if not os.path.exists(path_frames_figure_tof):
-
-        os.makedirs(path_frames_figure_tof)
 # -------------------------------------------------------------------------------------------------
 
 
@@ -125,14 +102,12 @@ if export_frames_figure_tof:
 # init solver and its potential
 # =================================================================================================
 
-solver = SolverGPE1D(
-    calc_V=compute_external_potential,
-    m_atom=m_Rb_87,
-    a_s=a_s,
-    omega_perp=omega_perp,
-    seed=1,
-    device='cuda:0',
-    num_threads=num_threads_cpu)
+solver = SolverGPE1D(m_atom=m_Rb_87,
+                     a_s=5.24e-9,
+                     omega_perp=2*np.pi*1000,
+                     seed=1,
+                     device='cuda:0',
+                     num_threads_cpu=num_threads_cpu)
 
 solver.init_grid(x_min=x_min, x_max=x_max, Jx=Jx)
 
@@ -159,18 +134,24 @@ assert (abs(times_analysis[-1] - t_final) / abs(t_final) < 1e-14)
 
 u_of_times = np.zeros((n_control_inputs, n_times))
 
-u_of_times[0, :] = np.ones_like(times)
+u1_of_times = pchip_interpolate(np.array([0, 0.1, 0.2, 1]) * t_final, np.array([0.0, 0.0, 1.0, 1.0]), times)
+
+u_of_times[0, :] = u1_of_times
 
 
 # =================================================================================================
 # compute ground state solution
 # =================================================================================================
 
-solver.init_potential(compute_external_potential, parameters_potential)
+solver.init_external_potential(compute_external_potential, parameters_potential)
 
-solver.set_V(u=u_of_times[0])
+solver.set_external_potential(t=0.0, u=u_of_times[0])
 
-psi_0 = solver.compute_ground_state_solution(n_atoms=N, n_iter=5000, tau=0.001e-3, adaptive_tau=True)
+psi_0, vec_res, vec_iter = solver.compute_ground_state_solution(n_atoms=n_atoms,
+                                                                n_iter=5000,
+                                                                tau=0.001e-3,
+                                                                adaptive_tau=True,
+                                                                return_residuals=True)
 
 # =================================================================================================
 # set wave function to ground state solution
@@ -206,12 +187,9 @@ ax.set_yscale('log')
 
 ax.set_title('ground state computation')
 
-x_values = solver.vec_iter_ground_state_computation
-y_values = solver.vec_res_ground_state_computation
+plt.plot(vec_iter, vec_res, linewidth=1.25, linestyle='-', color='k')
 
-plt.plot(x_values, y_values, linewidth=1.25, linestyle='-', color='k')
-
-ax.set_xlim(-0.02 * abs(x_values[-1]), 1.02 * x_values[-1])
+ax.set_xlim(-0.02 * abs(vec_iter[-1]), 1.02 * vec_iter[-1])
 ax.set_ylim(1e-8, 1)
 
 plt.xlabel(r'number of iterations', labelpad=12)
@@ -223,7 +201,7 @@ plt.grid(visible=True, which='minor', color='k', linestyle='-', linewidth=0.25)
 
 
 # =================================================================================================
-# init figure
+# init main figure
 # =================================================================================================
 
 # -------------------------------------------------------------------------------------------------
@@ -245,25 +223,6 @@ figure_main.redraw()
 # compute time evolution
 # =================================================================================================
 
-solver.set_u_of_times(u_of_times)
-
-# -------------------------------------------------------------------------------------------------
-data_time_evolution = type('', (), {})()
-
-if export_psi_of_times_analysis:
-
-    data_time_evolution.psi_of_times_analysis = np.zeros((n_times_analysis, Jx), dtype=np.complex128)
-
-else:
-
-    data_time_evolution.psi_of_times_analysis = None
-
-data_time_evolution.global_phase_difference_of_times_analysis = np.zeros((n_times_analysis,), dtype=np.float64)
-data_time_evolution.number_imbalance_of_times_analysis = np.zeros((n_times_analysis,), dtype=np.float64)
-
-data_time_evolution.times_analysis = times_analysis
-# -------------------------------------------------------------------------------------------------
-
 n_inc = n_mod_times_analysis
 
 nr_times_analysis = 0
@@ -274,18 +233,11 @@ n = 0
 
 while True:
 
-    t = times[n]
-
     psi = solver.psi
     V = solver.V
+    t = solver.t
 
     N = solver.compute_n_atoms()
-
-    if export_psi_of_times_analysis:
-
-        data_time_evolution.psi_of_times_analysis[nr_times_analysis, :] = psi
-
-    data_time_evolution.nr_times_analysis = nr_times_analysis
 
     print('t: {0:1.2f} / {1:1.2f}, n: {2:4d} / {3:4d}, N:{4:4f}'.format(t / 1e-3, times[-1] / 1e-3, n, n_times, N))
 
@@ -309,15 +261,14 @@ while True:
 
     if n < n_times - n_inc:
 
-        # solver.propagate_gpe(n_start=n, n_inc=n_inc, mue_shift=mue_0)
-        solver.propagate_gpe(n_start=n, n_inc=n_inc, mue_shift=0.0)
+        # solver.propagate_gpe(u_of_times=u_of_times, n_start=n, n_inc=n_inc, mue_shift=mue_0)
+        solver.propagate_gpe(u_of_times=u_of_times, n_start=n, n_inc=n_inc)
 
         n = n + n_inc
 
     else:
 
         break
-
 
 plt.ioff()
 plt.show()

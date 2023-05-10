@@ -28,6 +28,8 @@ class FigureMain1D(object):
 
         x_ticks = params["x_ticks"]
 
+        t_ticks = params["t_ticks"]
+
         x = x / 1e-6
 
         times = times / 1e-3
@@ -45,56 +47,8 @@ class FigureMain1D(object):
         Jx = x.size
 
         # -----------------------------------------------------------------------------------------
-        if t_max == 2:
+        t_ticks_major = t_ticks
 
-            t_ticks_major = np.array([0, 1, 2])
-
-        elif t_max == 2.5:
-
-            t_ticks_major = np.array([0, 0.5, 1, 1.5, 2, 2.5])
-
-        elif abs(t_max - 4) < 1e-14:
-
-            t_ticks_major = np.array([0, 1, 2, 3, 4])
-
-        elif t_max == 5:
-
-            t_ticks_major = np.array([0, 1, 2, 3, 4, 5])
-
-        elif t_max == 8:
-
-            t_ticks_major = np.array([0, 2, 4, 6, 8])
-
-        elif t_max == 10:
-
-            t_ticks_major = np.array([0, 2, 4, 6, 8, 10])
-
-        elif t_max == 20:
-
-            t_ticks_major = np.array([0, 4, 8, 12, 16, 20])
-
-        elif t_max == 40:
-
-            t_ticks_major = np.array([0, 10, 20, 30, 40])
-
-        elif t_max == 80:
-
-            t_ticks_major = np.array([0, 20, 40, 60, 80])
-
-        elif t_max == 160:
-
-            t_ticks_major = np.array([0, 40, 80, 120, 160])
-
-        elif t_max == 200:
-
-            t_ticks_major = np.array([0, 40, 80, 120, 160, 200])
-
-        else:
-
-            t_ticks_major = np.array([0, t_max])
-        # -----------------------------------------------------------------------------------------
-
-        # -----------------------------------------------------------------------------------------
         t_ticks_minor = 0.5 * (t_ticks_major[0:-1] + t_ticks_major[1:])
         # -----------------------------------------------------------------------------------------
 

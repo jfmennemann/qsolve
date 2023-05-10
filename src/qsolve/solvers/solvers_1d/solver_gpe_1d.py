@@ -16,7 +16,7 @@ from qsolve.units import Units
 
 class SolverGPE1D(object):
 
-    def __init__(self, **kwargs):
+    def __init__(self, *, m_atom, a_s, omega_perp, seed=0, device='cpu', num_threads_cpu=1):
 
         # -----------------------------------------------------------------------------------------
         print("Python version:")
@@ -27,52 +27,23 @@ class SolverGPE1D(object):
         print()
         # -----------------------------------------------------------------------------------------
 
-        # -----------------------------------------------------------------------------------------
-        if 'seed' in kwargs:
-            seed = kwargs['seed']
-        else:
-            seed = 0
-
         torch.manual_seed(seed)
-        # -----------------------------------------------------------------------------------------
 
-        # -----------------------------------------------------------------------------------------
-        if 'device' in kwargs:
+        torch.set_num_threads(num_threads_cpu)
 
-            if kwargs['device'] == 'cuda:0':
+        self.device = torch.device(device)
 
-                self.device = torch.device('cuda:0')
-
-            elif kwargs['device'] == 'cpu':
-
-                self.device = torch.device('cpu')
-
-            else:
-
-                message = 'device \'{0:s}\' not supported'.format(kwargs['device'])
-
-                raise Exception(message)
-
-        else:
-
-            self.device = torch.device('cpu')
-
-        if 'num_threads_cpu' in kwargs:
-
-            torch.set_num_threads(kwargs['num_threads_cpu'])
-        # -----------------------------------------------------------------------------------------
-
-        self._units = Units.solver_units(kwargs['m_atom'], dim=1)
+        self._units = Units.solver_units(m_atom, dim=1)
 
         # -----------------------------------------------------------------------------------------
         self._hbar = scipy.constants.hbar / self._units.unit_hbar
         self._mu_B = scipy.constants.physical_constants['Bohr magneton'][0] / self._units.unit_bohr_magneton
         self._k_B = scipy.constants.Boltzmann / self._units.unit_k_B
 
-        self._m_atom = kwargs['m_atom'] / self._units.unit_mass
-        self._a_s = kwargs['a_s'] / self._units.unit_length
+        self._m_atom = m_atom / self._units.unit_mass
+        self._a_s = a_s / self._units.unit_length
 
-        _omega_perp = kwargs['omega_perp'] / self._units.unit_frequency
+        _omega_perp = omega_perp / self._units.unit_frequency
 
         _g_3d = 4.0 * scipy.constants.pi * self._hbar ** 2 * self._a_s / self._m_atom
 
@@ -107,20 +78,14 @@ class SolverGPE1D(object):
         self._n_time_steps = None
         self._n_times = None
         self._times = None
+        self._t = 0.0
 
-        self._u_of_times = None
-
-        self._vec_res_ground_state_computation = None
-        self._vec_iter_ground_state_computation = None
-
-        self._q = {
+        self._p = {
             "hbar": self._hbar,
             "mu_B": self._mu_B,
             "k_B": self._k_B,
             "m_atom": self._m_atom
         }
-
-        self._p = None
 
     def init_grid(self, **kwargs):
 
@@ -141,11 +106,9 @@ class SolverGPE1D(object):
 
         self._x = torch.tensor(_x, dtype=torch.float64, device=self.device)
 
-    def init_potential(self, calc_V, parameters_potential):
+    def init_external_potential(self, compute_external_potential, parameters_potential):
 
-        self._compute_external_potential = calc_V
-
-        self._p = {}
+        self._compute_external_potential = compute_external_potential
 
         for key, p in parameters_potential.items():
 
@@ -163,20 +126,15 @@ class SolverGPE1D(object):
 
             self._p[key] = _value
 
+    def set_external_potential(self, *, t, u):
 
-    def set_V(self, t=None, u=None):
+        _t = t / self._units.unit_time
 
-        if t is not None:
+        self._V = self._compute_external_potential(self._x, t, u, self._p)
 
-            t = t / self._units.unit_time
+    def compute_ground_state_solution(self, *, n_atoms, n_iter, tau, adaptive_tau=True, return_residuals=False):
 
-        self._V = self._compute_external_potential(self._x, t, u, self._p, self._q)
-
-    def compute_ground_state_solution(self, **kwargs):
-
-        _tau = kwargs["tau"] / self._units.unit_time
-
-        n_iter = kwargs["n_iter"]
+        _tau = tau / self._units.unit_time
 
         if n_iter < 2500:
 
@@ -184,41 +142,28 @@ class SolverGPE1D(object):
 
             raise Exception(message)
 
-        if "adaptive_tau" in kwargs:
-
-            adaptive_tau = kwargs["adaptive_tau"]
-
-        else:
-
-            adaptive_tau = True
-
-        N = kwargs["n_atoms"]
-
         _psi_0, vec_res, vec_iter = qsolve_core_gpe_1d.compute_ground_state_solution(
             self._V,
             self._dx,
             _tau,
             adaptive_tau,
             n_iter,
-            N,
+            n_atoms,
             self._hbar,
             self._m_atom,
             self._g)
 
-        self._vec_res_ground_state_computation = vec_res
-        self._vec_iter_ground_state_computation = vec_iter
+        if return_residuals:
 
-        return self._units.unit_wave_function * _psi_0.cpu().numpy()
+            return self._units.unit_wave_function * _psi_0.cpu().numpy(), vec_res, vec_iter
 
-    def set_u_of_times(self, u_of_times):
-        self._u_of_times = u_of_times
+        else:
 
-    def propagate_gpe(self, **kwargs):
+            return self._units.unit_wave_function * _psi_0.cpu().numpy()
 
-        n_start = kwargs["n_start"]
-        n_inc = kwargs["n_inc"]
+    def propagate_gpe(self, *, u_of_times, n_start, n_inc, mue_shift=0.0):
 
-        _mue_shift = kwargs["mue_shift"] / self._units.unit_energy
+        _mue_shift = mue_shift / self._units.unit_energy
 
         n_local = 0
 
@@ -226,17 +171,17 @@ class SolverGPE1D(object):
 
             n = n_start + n_local
 
-            _t = self._times[n]
+            self._t = self._times[n]
 
-            if self._u_of_times.ndim > 1:
+            if u_of_times.ndim > 1:
 
-                _u = 0.5 * (self._u_of_times[:, n] + self._u_of_times[:, n + 1])
+                _u = 0.5 * (u_of_times[:, n] + u_of_times[:, n + 1])
 
             else:
 
-                _u = 0.5 * (self._u_of_times[n] + self._u_of_times[n + 1])
+                _u = 0.5 * (u_of_times[n] + u_of_times[n + 1])
 
-            self._V = self._compute_external_potential(self._x, _t, _u, self._p, self._q)
+            self._V = self._compute_external_potential(self._x, self._t, _u, self._p)
 
             self._psi = qsolve_core_gpe_1d.propagate_gpe(
                 self._psi,
@@ -278,6 +223,10 @@ class SolverGPE1D(object):
         return self._units.unit_time * self._times
 
     @property
+    def t(self):
+        return self._units.unit_time * self._t
+
+    @property
     def psi(self):
         return self._units.unit_wave_function * self._psi.cpu().numpy()
 
@@ -288,14 +237,6 @@ class SolverGPE1D(object):
     @property
     def V(self):
         return self._units.unit_energy * self._V.cpu().numpy()
-
-    @property
-    def vec_res_ground_state_computation(self):
-        return self._vec_res_ground_state_computation.cpu().numpy()
-
-    @property
-    def vec_iter_ground_state_computation(self):
-        return self._vec_iter_ground_state_computation.cpu().numpy()
 
     def compute_n_atoms(self):
         return qsolve_core_gpe_1d.compute_n_atoms(self._psi, self._dx)
@@ -330,9 +271,3 @@ class SolverGPE1D(object):
         _E_interaction = qsolve_core_gpe_1d.compute_interaction_energy(self._psi, self._dx, self._g)
 
         return self._units.unit_energy * _E_interaction
-
-    # def init_sgpe_z_eff(self, **kwargs):
-    #     qsolve_core_gpe_3d.init_sgpe_z_eff(self, kwargs)
-
-    # def propagate_sgpe_z_eff(self, **kwargs):
-    #     qsolve_core_gpe_2d.propagate_sgpe_z_eff(self, kwargs)
