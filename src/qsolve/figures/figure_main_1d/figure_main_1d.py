@@ -1,7 +1,5 @@
 import matplotlib.pyplot as plt
 
-from PyQt5 import QtWidgets
-
 from scipy import constants
 
 import numpy as np
@@ -108,31 +106,16 @@ class FigureMain1D(object):
         # -----------------------------------------------------------------------------------------
         self.fig_name = "figure_main"
                 
-        self.fig = plt.figure(self.fig_name, facecolor="white")
-
-        window = self.fig.canvas.window()
-        
-        window.findChild(QtWidgets.QToolBar).setVisible(False)
-        window.statusBar().setVisible(False)
-        # -----------------------------------------------------------------------------------------
-
-        # -----------------------------------------------------------------------------------------
-        n_pixels_x = 1200
-        n_pixels_y = 800
-
-        pos_x = 2560 - n_pixels_x
-        pos_y = 0
-
-        window.setGeometry(pos_x, pos_y, n_pixels_x, n_pixels_y)
+        self.fig = plt.figure(self.fig_name, figsize=(8, 8), facecolor="white")
         # -----------------------------------------------------------------------------------------
 
         # -----------------------------------------------------------------------------------------
         width_ratios = [1, 1]
 
         self.gridspec = self.fig.add_gridspec(nrows=3, ncols=2,
-                                              left=0.055, right=0.985,
+                                              left=0.1, right=0.9,
                                               bottom=0.08, top=0.95,
-                                              wspace=0.35,
+                                              wspace=0.4,
                                               hspace=0.7,
                                               width_ratios=width_ratios,
                                               height_ratios=[1, 1, 1])
