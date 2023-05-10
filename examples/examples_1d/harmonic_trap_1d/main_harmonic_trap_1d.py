@@ -99,7 +99,7 @@ if export_frames_figure_main:
 
 
 # =================================================================================================
-# init solver and its potential
+# init solver
 # =================================================================================================
 
 solver = SolverGPE1D(m_atom=m_Rb_87,
@@ -109,8 +109,15 @@ solver = SolverGPE1D(m_atom=m_Rb_87,
                      device='cuda:0',
                      num_threads_cpu=num_threads_cpu)
 
+# =================================================================================================
+# init spatial grid
+# =================================================================================================
+
 solver.init_grid(x_min=x_min, x_max=x_max, Jx=Jx)
 
+# =================================================================================================
+# init time evolution
+# =================================================================================================
 
 # -------------------------------------------------------------------------------------------------
 solver.init_time_evolution(t_final=t_final, dt=dt)
@@ -127,6 +134,7 @@ n_times_analysis = times_analysis.size
 
 assert (abs(times_analysis[-1] - t_final) / abs(t_final) < 1e-14)
 # -------------------------------------------------------------------------------------------------
+
 
 # =================================================================================================
 # init control inputs
@@ -176,30 +184,6 @@ print()
 # -------------------------------------------------------------------------------------------------
 
 
-# -------------------------------------------------------------------------------------------------
-fig_2 = plt.figure(2, figsize=(6, 4))
-
-fig_2.subplots_adjust(left=0.175, right=0.95, bottom=0.2, top=0.9)
-
-ax = fig_2.add_subplot(111)
-
-ax.set_yscale('log')
-
-ax.set_title('ground state computation')
-
-plt.plot(vec_iter, vec_res, linewidth=1.25, linestyle='-', color='k')
-
-ax.set_xlim(-0.02 * abs(vec_iter[-1]), 1.02 * vec_iter[-1])
-ax.set_ylim(1e-8, 1)
-
-plt.xlabel(r'number of iterations', labelpad=12)
-plt.ylabel(r'relative residual error', labelpad=12)
-
-plt.grid(visible=True, which='major', color='k', linestyle='-', linewidth=0.5)
-plt.grid(visible=True, which='minor', color='k', linestyle='-', linewidth=0.25)
-# -------------------------------------------------------------------------------------------------
-
-
 # =================================================================================================
 # init main figure
 # =================================================================================================
@@ -217,6 +201,34 @@ figure_main.update_data(solver.psi, solver.V)
 
 figure_main.redraw()
 # -------------------------------------------------------------------------------------------------
+
+
+# =================================================================================================
+# show convergence of ground state computation
+# =================================================================================================
+
+fig_conv_ground_state = plt.figure("figure_convergence_ground_state", figsize=(6, 4))
+
+fig_conv_ground_state.subplots_adjust(left=0.175, right=0.95, bottom=0.2, top=0.9)
+
+ax = fig_conv_ground_state.add_subplot(111)
+
+ax.set_yscale('log')
+
+ax.set_title('ground state computation')
+
+plt.plot(vec_iter, vec_res, linewidth=1, linestyle='-', color='k')
+
+ax.set_xlim(0, vec_iter[-1])
+ax.set_ylim(1e-8, 1)
+
+plt.xlabel(r'number of iterations', labelpad=12)
+plt.ylabel(r'relative residual error', labelpad=12)
+
+plt.grid(visible=True, which='major', color='k', linestyle='-', linewidth=0.5)
+plt.grid(visible=True, which='minor', color='k', linestyle='-', linewidth=0.25)
+
+plt.draw()
 
 
 # =================================================================================================
@@ -261,8 +273,8 @@ while True:
 
     if n < n_times - n_inc:
 
-        # solver.propagate_gpe(u_of_times=u_of_times, n_start=n, n_inc=n_inc, mue_shift=mue_0)
-        solver.propagate_gpe(u_of_times=u_of_times, n_start=n, n_inc=n_inc)
+        solver.propagate_gpe(u_of_times=u_of_times, n_start=n, n_inc=n_inc, mue_shift=mue_0)
+        # solver.propagate_gpe(u_of_times=u_of_times, n_start=n, n_inc=n_inc)
 
         n = n + n_inc
 
