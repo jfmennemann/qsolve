@@ -11,6 +11,7 @@ import math
 from qsolve.core import qsolve_core_gpe_1d
 
 from qsolve.primes import get_prime_factors
+
 from qsolve.units import Units
 
 
@@ -31,7 +32,7 @@ class SolverGPE1D(object):
 
         torch.set_num_threads(num_threads_cpu)
 
-        self.device = torch.device(device)
+        self._device = torch.device(device)
 
         self._units = Units.solver_units(m_atom, dim=1)
 
@@ -104,7 +105,7 @@ class SolverGPE1D(object):
 
         self._Lx = self._Jx * self._dx
 
-        self._x = torch.tensor(_x, dtype=torch.float64, device=self.device)
+        self._x = torch.tensor(_x, dtype=torch.float64, device=self._device)
 
     def init_external_potential(self, compute_external_potential, parameters_potential):
 
@@ -232,7 +233,7 @@ class SolverGPE1D(object):
 
     @psi.setter
     def psi(self, value):
-        self._psi = torch.tensor(value / self._units.unit_wave_function, device=self.device)
+        self._psi = torch.tensor(value / self._units.unit_wave_function, device=self._device)
 
     @property
     def V(self):

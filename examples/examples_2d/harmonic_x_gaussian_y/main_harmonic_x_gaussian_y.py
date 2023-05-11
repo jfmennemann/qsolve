@@ -70,8 +70,6 @@ m_Rb_87 = 87 * amu
 Jx = 48
 Jy = 256
 
-a_s = 5.24e-9
-
 x_min = -1.5e-6
 x_max = +1.5e-6
 
@@ -80,7 +78,6 @@ y_max = +20e-6
 
 params_potential = {
     "omega_x": omega_perp,
-    "omega_z": 2 * np.pi * 1e3,  # third dimension
     "V_ref_gaussian": 2 * hbar * omega_perp,
     "sigma_gaussian": 1e-6
 }
@@ -120,8 +117,8 @@ if export_frames_figure_main:
 # =================================================================================================
 
 solver = SolverGPE2D(m_atom=m_Rb_87,
-                     a_s=a_s,
-                     omega_z=params_potential["omega_z"],
+                     a_s=5.24e-9,
+                     omega_z=2 * np.pi * 1e3,
                      seed=1,
                      device='cuda:0',
                      num_threads_cpu=num_threads_cpu)
@@ -219,7 +216,7 @@ density_0_max = np.max(density_0)
 # set wave function psi to ground state solution psi_0
 # =================================================================================================
 
-solver.set_psi('numpy', array=psi_0)
+solver.psi = psi_0
 
 N_psi = solver.compute_n_atoms('psi')
 mue_psi = solver.compute_chemical_potential('psi')
