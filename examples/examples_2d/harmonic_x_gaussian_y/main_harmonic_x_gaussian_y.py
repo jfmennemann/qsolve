@@ -135,8 +135,9 @@ solver.init_grid(x_min=x_min,
 
 solver.init_potential(Potential, params_potential)
 
-x = solver.get('x')
-y = solver.get('y')
+x = solver.x
+y = solver.y
+
 
 # =================================================================================================
 # init time evolution
@@ -144,7 +145,7 @@ y = solver.get('y')
 
 solver.init_time_evolution(t_final=t_final, dt=dt)
 
-times = solver.get('times')
+times = solver.times
 
 n_times = times.size
 # -------------------------------------------------------------------------------------------------
@@ -195,9 +196,7 @@ solver.set_V(u=u_0)
 # -------------------------------------------------------------------------------------------------
 
 # -------------------------------------------------------------------------------------------------
-solver.compute_ground_state_solution(N=N, n_iter=5000, tau=0.005e-3)
-
-psi_0 = solver.get('psi_0')
+psi_0 = solver.compute_ground_state_solution(n_atoms=N, n_iter=5000, tau=0.005e-3)
 
 N_psi_0 = solver.compute_n_atoms('psi_0')
 mue_psi_0 = solver.compute_chemical_potential('psi_0')
@@ -243,7 +242,10 @@ params_figure_main = {
     "V_max": +4.5,
     "sigma_z_min": 0.2,
     "sigma_z_max": 0.6,
-    "m_atom": m_Rb_87
+    "m_atom": m_Rb_87,
+    "x_ticks": [-1.5, 0.0, 1.5],
+    "y_ticks": [-20, 0, 20],
+    "t_ticks": np.array([0, 4, 8, 12, 16])
 }
 
 # ---------------------------------------------------------------------------------------------

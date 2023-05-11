@@ -35,12 +35,8 @@ class FigureMain(object):
         V_min = params['V_min']
         V_max = params['V_max']
 
-        # abs_y_restr = params['abs_y_restr'] / 1e-6
-
         x = x / 1e-6
         y = y / 1e-6
-
-        # indices_y_restr = np.abs(y) < abs_y_restr
 
         times = times / 1e-3
 
@@ -65,99 +61,10 @@ class FigureMain(object):
         Lx = Jx * dx
         Ly = Jy * dy
 
-        x_ticks = np.array([-5, 0, 5])
+        x_ticks = params['x_ticks']
+        y_ticks = params['y_ticks']
 
-        # -----------------------------------------------------------------------------------------
-        if np.round(y_max) == 5:
-
-            y_ticks = np.array([-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5])
-
-        elif np.round(y_max) == 10:
-
-            y_ticks = np.array([-10, -5, 0, 5, 10])
-
-        elif np.round(y_max) == 20:
-
-            y_ticks = np.array([-20, -10, 0, 10, 20])
-
-        elif np.round(y_max) == 40:
-
-            y_ticks = np.array([-40, -30, -20, -10, 0, 10, 20, 30, 40])
-
-        elif np.round(y_max) == 50:
-
-            y_ticks = np.array([-50, -40, -30, -20, -10, 0, 10, 20, 30, 40, 50])
-
-        elif np.round(y_max) == 60:
-
-            y_ticks = np.array([-60, -40, -20, 0, 20, 40, 60])
-
-        elif np.round(y_max) == 80:
-
-            y_ticks = np.array([-80, -60, -40, -20, 0, 20, 40, 60, 80])
-
-        elif np.round(y_max) == 100:
-
-            y_ticks = np.array([-100, -80, -60, -40, -20, 0, 20, 40, 60, 80, 100])
-
-        elif np.round(y_max) == 200:
-
-            y_ticks = np.array([-200, -160, -120, -80, -40, 0, 40, 80, 120, 160, 200])
-
-        else:
-
-            y_ticks = np.array([y_min, y_max])
-        # -----------------------------------------------------------------------------------------
-
-        # -----------------------------------------------------------------------------------------
-        if t_max == 2:
-
-            t_ticks_major = np.array([0, 1, 2])
-
-        elif t_max == 2.5:
-
-            t_ticks_major = np.array([0, 0.5, 1, 1.5, 2, 2.5])
-
-        elif abs(t_max - 4) < 1e-14:
-
-            t_ticks_major = np.array([0, 1, 2, 3, 4])
-
-        elif t_max == 5:
-
-            t_ticks_major = np.array([0, 1, 2, 3, 4, 5])
-
-        elif t_max == 8:
-
-            t_ticks_major = np.array([0, 2, 4, 6, 8])
-
-        elif t_max == 10:
-
-            t_ticks_major = np.array([0, 2, 4, 6, 8, 10])
-
-        elif t_max == 20:
-
-            t_ticks_major = np.array([0, 4, 8, 12, 16, 20])
-
-        elif t_max == 40:
-
-            t_ticks_major = np.array([0, 10, 20, 30, 40])
-
-        elif t_max == 80:
-
-            t_ticks_major = np.array([0, 20, 40, 60, 80])
-
-        elif t_max == 160:
-
-            t_ticks_major = np.array([0, 40, 80, 120, 160])
-
-        elif t_max == 200:
-
-            t_ticks_major = np.array([0, 40, 80, 120, 160, 200])
-
-        else:
-
-            t_ticks_major = np.array([0, t_max])
-        # -----------------------------------------------------------------------------------------
+        t_ticks_major = params['t_ticks']
 
         # -----------------------------------------------------------------------------------------
         t_ticks_minor = 0.5 * (t_ticks_major[0:-1] + t_ticks_major[1:])
