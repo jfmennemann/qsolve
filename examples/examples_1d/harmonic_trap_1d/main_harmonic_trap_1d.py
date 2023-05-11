@@ -142,7 +142,10 @@ assert (abs(times_analysis[-1] - t_final) / abs(t_final) < 1e-14)
 
 u_of_times = np.zeros((n_control_inputs, n_times))
 
-u1_of_times = pchip_interpolate(np.array([0, 0.1, 0.2, 1]) * t_final, np.array([0.0, 0.0, 1.0, 1.0]), times)
+vec_t = np.array([0.0, 0.1, 0.2, 1.0]) * t_final
+vec_u = np.array([0.0, 0.0, 1.0, 1.0])
+
+u1_of_times = pchip_interpolate(vec_t, vec_u, times)
 
 u_of_times[0, :] = u1_of_times
 

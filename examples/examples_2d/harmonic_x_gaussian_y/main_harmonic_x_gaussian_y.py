@@ -9,7 +9,7 @@ import numpy as np
 
 from scipy import constants
 
-from scipy import interpolate
+from scipy.interpolate import pchip_interpolate
 
 import matplotlib.pyplot as plt
 
@@ -118,7 +118,7 @@ if export_frames_figure_main:
 
 solver = SolverGPE2D(m_atom=m_Rb_87,
                      a_s=5.24e-9,
-                     omega_z=2 * np.pi * 1e3,
+                     omega_z=2*np.pi*1e3,
                      seed=1,
                      device='cuda:0',
                      num_threads_cpu=num_threads_cpu)
@@ -163,22 +163,10 @@ assert (np.abs(times_analysis[-1] - t_final) / t_final < 1e-14)
 # =================================================================================================
 
 # -------------------------------------------------------------------------------------------------
-t0 = 0e-3
-t1 = 1e-3
-t2 = 2e-3
-t3 = 8e-3
+vec_t = np.array([0.0, 0.1, 0.2, 1.0]) * t_final
+vec_u = np.array([1.0, 1.0, 0.0, 0.0])
 
-u0 = 1.0
-u1 = 1.0
-u2 = 0.0
-u3 = 0.0
-
-vec_t = np.array([t0, t1, t2, t3])
-vec_u = np.array([u0, u1, u2, u3])
-
-f = interpolate.PchipInterpolator(vec_t, vec_u)
-
-u_of_times = f(times)
+u_of_times = pchip_interpolate(vec_t, vec_u, times)
 # -------------------------------------------------------------------------------------------------
 
 
@@ -189,15 +177,17 @@ u_of_times = f(times)
 # -------------------------------------------------------------------------------------------------
 u_0 = u_of_times[0]
 
-solver.set_V(u=u_0)
+solver.set_external_potential(t=0, u=u_0)
 # -------------------------------------------------------------------------------------------------
 
 # -------------------------------------------------------------------------------------------------
 psi_0 = solver.compute_ground_state_solution(n_atoms=N, n_iter=5000, tau=0.005e-3)
 
-N_psi_0 = solver.compute_n_atoms('psi_0')
-mue_psi_0 = solver.compute_chemical_potential('psi_0')
-E_psi_0 = solver.compute_E_total('psi_0')
+solver.psi = psi_0
+
+N_psi_0 = solver.compute_n_atoms('psi')
+mue_psi_0 = solver.compute_chemical_potential('psi')
+E_psi_0 = solver.compute_E_total('psi')
 
 print('N_psi_0 = {:1.16e}'.format(N_psi_0))
 print('mue_psi_0 / h: {0:1.6} kHz'.format(mue_psi_0 / (1e3 * (2 * pi * hbar))))
