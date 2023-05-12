@@ -88,9 +88,9 @@ class SolverGPE2D(object):
 
         self._psi = None
 
-
-
         self.u_of_times = None
+
+        self._t = None
 
         self._p = {
             "hbar": self._hbar,
@@ -140,33 +140,35 @@ class SolverGPE2D(object):
         self._x_2d = torch.reshape(self._x, (self._Jx, 1))
         self._y_2d = torch.reshape(self._y, (1, self._Jy))
 
-    def init_potential(self, potential, params_user):
+    def init_external_potential(self, compute_external_potential, parameters_potential):
 
-        params_solver = {
-            "x_2d": self._x_2d,
-            "y_2d": self._y_2d,
-            "Lx": self._Lx,
-            "Ly": self._Ly,
-            "hbar": self._hbar,
-            "mu_B": self._mu_B,
-            "m_atom": self._m_atom,
-            "unit_length": self._units.unit_length,
-            "unit_time": self._units.unit_time,
-            "unit_mass": self._units.unit_mass,
-            "unit_energy": self._units.unit_energy,
-            "unit_frequency": self._units.unit_frequency,
-            "device": self._device
-        }
+        self._compute_external_potential = compute_external_potential
 
-        self.potential = potential(params_solver, params_user)
+        for key, p in parameters_potential.items():
+
+            value = p[0]
+            unit = p[1]
+
+            if unit == 'm':
+                _value = value / self._units.unit_length
+            elif unit == 's':
+                _value = value / self._units.unit_time
+            elif unit == 'Hz':
+                _value = value / self._units.unit_frequency
+            elif unit == 'J':
+                _value = value / self._units.unit_energy
+            else:
+                raise Exception('unknown unit')
+
+            self._p[key] = _value
 
     def set_external_potential(self, *, t, u):
 
         _t = t / self._units.unit_time
 
-        self._V = self.potential.eval(u)
+        self._V = self._compute_external_potential(self._x_2d, self._y_2d, t, u, self._p)
 
-    def compute_ground_state_solution(self, *, n_atoms, n_iter, tau, adaptive_tau = True, return_residuals = False):
+    def compute_ground_state_solution(self, *, n_atoms, n_iter, tau, adaptive_tau=True, return_residuals=False):
 
         _tau = tau / self._units.unit_time
 
@@ -213,6 +215,8 @@ class SolverGPE2D(object):
 
             n = n_start + n_local
 
+            self._t = self._times[n]
+
             if self.u_of_times.ndim > 1:
 
                 u = 0.5 * (self.u_of_times[:, n] + self.u_of_times[:, n + 1])
@@ -221,7 +225,7 @@ class SolverGPE2D(object):
 
                 u = 0.5 * (self.u_of_times[n] + self.u_of_times[n + 1])
 
-            self._V = self.potential.eval(u)
+            self._V = self._compute_external_potential(self._x_2d, self._y_2d, self._t, u, self._p)
 
             self._psi = qsolve_core_gpe_2d.propagate_gpe(
                 self._psi,
@@ -251,182 +255,6 @@ class SolverGPE2D(object):
 
         assert (np.abs(self._times[-1] - self.t_final)) < 1e-14
 
-    def compute_n_atoms(self, identifier):
-
-        if identifier == "psi":
-
-            n_atoms = qsolve_core_gpe_2d.compute_n_atoms(self._psi, self._dx, self._dy)
-
-        else:
-
-            message = 'identifier \'{0:s}\' not supported for this operation'.format(identifier)
-
-            raise Exception(message)
-
-        return n_atoms
-
-    def compute_chemical_potential(self, identifier, **kwargs):
-
-        if "units" in kwargs:
-
-            units = kwargs["units"]
-
-        else:
-
-            units = "si_units"
-
-        if identifier == "psi":
-
-            mue = qsolve_core_gpe_2d.compute_chemical_potential(
-                self._psi,
-                self._V,
-                self._dx,
-                self._dy,
-                self._hbar,
-                self._m_atom,
-                self._g)
-
-        else:
-
-            message = 'compute_chemical_potential(self, identifier, **kwargs): ' \
-                      'identifier \'{0:s}\'not supported'.format(identifier)
-
-            raise Exception(message)
-
-        if units == "si_units":
-
-            return self._units.unit_energy * mue
-
-        else:
-
-            return mue
-
-    def compute_E_total(self, identifier, **kwargs):
-
-        if "units" in kwargs:
-
-            units = kwargs["units"]
-
-        else:
-
-            units = "si_units"
-
-        if identifier == "psi":
-
-            E = qsolve_core_gpe_2d.compute_total_energy(self._psi, self._V, self._dx, self._dy, self._hbar, self._m_atom,
-                                                        self._g)
-
-        else:
-
-            message = 'compute_E_total(self, identifier, **kwargs): \'identifier \'{0:s}\' ' \
-                      'not supported'.format(identifier)
-
-            raise Exception(message)
-
-        if units == "si_units":
-
-            return self._units.unit_energy * E
-
-        else:
-
-            return E
-
-    def compute_E_kinetic(self, identifier, **kwargs):
-
-        if "units" in kwargs:
-
-            units = kwargs["units"]
-
-        else:
-
-            units = "si_units"
-
-        if identifier == "psi":
-
-            E_kinetic = qsolve_core_gpe_2d.compute_kinetic_energy(
-                self._psi,
-                self._dx,
-                self._dy,
-                self._hbar,
-                self._m_atom)
-
-        else:
-
-            message = 'compute_E_kinetic(self, identifier, **kwargs): \'identifier \'{0:s}\' ' \
-                      'not supported'.format(identifier)
-
-            raise Exception(message)
-
-        if units == "si_units":
-
-            return self._units.unit_energy * E_kinetic
-
-        else:
-
-            return E_kinetic
-
-    def compute_E_potential(self, identifier, **kwargs):
-
-        if "units" in kwargs:
-
-            units = kwargs["units"]
-
-        else:
-
-            units = "si_units"
-
-        if identifier == "psi":
-
-            E_potential = qsolve_core_gpe_2d.compute_potential_energy(self._psi, self._V, self._dx, self._dy)
-
-        else:
-
-            message = 'compute_E_potential(self, identifier, **kwargs): \'identifier \'{0:s}\' ' \
-                      'not supported'.format(identifier)
-
-            raise Exception(message)
-
-        if units == "si_units":
-
-            return self._units.unit_energy * E_potential
-
-        else:
-
-            return E_potential
-
-    def compute_E_interaction(self, identifier, **kwargs):
-
-        if "units" in kwargs:
-
-            units = kwargs["units"]
-
-        else:
-
-            units = "si_units"
-
-        if identifier == "psi":
-
-            E_interaction = qsolve_core_gpe_2d.compute_interaction_energy(
-                self._psi,
-                self._dx,
-                self._dy,
-                self._g)
-
-        else:
-
-            message = 'compute_E_interaction(self, identifier, **kwargs): \'identifier \'{0:s}\' ' \
-                      'not supported'.format(identifier)
-
-            raise Exception(message)
-
-        if units == "si_units":
-
-            return self._units.unit_energy * E_interaction
-
-        else:
-
-            return E_interaction
-
     @property
     def x(self):
         return self._units.unit_length * self._x.cpu().numpy()
@@ -436,16 +264,16 @@ class SolverGPE2D(object):
         return self._units.unit_length * self._y.cpu().numpy()
 
     @property
-    def times(self):
-        return self._units.unit_time * self._times
-
-    @property
     def index_center_x(self):
         return self._index_center_x
 
     @property
     def index_center_y(self):
         return self._index_center_y
+
+    @property
+    def times(self):
+        return self._units.unit_time * self._times
 
     @property
     def V(self):
@@ -459,8 +287,39 @@ class SolverGPE2D(object):
     def psi(self, value):
         self._psi = torch.tensor(value / self._units.unit_wave_function, device=self._device)
 
-    # def init_sgpe_z_eff(self, **kwargs):
-    #     qsolve_core_gpe_3d.init_sgpe_z_eff(self, kwargs)
+    def compute_n_atoms(self):
+        return qsolve_core_gpe_2d.compute_n_atoms(self._psi, self._dx, self._dy)
 
-    # def propagate_sgpe_z_eff(self, **kwargs):
-    #     qsolve_core_gpe_2d.propagate_sgpe_z_eff(self, kwargs)
+    def compute_chemical_potential(self):
+
+        _mue = qsolve_core_gpe_2d.compute_chemical_potential(
+            self._psi, self._V, self._dx, self._dy, self._hbar, self._m_atom, self._g)
+
+        return self._units.unit_energy * _mue
+
+    def compute_total_energy(self):
+
+        _E = qsolve_core_gpe_2d.compute_total_energy(
+            self._psi, self._V, self._dx, self._dy, self._hbar, self._m_atom, self._g)
+
+        return self._units.unit_energy * _E
+
+    def compute_kinetic_energy(self):
+
+        _E_kinetic = qsolve_core_gpe_2d.compute_kinetic_energy(self._psi, self._dx, self._dy, self._hbar, self._m_atom)
+
+        return self._units.unit_energy * _E_kinetic
+
+    def compute_potential_energy(self):
+
+        _E_potential = qsolve_core_gpe_2d.compute_potential_energy(self._psi, self._V, self._dx, self._dy)
+
+        return self._units.unit_energy * _E_potential
+
+    def compute_interaction_energy(self):
+
+        _E_interaction = qsolve_core_gpe_2d.compute_interaction_energy(self._psi, self._dx, self._dy, self._g)
+
+        return self._units.unit_energy * _E_interaction
+
+
