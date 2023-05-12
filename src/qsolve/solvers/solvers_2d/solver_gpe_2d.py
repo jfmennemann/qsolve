@@ -88,8 +88,6 @@ class SolverGPE2D(object):
 
         self._psi = None
 
-        self.u_of_times = None
-
         self._t = None
 
         self._p = {
@@ -198,16 +196,24 @@ class SolverGPE2D(object):
 
             return self._units.unit_wave_function * _psi_0.cpu().numpy()
 
-    def set_u_of_times(self, u_of_times):
+    def init_time_evolution(self, *, t_final, dt):
 
-        self.u_of_times = u_of_times
+        self._t_final = t_final / self._units.unit_time
+        self._dt = dt / self._units.unit_time
 
-    def propagate_gpe(self, **kwargs):
+        self.n_time_steps = int(np.round(self._t_final / self._dt))
 
-        n_start = kwargs["n_start"]
-        n_inc = kwargs["n_inc"]
+        self.n_times = self.n_time_steps + 1
 
-        mue_shift = kwargs["mue_shift"] / self._units.unit_energy
+        assert (np.abs(self.n_time_steps * self._dt - self._t_final)) < 1e-14
+
+        self._times = self._dt * np.arange(self.n_times)
+
+        assert (np.abs(self._times[-1] - self._t_final)) < 1e-14
+
+    def propagate_gpe(self, *, u_of_times, n_start, n_inc, mue_shift=0.0):
+
+        _mue_shift = mue_shift / self._units.unit_energy
 
         n_local = 0
 
@@ -217,13 +223,13 @@ class SolverGPE2D(object):
 
             self._t = self._times[n]
 
-            if self.u_of_times.ndim > 1:
+            if u_of_times.ndim > 1:
 
-                u = 0.5 * (self.u_of_times[:, n] + self.u_of_times[:, n + 1])
+                u = 0.5 * (u_of_times[:, n] + u_of_times[:, n + 1])
 
             else:
 
-                u = 0.5 * (self.u_of_times[n] + self.u_of_times[n + 1])
+                u = 0.5 * (u_of_times[n] + u_of_times[n + 1])
 
             self._V = self._compute_external_potential(self._x_2d, self._y_2d, self._t, u, self._p)
 
@@ -232,28 +238,13 @@ class SolverGPE2D(object):
                 self._V,
                 self._dx,
                 self._dy,
-                self.dt,
-                mue_shift,
+                self._dt,
+                _mue_shift,
                 self._hbar,
                 self._m_atom,
                 self._g)
 
             n_local = n_local + 1
-
-    def init_time_evolution(self, **kwargs):
-
-        self.t_final = kwargs["t_final"] / self._units.unit_time
-        self.dt = kwargs["dt"] / self._units.unit_time
-
-        self.n_time_steps = int(np.round(self.t_final / self.dt))
-
-        self.n_times = self.n_time_steps + 1
-
-        assert (np.abs(self.n_time_steps * self.dt - self.t_final)) < 1e-14
-
-        self._times = self.dt * np.arange(self.n_times)
-
-        assert (np.abs(self._times[-1] - self.t_final)) < 1e-14
 
     @property
     def x(self):

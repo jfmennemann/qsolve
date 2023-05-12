@@ -109,11 +109,13 @@ solver = SolverGPE1D(m_atom=m_Rb_87,
                      device='cuda:0',
                      num_threads_cpu=num_threads_cpu)
 
+
 # =================================================================================================
 # init spatial grid
 # =================================================================================================
 
 solver.init_grid(x_min=x_min, x_max=x_max, Jx=Jx)
+
 
 # =================================================================================================
 # init time evolution
@@ -151,12 +153,17 @@ u_of_times[0, :] = u1_of_times
 
 
 # =================================================================================================
-# compute ground state solution
+# init external potential
 # =================================================================================================
 
 solver.init_external_potential(compute_external_potential, parameters_potential)
 
 solver.set_external_potential(t=0.0, u=u_of_times[0])
+
+
+# =================================================================================================
+# compute ground state solution
+# =================================================================================================
 
 psi_0, vec_res, vec_iter = solver.compute_ground_state_solution(n_atoms=n_atoms,
                                                                 n_iter=5000,
@@ -277,7 +284,6 @@ while True:
     if n < n_times - n_inc:
 
         solver.propagate_gpe(u_of_times=u_of_times, n_start=n, n_inc=n_inc, mue_shift=mue_0)
-        # solver.propagate_gpe(u_of_times=u_of_times, n_start=n, n_inc=n_inc)
 
         n = n + n_inc
 

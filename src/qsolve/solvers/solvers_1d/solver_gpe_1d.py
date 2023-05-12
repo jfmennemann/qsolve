@@ -162,6 +162,21 @@ class SolverGPE1D(object):
 
             return self._units.unit_wave_function * _psi_0.cpu().numpy()
 
+    def init_time_evolution(self, *, t_final, dt):
+
+        self._t_final = t_final / self._units.unit_time
+        self._dt = dt / self._units.unit_time
+
+        self._n_time_steps = int(np.round(self._t_final / self._dt))
+
+        self._n_times = self._n_time_steps + 1
+
+        assert (np.abs(self._n_time_steps * self._dt - self._t_final)) < 1e-14
+
+        self._times = self._dt * np.arange(self._n_times)
+
+        assert (np.abs(self._times[-1] - self._t_final)) < 1e-14
+
     def propagate_gpe(self, *, u_of_times, n_start, n_inc, mue_shift=0.0):
 
         _mue_shift = mue_shift / self._units.unit_energy
@@ -195,21 +210,6 @@ class SolverGPE1D(object):
                 self._g)
 
             n_local = n_local + 1
-
-    def init_time_evolution(self, t_final, dt):
-
-        self._t_final = t_final / self._units.unit_time
-        self._dt = dt / self._units.unit_time
-
-        self._n_time_steps = int(np.round(self._t_final / self._dt))
-
-        self._n_times = self._n_time_steps + 1
-
-        assert (np.abs(self._n_time_steps * self._dt - self._t_final)) < 1e-14
-
-        self._times = self._dt * np.arange(self._n_times)
-
-        assert (np.abs(self._times[-1] - self._t_final)) < 1e-14
 
     @property
     def x(self):

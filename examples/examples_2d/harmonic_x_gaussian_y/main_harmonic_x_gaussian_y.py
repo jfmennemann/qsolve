@@ -127,6 +127,11 @@ solver = SolverGPE2D(m_atom=m_Rb_87,
                      device='cuda:0',
                      num_threads_cpu=num_threads_cpu)
 
+
+# =================================================================================================
+# init spatial grid
+# =================================================================================================
+
 solver.init_grid(x_min=x_min,
                  x_max=x_max,
                  y_min=y_min,
@@ -134,8 +139,6 @@ solver.init_grid(x_min=x_min,
                  Jx=Jx,
                  Jy=Jy)
 
-x = solver.x
-y = solver.y
 
 # =================================================================================================
 # init time evolution
@@ -163,29 +166,24 @@ assert (np.abs(times_analysis[-1] - t_final) / t_final < 1e-14)
 # init control inputs
 # =================================================================================================
 
-# -------------------------------------------------------------------------------------------------
 vec_t = np.array([0.0, 0.1, 0.2, 1.0]) * t_final
 vec_u = np.array([1.0, 1.0, 0.0, 0.0])
 
 u_of_times = pchip_interpolate(vec_t, vec_u, times)
-# -------------------------------------------------------------------------------------------------
+
+
+# =================================================================================================
+# init external potential
+# =================================================================================================
+
+solver.init_external_potential(compute_external_potential, parameters_potential)
+
+solver.set_external_potential(t=0.0, u=u_of_times[0])
 
 
 # =================================================================================================
 # compute ground state solution
 # =================================================================================================
-
-# -------------------------------------------------------------------------------------------------
-# u_0 = u_of_times[0]
-
-# solver.set_external_potential(t=0, u=u_0)
-
-# solver.init_potential(Potential, params_potential)
-
-solver.init_external_potential(compute_external_potential, parameters_potential)
-
-solver.set_external_potential(t=0.0, u=u_of_times[0])
-# -------------------------------------------------------------------------------------------------
 
 psi_0 = solver.compute_ground_state_solution(n_atoms=N, n_iter=5000, tau=0.005e-3)
 
@@ -224,7 +222,7 @@ params_figure_main = {
 }
 
 # ---------------------------------------------------------------------------------------------
-figure_main = FigureMain(x, y, times, params_figure_main)
+figure_main = FigureMain(solver.x, solver.y, times, params_figure_main)
 
 figure_main.fig_control_inputs.update_u(u_of_times)
 
@@ -236,7 +234,7 @@ figure_main.fig_control_inputs.update_t(0.0)
 # compute time evolution
 # =================================================================================================
 
-solver.set_u_of_times(u_of_times)
+# solver.set_u_of_times(u_of_times)
 
 if export_psi_of_times_analysis:
 
@@ -263,13 +261,7 @@ while True:
 
         psi_of_times_analysis[nr_times_analysis, :] = data.psi
 
-    print('----------------------------------------------------------------------------------------')
-    print('t:             {0:1.2f} / {1:1.2f}'.format(t / 1e-3, times[-1] / 1e-3))
-    print('n:             {0:4d} / {1:4d}'.format(n, n_times))
-    print()
-    print('N:             {0:1.4f}'.format(data.N))
-    print('----------------------------------------------------------------------------------------')
-    print()
+    print('t: {0:1.2f} / {1:1.2f}, n: {2:4d} / {3:4d}, N:{4:4f}'.format(t / 1e-3, times[-1] / 1e-3, n, n_times, N))
 
     # ---------------------------------------------------------------------------------------------
     figure_main.update_data(data)
@@ -291,7 +283,7 @@ while True:
 
     if n < n_times - n_inc:
 
-        solver.propagate_gpe(n_start=n, n_inc=n_inc, mue_shift=mue_0)
+        solver.propagate_gpe(u_of_times=u_of_times, n_start=n, n_inc=n_inc, mue_shift=mue_0)
 
         n = n + n_inc
 
