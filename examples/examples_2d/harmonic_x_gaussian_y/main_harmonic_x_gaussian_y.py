@@ -234,8 +234,6 @@ figure_main.fig_control_inputs.update_t(0.0)
 # compute time evolution
 # =================================================================================================
 
-# solver.set_u_of_times(u_of_times)
-
 if export_psi_of_times_analysis:
 
     psi_of_times_analysis = np.zeros((n_times_analysis, Jx, Jy), dtype=np.complex128)
