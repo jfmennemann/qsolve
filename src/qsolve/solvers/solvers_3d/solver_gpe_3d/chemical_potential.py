@@ -44,7 +44,7 @@ def compute_chemical_potential(self, identifier, kwargs):
 
     if units == "si_units":
 
-        return self.units.unit_energy * mue
+        return self._units.unit_energy * mue
 
     else:
 

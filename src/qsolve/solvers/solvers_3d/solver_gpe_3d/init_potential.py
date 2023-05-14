@@ -10,11 +10,11 @@ def init_potential(self, Potential, params_user):
         "hbar": self.hbar,
         "mu_B": self.mu_B,
         "m_atom": self.m_atom,
-        "unit_length": self.units.unit_length,
-        "unit_time": self.units.unit_time,
-        "unit_mass": self.units.unit_mass,
-        "unit_energy": self.units.unit_energy,
-        "unit_frequency": self.units.unit_frequency,
+        "unit_length": self._units.unit_length,
+        "unit_time": self._units.unit_time,
+        "unit_mass": self._units.unit_mass,
+        "unit_energy": self._units.unit_energy,
+        "unit_frequency": self._units.unit_frequency,
         "device": self.device
     }
 

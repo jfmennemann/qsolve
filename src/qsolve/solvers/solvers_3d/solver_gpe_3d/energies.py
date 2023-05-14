@@ -171,7 +171,7 @@ def compute_E_total(self, identifier, kwargs):
 
     if units == "si_units":
 
-        return self.units.unit_energy * E
+        return self._units.unit_energy * E
 
     else:
 

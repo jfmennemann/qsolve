@@ -7,14 +7,14 @@ from qsolve.primes import get_prime_factors
 
 def init_grid(self, kwargs):
 
-    self.x_min = kwargs['x_min'] / self.units.unit_length
-    self.x_max = kwargs['x_max'] / self.units.unit_length
+    self.x_min = kwargs['x_min'] / self._units.unit_length
+    self.x_max = kwargs['x_max'] / self._units.unit_length
 
-    self.y_min = kwargs['y_min'] / self.units.unit_length
-    self.y_max = kwargs['y_max'] / self.units.unit_length
+    self.y_min = kwargs['y_min'] / self._units.unit_length
+    self.y_max = kwargs['y_max'] / self._units.unit_length
 
-    self.z_min = kwargs['z_min'] / self.units.unit_length
-    self.z_max = kwargs['z_max'] / self.units.unit_length
+    self.z_min = kwargs['z_min'] / self._units.unit_length
+    self.z_max = kwargs['z_max'] / self._units.unit_length
 
     self.Jx = kwargs['Jx']
     self.Jy = kwargs['Jy']

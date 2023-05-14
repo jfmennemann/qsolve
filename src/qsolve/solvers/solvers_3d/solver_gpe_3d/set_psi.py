@@ -7,7 +7,7 @@ def set_psi(self, identifier, kwargs):
 
         array_numpy = kwargs['array']
 
-        self.psi = torch.tensor(array_numpy / self.units.unit_wave_function, device=self.device)
+        self.psi = torch.tensor(array_numpy / self._units.unit_wave_function, device=self.device)
 
     else:
 

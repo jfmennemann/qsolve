@@ -1,8 +1,7 @@
-from .check_python_version import check_python_version
+import sys
+import torch
 
-from .init_seed import init_seed
-from .init_device import init_device
-from .init_units import init_units
+import scipy
 
 from .init_grid_3d import init_grid
 
@@ -26,16 +25,73 @@ from .init_time_evolution import init_time_evolution
 
 from qsolve.core import qsolve_core_gpe_3d
 
+from qsolve.units import Units
+
 
 class SolverGPE3D(object):
 
     def __init__(self, **kwargs):
 
-        check_python_version()
+        # -------------------------------------------------------------------------------------------------
+        print("Python version:")
+        print(sys.version)
+        print()
+        print("PyTorch version:")
+        print(torch.__version__)
+        print()
+        # -------------------------------------------------------------------------------------------------
 
-        init_seed(self, kwargs)
-        init_device(self, kwargs)
-        init_units(self, kwargs)
+        if 'seed' in kwargs:
+
+            seed = kwargs['seed']
+
+        else:
+
+            seed = 0
+
+        torch.manual_seed(seed)
+
+        if 'device' in kwargs:
+
+            if kwargs['device'] == 'cuda:0':
+
+                self.device = torch.device('cuda:0')
+
+            elif kwargs['device'] == 'cpu':
+
+                self.device = torch.device('cpu')
+
+            else:
+
+                message = 'device \'{0:s}\' not supported'.format(kwargs['device'])
+
+                raise Exception(message)
+
+        else:
+
+            self.device = torch.device('cpu')
+
+        if 'num_threads_cpu' in kwargs:
+
+            torch.set_num_threads(kwargs['num_threads_cpu'])
+
+        self._units = Units.solver_units(kwargs['m_atom'], dim=3)
+
+        # ---------------------------------------------------------------------------------------------
+        self.hbar = scipy.constants.hbar / self._units.unit_hbar
+        self.mu_B = scipy.constants.physical_constants['Bohr magneton'][0] / self._units.unit_bohr_magneton
+        self.k_B = scipy.constants.Boltzmann / self._units.unit_k_B
+
+        self.m_atom = kwargs['m_atom'] / self._units.unit_mass
+        self.a_s = kwargs['a_s'] / self._units.unit_length
+        self.g = 4.0 * scipy.constants.pi * self.hbar ** 2 * self.a_s / self.m_atom
+
+        assert (self.hbar == 1.0)
+        assert (self.mu_B == 1.0)
+        assert (self.k_B == 1.0)
+
+        assert (self.m_atom == 1.0)
+        # ---------------------------------------------------------------------------------------------
 
     def init_grid(self, **kwargs):
         init_grid(self, kwargs)

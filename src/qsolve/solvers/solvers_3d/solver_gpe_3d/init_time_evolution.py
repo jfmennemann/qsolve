@@ -3,8 +3,8 @@ import numpy as np
 
 def init_time_evolution(self, kwargs):
 
-    self.t_final = kwargs["t_final"] / self.units.unit_time
-    self.dt = kwargs["dt"] / self.units.unit_time
+    self.t_final = kwargs["t_final"] / self._units.unit_time
+    self.dt = kwargs["dt"] / self._units.unit_time
 
     self.n_time_steps = int(np.round(self.t_final / self.dt))
 

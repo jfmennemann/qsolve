@@ -3,7 +3,7 @@ from qsolve.core import qsolve_core_gpe_3d
 
 def compute_ground_state_solution(self, kwargs):
 
-    tau = kwargs["tau"] / self.units.unit_time
+    tau = kwargs["tau"] / self._units.unit_time
 
     n_iter = kwargs["n_iter"]
 

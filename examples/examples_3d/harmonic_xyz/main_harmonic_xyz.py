@@ -213,7 +213,7 @@ solver.set_V(u=[u1_0, u2_0])
 # -------------------------------------------------------------------------------------------------
 time_1 = time()
 
-solver.compute_ground_state_solution(N=N, n_iter=20000, tau=0.001e-3, adaptive_tau=True)
+solver.compute_ground_state_solution(N=N, n_iter=5000, tau=0.001e-3, adaptive_tau=True)
 
 time_2 = time()
 

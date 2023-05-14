@@ -105,7 +105,7 @@ def get(self, identifier, kwargs):
 
         if units == "si_units":
 
-            return self.units.unit_length * x
+            return self._units.unit_length * x
 
         else:
 
@@ -117,7 +117,7 @@ def get(self, identifier, kwargs):
 
         if units == "si_units":
 
-            return self.units.unit_length * y
+            return self._units.unit_length * y
 
         else:
 
@@ -129,7 +129,7 @@ def get(self, identifier, kwargs):
 
         if units == "si_units":
 
-            return self.units.unit_length * z
+            return self._units.unit_length * z
 
         else:
 
@@ -139,7 +139,7 @@ def get(self, identifier, kwargs):
 
         if units == "si_units":
 
-            return self.units.unit_length * self.dx
+            return self._units.unit_length * self.dx
 
         else:
 
@@ -149,7 +149,7 @@ def get(self, identifier, kwargs):
 
         if units == "si_units":
 
-            return self.units.unit_length * self.dy
+            return self._units.unit_length * self.dy
 
         else:
 
@@ -159,7 +159,7 @@ def get(self, identifier, kwargs):
 
         if units == "si_units":
 
-            return self.units.unit_length * self.dz
+            return self._units.unit_length * self.dz
 
         else:
 
@@ -169,7 +169,7 @@ def get(self, identifier, kwargs):
 
         if units == "si_units":
 
-            return self.units.unit_length * self.Lx
+            return self._units.unit_length * self.Lx
 
         else:
 
@@ -179,7 +179,7 @@ def get(self, identifier, kwargs):
 
         if units == "si_units":
 
-            return self.units.unit_length * self.Ly
+            return self._units.unit_length * self.Ly
 
         else:
 
@@ -189,7 +189,7 @@ def get(self, identifier, kwargs):
 
         if units == "si_units":
 
-            return self.units.unit_length * self.Lz
+            return self._units.unit_length * self.Lz
 
         else:
 
@@ -199,7 +199,7 @@ def get(self, identifier, kwargs):
 
         if units == "si_units":
 
-            return self.units.unit_time * self.times
+            return self._units.unit_time * self.times
 
         else:
 
@@ -211,7 +211,7 @@ def get(self, identifier, kwargs):
 
         if units == "si_units":
 
-            return self.units.unit_energy * V
+            return self._units.unit_energy * V
 
         else:
 
@@ -223,7 +223,7 @@ def get(self, identifier, kwargs):
 
         if units == "si_units":
 
-            return self.units.unit_wave_function * psi_0
+            return self._units.unit_wave_function * psi_0
 
         else:
 
@@ -235,7 +235,7 @@ def get(self, identifier, kwargs):
 
         if units == "si_units":
 
-            return self.units.unit_wave_function * psi
+            return self._units.unit_wave_function * psi
 
         else:
 
@@ -255,7 +255,7 @@ def get(self, identifier, kwargs):
 
         if units == "si_units":
 
-            return self.units.unit_wave_function * psi_tof_free_gpe
+            return self._units.unit_wave_function * psi_tof_free_gpe
 
         else:
 
@@ -267,7 +267,7 @@ def get(self, identifier, kwargs):
 
         if units == "si_units":
 
-            return self.units.unit_wave_function * psi_f_tof_free_schroedinger
+            return self._units.unit_wave_function * psi_f_tof_free_schroedinger
 
         else:
 
@@ -279,7 +279,7 @@ def get(self, identifier, kwargs):
 
         if units == "si_units":
 
-            return self.units.unit_length * x_tof_free_gpe
+            return self._units.unit_length * x_tof_free_gpe
 
         else:
 
@@ -291,7 +291,7 @@ def get(self, identifier, kwargs):
 
         if units == "si_units":
 
-            return self.units.unit_length * y_tof_free_gpe
+            return self._units.unit_length * y_tof_free_gpe
 
         else:
 
@@ -303,7 +303,7 @@ def get(self, identifier, kwargs):
 
         if units == "si_units":
 
-            return self.units.unit_length * z_tof_free_gpe
+            return self._units.unit_length * z_tof_free_gpe
 
         else:
 
@@ -315,7 +315,7 @@ def get(self, identifier, kwargs):
 
         if units == "si_units":
 
-            return self.units.unit_length * x_f_tof_free_schroedinger
+            return self._units.unit_length * x_f_tof_free_schroedinger
 
         else:
 
@@ -327,7 +327,7 @@ def get(self, identifier, kwargs):
 
         if units == "si_units":
 
-            return self.units.unit_length * y_f_tof_free_schroedinger
+            return self._units.unit_length * y_f_tof_free_schroedinger
 
         else:
 
@@ -339,7 +339,7 @@ def get(self, identifier, kwargs):
 
         if units == "si_units":
 
-            return self.units.unit_length * z_f_tof_free_schroedinger
+            return self._units.unit_length * z_f_tof_free_schroedinger
 
         else:
 
