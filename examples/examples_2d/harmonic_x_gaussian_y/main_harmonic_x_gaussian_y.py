@@ -1,21 +1,21 @@
 from qsolve.solvers import SolverGPE2D
+from qsolve.figures import FigureMain2d
 
-import mkl
+from potential_harmonic_x_gaussian_y import compute_external_potential
+
 import os
 
-import h5py
+import mkl
 
 import numpy as np
 
-from scipy import constants
+import scipy
 
 from scipy.interpolate import pchip_interpolate
 
 import matplotlib.pyplot as plt
 
-from figures.figure_main.figure_main import FigureMain
-
-from potential_harmonic_x_gaussian_y import compute_external_potential
+import h5py
 
 from evaluation import eval_data
 
@@ -32,15 +32,11 @@ assert(mkl.get_max_threads() == num_threads_cpu)
 # -------------------------------------------------------------------------------------------------
 
 # -------------------------------------------------------------------------------------------------
-pi = constants.pi
+pi = scipy.constants.pi
 
-hbar = constants.hbar
+hbar = scipy.constants.hbar
 
-amu = constants.physical_constants["atomic mass constant"][0]  # atomic mass unit
-
-mu_B = constants.physical_constants["Bohr magneton"][0]
-
-k_B = constants.Boltzmann
+amu = scipy.constants.physical_constants["atomic mass constant"][0]  # atomic mass unit
 # -------------------------------------------------------------------------------------------------
 
 # -------------------------------------------------------------------------------------------------
@@ -144,11 +140,16 @@ solver.init_grid(x_min=x_min,
 # init time evolution
 # =================================================================================================
 
-solver.init_time_evolution(t_final=t_final, dt=dt)
+# -------------------------------------------------------------------------------------------------
+n_time_steps = int(np.round(t_final / dt))
 
-times = solver.times
+n_times = n_time_steps + 1
 
-n_times = times.size
+assert (np.abs(n_time_steps * dt - t_final)) < 1e-14
+
+times = dt * np.arange(n_times)
+
+assert (np.abs(times[-1] - t_final)) < 1e-14
 # -------------------------------------------------------------------------------------------------
 
 # -------------------------------------------------------------------------------------------------
@@ -222,7 +223,7 @@ params_figure_main = {
 }
 
 # ---------------------------------------------------------------------------------------------
-figure_main = FigureMain(solver.x, solver.y, times, params_figure_main)
+figure_main = FigureMain2d(solver.x, solver.y, times, params_figure_main)
 
 figure_main.fig_control_inputs.update_u(u_of_times)
 
@@ -281,7 +282,7 @@ while True:
 
     if n < n_times - n_inc:
 
-        solver.propagate_gpe(u_of_times=u_of_times, n_start=n, n_inc=n_inc, mue_shift=mue_0)
+        solver.propagate_gpe(times=times, u_of_times=u_of_times, n_start=n, n_inc=n_inc, mue_shift=mue_0)
 
         n = n + n_inc
 

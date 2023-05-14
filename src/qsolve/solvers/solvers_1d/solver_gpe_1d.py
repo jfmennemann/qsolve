@@ -74,13 +74,6 @@ class SolverGPE1D(object):
 
         self._psi = None
 
-        self._t_final = None
-        self._dt = None
-        self._n_time_steps = None
-        self._n_times = None
-        self._times = None
-        self._t = 0.0
-
         self._p = {
             "hbar": self._hbar,
             "mu_B": self._mu_B,
@@ -122,6 +115,8 @@ class SolverGPE1D(object):
                 _value = value / self._units.unit_time
             elif unit == 'Hz':
                 _value = value / self._units.unit_frequency
+            elif unit == 'J':
+                _value = value / self._units.unit_energy
             else:
                 raise Exception('unknown unit')
 
@@ -162,22 +157,10 @@ class SolverGPE1D(object):
 
             return self._units.unit_wave_function * _psi_0.cpu().numpy()
 
-    def init_time_evolution(self, *, t_final, dt):
+    def propagate_gpe(self, *, times, u_of_times, n_start, n_inc, mue_shift=0.0):
 
-        self._t_final = t_final / self._units.unit_time
-        self._dt = dt / self._units.unit_time
-
-        self._n_time_steps = int(np.round(self._t_final / self._dt))
-
-        self._n_times = self._n_time_steps + 1
-
-        assert (np.abs(self._n_time_steps * self._dt - self._t_final)) < 1e-14
-
-        self._times = self._dt * np.arange(self._n_times)
-
-        assert (np.abs(self._times[-1] - self._t_final)) < 1e-14
-
-    def propagate_gpe(self, *, u_of_times, n_start, n_inc, mue_shift=0.0):
+        _times = times / self._units.unit_time
+        _dt = _times[1] - _times[0]
 
         _mue_shift = mue_shift / self._units.unit_energy
 
@@ -187,7 +170,7 @@ class SolverGPE1D(object):
 
             n = n_start + n_local
 
-            self._t = self._times[n]
+            _t = _times[n]
 
             if u_of_times.ndim > 1:
 
@@ -197,13 +180,13 @@ class SolverGPE1D(object):
 
                 _u = 0.5 * (u_of_times[n] + u_of_times[n + 1])
 
-            self._V = self._compute_external_potential(self._x, self._t, _u, self._p)
+            self._V = self._compute_external_potential(self._x, _t, _u, self._p)
 
             self._psi = qsolve_core_gpe_1d.propagate_gpe(
                 self._psi,
                 self._V,
                 self._dx,
-                self._dt,
+                _dt,
                 _mue_shift,
                 self._hbar,
                 self._m_atom,
@@ -218,14 +201,6 @@ class SolverGPE1D(object):
     @property
     def dx(self):
         return self._units.unit_length * self._dx
-
-    @property
-    def times(self):
-        return self._units.unit_time * self._times
-
-    @property
-    def t(self):
-        return self._units.unit_time * self._t
 
     @property
     def psi(self):

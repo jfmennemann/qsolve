@@ -2,7 +2,7 @@ from numpy import zeros_like
 
 import numpy as np
 
-from .. style import colors
+from ..style import colors
 
 
 class fig_density_x(object):

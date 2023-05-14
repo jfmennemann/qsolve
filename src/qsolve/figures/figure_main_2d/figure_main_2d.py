@@ -18,10 +18,10 @@ from .fig_real_part_y import fig_real_part_y
 
 from .fig_control_inputs import fig_control_inputs
 
-from .. style import colors
+from ..style import colors
 
 
-class FigureMain(object):
+class FigureMain2d(object):
 
     def __init__(self, x, y, times, params):
 

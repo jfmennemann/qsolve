@@ -88,8 +88,6 @@ class SolverGPE2D(object):
 
         self._psi = None
 
-        self._t = None
-
         self._p = {
             "hbar": self._hbar,
             "mu_B": self._mu_B,
@@ -196,22 +194,10 @@ class SolverGPE2D(object):
 
             return self._units.unit_wave_function * _psi_0.cpu().numpy()
 
-    def init_time_evolution(self, *, t_final, dt):
+    def propagate_gpe(self, *, times, u_of_times, n_start, n_inc, mue_shift=0.0):
 
-        self._t_final = t_final / self._units.unit_time
-        self._dt = dt / self._units.unit_time
-
-        self.n_time_steps = int(np.round(self._t_final / self._dt))
-
-        self.n_times = self.n_time_steps + 1
-
-        assert (np.abs(self.n_time_steps * self._dt - self._t_final)) < 1e-14
-
-        self._times = self._dt * np.arange(self.n_times)
-
-        assert (np.abs(self._times[-1] - self._t_final)) < 1e-14
-
-    def propagate_gpe(self, *, u_of_times, n_start, n_inc, mue_shift=0.0):
+        _times = times / self._units.unit_time
+        _dt = _times[1] - _times[0]
 
         _mue_shift = mue_shift / self._units.unit_energy
 
@@ -221,7 +207,7 @@ class SolverGPE2D(object):
 
             n = n_start + n_local
 
-            self._t = self._times[n]
+            _t = _times[n]
 
             if u_of_times.ndim > 1:
 
@@ -231,14 +217,14 @@ class SolverGPE2D(object):
 
                 u = 0.5 * (u_of_times[n] + u_of_times[n + 1])
 
-            self._V = self._compute_external_potential(self._x_2d, self._y_2d, self._t, u, self._p)
+            self._V = self._compute_external_potential(self._x_2d, self._y_2d, _t, u, self._p)
 
             self._psi = qsolve_core_gpe_2d.propagate_gpe(
                 self._psi,
                 self._V,
                 self._dx,
                 self._dy,
-                self._dt,
+                _dt,
                 _mue_shift,
                 self._hbar,
                 self._m_atom,
@@ -261,10 +247,6 @@ class SolverGPE2D(object):
     @property
     def index_center_y(self):
         return self._index_center_y
-
-    @property
-    def times(self):
-        return self._units.unit_time * self._times
 
     @property
     def V(self):
@@ -312,5 +294,3 @@ class SolverGPE2D(object):
         _E_interaction = qsolve_core_gpe_2d.compute_interaction_energy(self._psi, self._dx, self._dy, self._g)
 
         return self._units.unit_energy * _E_interaction
-
-

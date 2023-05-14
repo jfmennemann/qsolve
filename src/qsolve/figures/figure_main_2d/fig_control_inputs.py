@@ -1,6 +1,6 @@
 import numpy as np
 
-from .. style import colors
+from ..style import colors
 
 
 class fig_control_inputs(object):
