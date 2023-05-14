@@ -46,7 +46,7 @@ class SolverGPE2D(object):
 
         _omega_z = omega_z / self._units.unit_frequency
 
-        _g_3d = 4.0 * scipy.constants.pi * self._hbar ** 2 * self._a_s / self._m_atom
+        _g_3d = 4.0 * math.pi * self._hbar ** 2 * self._a_s / self._m_atom
 
         _a_z = math.sqrt(self._hbar / (self._m_atom * _omega_z))
 
@@ -232,34 +232,6 @@ class SolverGPE2D(object):
 
             n_local = n_local + 1
 
-    @property
-    def x(self):
-        return self._units.unit_length * self._x.cpu().numpy()
-
-    @property
-    def y(self):
-        return self._units.unit_length * self._y.cpu().numpy()
-
-    @property
-    def index_center_x(self):
-        return self._index_center_x
-
-    @property
-    def index_center_y(self):
-        return self._index_center_y
-
-    @property
-    def V(self):
-        return self._units.unit_energy * self._V.cpu().numpy()
-
-    @property
-    def psi(self):
-        return self._units.unit_wave_function * self._psi.cpu().numpy()
-
-    @psi.setter
-    def psi(self, value):
-        self._psi = torch.tensor(value / self._units.unit_wave_function, device=self._device)
-
     def compute_n_atoms(self):
         return qsolve_core_gpe_2d.compute_n_atoms(self._psi, self._dx, self._dy)
 
@@ -294,3 +266,31 @@ class SolverGPE2D(object):
         _E_interaction = qsolve_core_gpe_2d.compute_interaction_energy(self._psi, self._dx, self._dy, self._g)
 
         return self._units.unit_energy * _E_interaction
+
+    @property
+    def x(self):
+        return self._units.unit_length * self._x.cpu().numpy()
+
+    @property
+    def y(self):
+        return self._units.unit_length * self._y.cpu().numpy()
+
+    @property
+    def index_center_x(self):
+        return self._index_center_x
+
+    @property
+    def index_center_y(self):
+        return self._index_center_y
+
+    @property
+    def V(self):
+        return self._units.unit_energy * self._V.cpu().numpy()
+
+    @property
+    def psi(self):
+        return self._units.unit_wave_function * self._psi.cpu().numpy()
+
+    @psi.setter
+    def psi(self, value):
+        self._psi = torch.tensor(value / self._units.unit_wave_function, device=self._device)

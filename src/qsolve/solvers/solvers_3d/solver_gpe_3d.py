@@ -1,74 +1,49 @@
-import sys
 import torch
 
 import scipy
 
 import numpy as np
 
-from qsolve.primes import get_prime_factors
+import sys
+
+import math
 
 from qsolve.core import qsolve_core_gpe_3d
+
+from qsolve.primes import get_prime_factors
 
 from qsolve.units import Units
 
 
 class SolverGPE3D(object):
 
-    def __init__(self, **kwargs):
+    def __init__(self, *, m_atom, a_s, seed=0, device='cpu', num_threads_cpu=1):
 
-        # -------------------------------------------------------------------------------------------------
+        # -----------------------------------------------------------------------------------------
         print("Python version:")
         print(sys.version)
         print()
         print("PyTorch version:")
         print(torch.__version__)
         print()
-        # -------------------------------------------------------------------------------------------------
-
-        if 'seed' in kwargs:
-
-            seed = kwargs['seed']
-
-        else:
-
-            seed = 0
+        # -----------------------------------------------------------------------------------------
 
         torch.manual_seed(seed)
 
-        if 'device' in kwargs:
+        torch.set_num_threads(num_threads_cpu)
 
-            if kwargs['device'] == 'cuda:0':
+        self._device = torch.device(device)
 
-                self.device = torch.device('cuda:0')
-
-            elif kwargs['device'] == 'cpu':
-
-                self.device = torch.device('cpu')
-
-            else:
-
-                message = 'device \'{0:s}\' not supported'.format(kwargs['device'])
-
-                raise Exception(message)
-
-        else:
-
-            self.device = torch.device('cpu')
-
-        if 'num_threads_cpu' in kwargs:
-
-            torch.set_num_threads(kwargs['num_threads_cpu'])
-
-        self._units = Units.solver_units(kwargs['m_atom'], dim=3)
+        self._units = Units.solver_units(m_atom, dim=3)
 
         # ---------------------------------------------------------------------------------------------
         self._hbar = scipy.constants.hbar / self._units.unit_hbar
         self._mu_B = scipy.constants.physical_constants['Bohr magneton'][0] / self._units.unit_bohr_magneton
         self._k_B = scipy.constants.Boltzmann / self._units.unit_k_B
 
-        self._m_atom = kwargs['m_atom'] / self._units.unit_mass
-        self._a_s = kwargs['a_s'] / self._units.unit_length
-        self._g = 4.0 * scipy.constants.pi * self._hbar ** 2 * self._a_s / self._m_atom
+        self._m_atom = m_atom / self._units.unit_mass
+        self._a_s = a_s / self._units.unit_length
+        self._g = 4.0 * math.pi * self._hbar ** 2 * self._a_s / self._m_atom
 
         assert (self._hbar == 1.0)
         assert (self._mu_B == 1.0)
@@ -79,68 +54,64 @@ class SolverGPE3D(object):
 
     def init_grid(self, **kwargs):
 
-        self.x_min = kwargs['x_min'] / self._units.unit_length
-        self.x_max = kwargs['x_max'] / self._units.unit_length
+        self._x_min = kwargs['x_min'] / self._units.unit_length
+        self._x_max = kwargs['x_max'] / self._units.unit_length
 
-        self.y_min = kwargs['y_min'] / self._units.unit_length
-        self.y_max = kwargs['y_max'] / self._units.unit_length
+        self._y_min = kwargs['y_min'] / self._units.unit_length
+        self._y_max = kwargs['y_max'] / self._units.unit_length
 
-        self.z_min = kwargs['z_min'] / self._units.unit_length
-        self.z_max = kwargs['z_max'] / self._units.unit_length
+        self._z_min = kwargs['z_min'] / self._units.unit_length
+        self._z_max = kwargs['z_max'] / self._units.unit_length
 
-        self.Jx = kwargs['Jx']
-        self.Jy = kwargs['Jy']
-        self.Jz = kwargs['Jz']
+        self._Jx = kwargs['Jx']
+        self._Jy = kwargs['Jy']
+        self._Jz = kwargs['Jz']
 
-        prime_factors_Jx = get_prime_factors(self.Jx)
-        prime_factors_Jy = get_prime_factors(self.Jy)
-        prime_factors_Jz = get_prime_factors(self.Jz)
+        assert (np.max(get_prime_factors(self._Jx)) < 11)
+        assert (np.max(get_prime_factors(self._Jy)) < 11)
+        assert (np.max(get_prime_factors(self._Jz)) < 11)
 
-        assert (np.max(prime_factors_Jx) < 11)
-        assert (np.max(prime_factors_Jy) < 11)
-        assert (np.max(prime_factors_Jz) < 11)
+        assert (self._Jx % 2 == 0)
+        assert (self._Jy % 2 == 0)
+        assert (self._Jz % 2 == 0)
 
-        assert (self.Jx % 2 == 0)
-        assert (self.Jy % 2 == 0)
-        assert (self.Jz % 2 == 0)
+        _x = np.linspace(self._x_min, self._x_max, self._Jx, endpoint=False)
+        _y = np.linspace(self._y_min, self._y_max, self._Jy, endpoint=False)
+        _z = np.linspace(self._z_min, self._z_max, self._Jz, endpoint=False)
 
-        x = np.linspace(self.x_min, self.x_max, self.Jx, endpoint=False)
-        y = np.linspace(self.y_min, self.y_max, self.Jy, endpoint=False)
-        z = np.linspace(self.z_min, self.z_max, self.Jz, endpoint=False)
+        self._index_center_x = np.argmin(np.abs(_x))
+        self._index_center_y = np.argmin(np.abs(_y))
+        self._index_center_z = np.argmin(np.abs(_z))
 
-        self.index_center_x = np.argmin(np.abs(x))
-        self.index_center_y = np.argmin(np.abs(y))
-        self.index_center_z = np.argmin(np.abs(z))
+        assert (np.abs(_x[self._index_center_x]) < 1e-14)
+        assert (np.abs(_y[self._index_center_y]) < 1e-14)
+        assert (np.abs(_z[self._index_center_z]) < 1e-14)
 
-        assert (np.abs(x[self.index_center_x]) < 1e-14)
-        assert (np.abs(y[self.index_center_y]) < 1e-14)
-        assert (np.abs(z[self.index_center_z]) < 1e-14)
+        self._dx = _x[1] - _x[0]
+        self._dy = _y[1] - _y[0]
+        self._dz = _z[1] - _z[0]
 
-        self.dx = x[1] - x[0]
-        self.dy = y[1] - y[0]
-        self.dz = z[1] - z[0]
+        self._Lx = self._Jx * self._dx
+        self._Ly = self._Jy * self._dy
+        self._Lz = self._Jz * self._dz
 
-        self.Lx = self.Jx * self.dx
-        self.Ly = self.Jy * self.dy
-        self.Lz = self.Jz * self.dz
+        self._x = torch.tensor(_x, dtype=torch.float64, device=self._device)
+        self._y = torch.tensor(_y, dtype=torch.float64, device=self._device)
+        self._z = torch.tensor(_z, dtype=torch.float64, device=self._device)
 
-        self.x = torch.tensor(x, dtype=torch.float64, device=self.device)
-        self.y = torch.tensor(y, dtype=torch.float64, device=self.device)
-        self.z = torch.tensor(z, dtype=torch.float64, device=self.device)
-
-        self.x_3d = torch.reshape(self.x, (self.Jx, 1, 1))
-        self.y_3d = torch.reshape(self.y, (1, self.Jy, 1))
-        self.z_3d = torch.reshape(self.z, (1, 1, self.Jz))
+        self._x_3d = torch.reshape(self._x, (self._Jx, 1, 1))
+        self._y_3d = torch.reshape(self._y, (1, self._Jy, 1))
+        self._z_3d = torch.reshape(self._z, (1, 1, self._Jz))
 
     def init_potential(self, Potential, params):
 
         params_solver = {
-            "x_3d": self.x_3d,
-            "y_3d": self.y_3d,
-            "z_3d": self.z_3d,
-            "Lx": self.Lx,
-            "Ly": self.Ly,
-            "Lz": self.Lz,
+            "x_3d": self._x_3d,
+            "y_3d": self._y_3d,
+            "z_3d": self._z_3d,
+            "Lx": self._Lx,
+            "Ly": self._Ly,
+            "Lz": self._Lz,
             "hbar": self._hbar,
             "mu_B": self._mu_B,
             "m_atom": self._m_atom,
@@ -149,7 +120,7 @@ class SolverGPE3D(object):
             "unit_mass": self._units.unit_mass,
             "unit_energy": self._units.unit_energy,
             "unit_frequency": self._units.unit_frequency,
-            "device": self.device
+            "device": self._device
         }
 
         self.potential = Potential(params_solver, params)
@@ -158,64 +129,43 @@ class SolverGPE3D(object):
 
         u = kwargs['u']
 
-        self.V = self.potential.eval(u)
+        self._V = self.potential.eval(u)
 
-    def set_psi(self, identifier, **kwargs):
+    def compute_ground_state_solution(self, *, n_atoms, n_iter, tau, adaptive_tau=True, return_residuals=False):
 
-        if identifier == 'numpy':
-
-            array_numpy = kwargs['array']
-
-            self.psi = torch.tensor(array_numpy / self._units.unit_wave_function, device=self.device)
-
-        else:
-
-            error_message = 'set_psi(identifier, **kwargs): identifier \'{0:s}\' not supported'.format(identifier)
-
-            exit(error_message)
-
-    def compute_ground_state_solution(self, **kwargs):
-
-        tau = kwargs["tau"] / self._units.unit_time
-
-        n_iter = kwargs["n_iter"]
+        _tau = tau / self._units.unit_time
 
         if n_iter < 2500:
+
             message = 'compute_ground_state_solution(self, **kwargs): n_iter should not be smaller than 2500'
 
             raise Exception(message)
 
-        if "adaptive_tau" in kwargs:
-
-            adaptive_tau = kwargs["adaptive_tau"]
-
-        else:
-
-            adaptive_tau = True
-
-        N = kwargs["N"]
-
-        psi_0, vec_res, vec_iter = qsolve_core_gpe_3d.compute_ground_state_solution(
-            self.V,
-            self.dx,
-            self.dy,
-            self.dz,
-            tau,
+        _psi_0, vec_res, vec_iter = qsolve_core_gpe_3d.compute_ground_state_solution(
+            self._V,
+            self._dx,
+            self._dy,
+            self._dz,
+            _tau,
             adaptive_tau,
             n_iter,
-            N,
+            n_atoms,
             self._hbar,
             self._m_atom,
             self._g)
 
-        self.psi_0 = psi_0
+        if return_residuals:
 
-        self.vec_res_ground_state_computation = vec_res
-        self.vec_iter_ground_state_computation = vec_iter
+            return self._units.unit_wave_function * _psi_0.cpu().numpy(), vec_res, vec_iter
+
+        else:
+
+            return self._units.unit_wave_function * _psi_0.cpu().numpy()
 
     def init_sgpe_z_eff(self, **kwargs):
 
         def __compute_filter_z(z, z1, z2, s):
+
             Jz = z.shape[0]
 
             filter_z_1st = 1.0 / (1.0 + torch.exp(-(z - z1) / s))
@@ -237,7 +187,7 @@ class SolverGPE3D(object):
 
         s = kwargs["filter_z_s"] / self._units.unit_length
 
-        self.filter_z_sgpe = __compute_filter_z(self.z, z1, z2, s)
+        self.filter_z_sgpe = __compute_filter_z(self._z, z1, z2, s)
 
     def set_u_of_times(self, u_of_times):
         self.u_of_times = u_of_times
@@ -263,14 +213,14 @@ class SolverGPE3D(object):
 
                 u = 0.5 * (self.u_of_times[n] + self.u_of_times[n + 1])
 
-            self.V = self.potential.eval(u)
+            self._V = self.potential.eval(u)
 
-            self.psi = qsolve_core_gpe_3d.propagate_gpe(
-                self.psi,
-                self.V,
-                self.dx,
-                self.dy,
-                self.dz,
+            self._psi = qsolve_core_gpe_3d.propagate_gpe(
+                self._psi,
+                self._V,
+                self._dx,
+                self._dy,
+                self._dz,
                 self.dt,
                 mue_shift,
                 self._hbar,
@@ -280,13 +230,169 @@ class SolverGPE3D(object):
             n_local = n_local + 1
 
     def init_time_of_flight(self, params):
-        qsolve_core_gpe_3d.init_time_of_flight(self, params)
+
+        self.Jx_tof_free_gpe = params["Jx_tof_free_gpe"]
+        self.Jy_tof_free_gpe = params["Jy_tof_free_gpe"]
+        self.Jz_tof_free_gpe = params["Jz_tof_free_gpe"]
+
+        self.T_tof_total = params["T_tof_total"] / self._units.unit_time
+        self.T_tof_free_gpe = params["T_tof_free_gpe"] / self._units.unit_time
+
+        self.T_tof_free_schroedinger = self.T_tof_total - self.T_tof_free_gpe
+
+        self.dt_tof_free_gpe = self.dt
+
+        self.dx_tof_free_gpe = self._dx
+        self.dy_tof_free_gpe = self._dy
+        self.dz_tof_free_gpe = self._dz
+
+        # ---------------------------------------------------------------------------------------------
+        self.n_time_steps_tof_free_gpe = int(np.round(self.T_tof_free_gpe / self.dt_tof_free_gpe))
+
+        assert (self.n_time_steps_tof_free_gpe * self.dt_tof_free_gpe - self.T_tof_free_gpe) < 1e-14
+        # ---------------------------------------------------------------------------------------------
+
+        # ---------------------------------------------------------------------------------------------
+        assert (self.Jx_tof_free_gpe >= self._Jx)
+        assert (self.Jy_tof_free_gpe >= self._Jy)
+        assert (self.Jz_tof_free_gpe >= self._Jz)
+
+        assert (self.Jx_tof_free_gpe % 2 == 0)
+        assert (self.Jy_tof_free_gpe % 2 == 0)
+        assert (self.Jz_tof_free_gpe % 2 == 0)
+
+        prime_factors_Jx_tof_free_gpe = get_prime_factors(self.Jx_tof_free_gpe)
+        prime_factors_Jy_tof_free_gpe = get_prime_factors(self.Jy_tof_free_gpe)
+        prime_factors_Jz_tof_free_gpe = get_prime_factors(self.Jz_tof_free_gpe)
+
+        assert (np.max(prime_factors_Jx_tof_free_gpe) < 11)
+        assert (np.max(prime_factors_Jy_tof_free_gpe) < 11)
+        assert (np.max(prime_factors_Jz_tof_free_gpe) < 11)
+        # ---------------------------------------------------------------------------------------------
+
+        # ---------------------------------------------------------------------------------------------
+        x_tof_free_gpe = self.dx_tof_free_gpe * np.arange(-self.Jx_tof_free_gpe // 2, self.Jx_tof_free_gpe // 2)
+        y_tof_free_gpe = self.dy_tof_free_gpe * np.arange(-self.Jy_tof_free_gpe // 2, self.Jy_tof_free_gpe // 2)
+        z_tof_free_gpe = self.dz_tof_free_gpe * np.arange(-self.Jz_tof_free_gpe // 2, self.Jz_tof_free_gpe // 2)
+
+        self.index_center_x_tof_free_gpe = np.argmin(np.abs(x_tof_free_gpe))
+        self.index_center_y_tof_free_gpe = np.argmin(np.abs(y_tof_free_gpe))
+        self.index_center_z_tof_free_gpe = np.argmin(np.abs(z_tof_free_gpe))
+
+        assert (np.abs(x_tof_free_gpe[self.index_center_x_tof_free_gpe]) < 1e-14)
+        assert (np.abs(y_tof_free_gpe[self.index_center_y_tof_free_gpe]) < 1e-14)
+        assert (np.abs(z_tof_free_gpe[self.index_center_z_tof_free_gpe]) < 1e-14)
+
+        self.x_tof_free_gpe = torch.tensor(x_tof_free_gpe, dtype=torch.float64, device=self._device)
+        self.y_tof_free_gpe = torch.tensor(y_tof_free_gpe, dtype=torch.float64, device=self._device)
+        self.z_tof_free_gpe = torch.tensor(z_tof_free_gpe, dtype=torch.float64, device=self._device)
+        # ---------------------------------------------------------------------------------------------
+
+        # ---------------------------------------------------------------------------------------------
+        self.x_0_tof_free_schroedinger = self.x_tof_free_gpe
+        self.y_0_tof_free_schroedinger = self.y_tof_free_gpe
+        self.z_0_tof_free_schroedinger = self.z_tof_free_gpe
+
+        Jx_tof_final = params["Jx_tof_final"]
+        Jy_tof_final = params["Jy_tof_final"]
+        Jz_tof_final = params["Jz_tof_final"]
+
+        x_min_tof_final = params["x_min_tof_final"] / self._units.unit_length
+        x_max_tof_final = params["x_max_tof_final"] / self._units.unit_length
+
+        y_min_tof_final = params["y_min_tof_final"] / self._units.unit_length
+        y_max_tof_final = params["y_max_tof_final"] / self._units.unit_length
+
+        z_min_tof_final = params["z_min_tof_final"] / self._units.unit_length
+        z_max_tof_final = params["z_max_tof_final"] / self._units.unit_length
+
+        x_f_tof_free_schroedinger = np.linspace(x_min_tof_final, x_max_tof_final, Jx_tof_final, endpoint=True)
+        y_f_tof_free_schroedinger = np.linspace(y_min_tof_final, y_max_tof_final, Jy_tof_final, endpoint=True)
+        z_f_tof_free_schroedinger = np.linspace(z_min_tof_final, z_max_tof_final, Jz_tof_final, endpoint=True)
+
+        index_center_x_f_tof_free_schroedinger = np.argmin(np.abs(x_f_tof_free_schroedinger))
+        index_center_y_f_tof_free_schroedinger = np.argmin(np.abs(y_f_tof_free_schroedinger))
+        index_center_z_f_tof_free_schroedinger = np.argmin(np.abs(z_f_tof_free_schroedinger))
+
+        assert (np.abs(x_f_tof_free_schroedinger[index_center_x_f_tof_free_schroedinger]) < 5e-14)
+        assert (np.abs(y_f_tof_free_schroedinger[index_center_y_f_tof_free_schroedinger]) < 5e-14)
+        assert (np.abs(z_f_tof_free_schroedinger[index_center_z_f_tof_free_schroedinger]) < 5e-14)
+
+        self.x_f_tof_free_schroedinger = torch.tensor(x_f_tof_free_schroedinger, dtype=torch.float64,
+                                                      device=self._device)
+        self.y_f_tof_free_schroedinger = torch.tensor(y_f_tof_free_schroedinger, dtype=torch.float64,
+                                                      device=self._device)
+        self.z_f_tof_free_schroedinger = torch.tensor(z_f_tof_free_schroedinger, dtype=torch.float64,
+                                                      device=self._device)
+
+        self.index_center_x_f_tof_free_schroedinger = index_center_x_f_tof_free_schroedinger
+        self.index_center_y_f_tof_free_schroedinger = index_center_y_f_tof_free_schroedinger
+        self.index_center_z_f_tof_free_schroedinger = index_center_z_f_tof_free_schroedinger
+        # ---------------------------------------------------------------------------------------------
 
     def compute_time_of_flight(self, **kwargs):
-        qsolve_core_gpe_3d.compute_time_of_flight(self, kwargs)
+
+        print('----------------------------------------------------------------------------------------')
+        print("time of flight:")
+
+        self.psi_tof_free_gpe = qsolve_core_gpe_3d.init_psi_tof_free_gpe(
+            self._psi,
+            self.Jx_tof_free_gpe,
+            self.Jy_tof_free_gpe,
+            self.Jz_tof_free_gpe)
+
+        print("propagate psi_tof_free_gpe ...")
+
+        self.psi_tof_free_gpe = qsolve_core_gpe_3d.propagate_free_gpe(
+            self.psi_tof_free_gpe,
+            self.dx_tof_free_gpe,
+            self.dy_tof_free_gpe,
+            self.dz_tof_free_gpe,
+            self.dt_tof_free_gpe,
+            self.n_time_steps_tof_free_gpe,
+            self._hbar,
+            self._m_atom,
+            self._g)
+
+        self.psi_0_tof_free_schroedinger = self.psi_tof_free_gpe
+
+        print("compute psi_tof_free_schroedinger ...")
+
+        self.psi_f_tof_free_schroedinger = qsolve_core_gpe_3d.solve_tof_free_schroedinger(
+            self.psi_0_tof_free_schroedinger,
+            self.x_0_tof_free_schroedinger,
+            self.y_0_tof_free_schroedinger,
+            self.z_0_tof_free_schroedinger,
+            self.x_f_tof_free_schroedinger,
+            self.y_f_tof_free_schroedinger,
+            self.z_f_tof_free_schroedinger,
+            self.T_tof_free_schroedinger,
+            self._hbar,
+            self._m_atom)
+
+        print('----------------------------------------------------------------------------------------')
+
+        print()
 
     def propagate_sgpe_z_eff(self, **kwargs):
-        qsolve_core_gpe_3d.propagate_sgpe_z_eff(self, kwargs)
+
+        self._psi = qsolve_core_gpe_3d.propagate_sgpe_z_eff(
+            self._psi,
+            self._V,
+            self._dx,
+            self._dy,
+            self._dz,
+            self.dt_sgpe,
+            kwargs["n_inc"],
+            self.T_des_sgpe,
+            self.mue_des_sgpe,
+            self.gamma_sgpe,
+            self._hbar,
+            self._k_B,
+            self._m_atom,
+            self._g)
+
+        self._psi = self.filter_z_sgpe * self._psi
 
     def init_time_evolution(self, **kwargs):
 
@@ -307,127 +413,7 @@ class SolverGPE3D(object):
 
         units = "si_units"
 
-        if identifier == "Jx":
-
-            return self.Jx
-
-        elif identifier == "Jy":
-
-            return self.Jy
-
-        elif identifier == "Jz":
-
-            return self.Jz
-
-        elif identifier == "index_center_x":
-
-            return self.index_center_x
-
-        elif identifier == "index_center_y":
-
-            return self.index_center_y
-
-        elif identifier == "index_center_z":
-
-            return self.index_center_z
-
-        elif identifier == "x":
-
-            x = self.x.cpu().numpy()
-
-            if units == "si_units":
-
-                return self._units.unit_length * x
-
-            else:
-
-                return x
-
-        elif identifier == "y":
-
-            y = self.y.cpu().numpy()
-
-            if units == "si_units":
-
-                return self._units.unit_length * y
-
-            else:
-
-                return y
-
-        elif identifier == "z":
-
-            z = self.z.cpu().numpy()
-
-            if units == "si_units":
-
-                return self._units.unit_length * z
-
-            else:
-
-                return z
-
-        elif identifier == "dx":
-
-            if units == "si_units":
-
-                return self._units.unit_length * self.dx
-
-            else:
-
-                return self.dx
-
-        elif identifier == "dy":
-
-            if units == "si_units":
-
-                return self._units.unit_length * self.dy
-
-            else:
-
-                return self.dy
-
-        elif identifier == "dz":
-
-            if units == "si_units":
-
-                return self._units.unit_length * self.dz
-
-            else:
-
-                return self.dz
-
-        elif identifier == "Lx":
-
-            if units == "si_units":
-
-                return self._units.unit_length * self.Lx
-
-            else:
-
-                return self.Lx
-
-        elif identifier == "Ly":
-
-            if units == "si_units":
-
-                return self._units.unit_length * self.Ly
-
-            else:
-
-                return self.Ly
-
-        elif identifier == "Lz":
-
-            if units == "si_units":
-
-                return self._units.unit_length * self.Lz
-
-            else:
-
-                return self.Lz
-
-        elif identifier == "times":
+        if identifier == "times":
 
             if units == "si_units":
 
@@ -436,42 +422,6 @@ class SolverGPE3D(object):
             else:
 
                 return self.times
-
-        elif identifier == "V":
-
-            V = self.V.cpu().numpy()
-
-            if units == "si_units":
-
-                return self._units.unit_energy * V
-
-            else:
-
-                return V
-
-        elif identifier == "psi_0":
-
-            psi_0 = self.psi_0.cpu().numpy()
-
-            if units == "si_units":
-
-                return self._units.unit_wave_function * psi_0
-
-            else:
-
-                return psi_0
-
-        elif identifier == "psi":
-
-            psi = self.psi.cpu().numpy()
-
-            if units == "si_units":
-
-                return self._units.unit_wave_function * psi
-
-            else:
-
-                return psi
 
         elif identifier == "filter_z_sgpe":
 
@@ -577,176 +527,36 @@ class SolverGPE3D(object):
 
                 return z_f_tof_free_schroedinger
 
-        elif identifier == "vec_res_ground_state_computation":
-
-            return self.vec_res_ground_state_computation.cpu().numpy()
-
-        elif identifier == "vec_iter_ground_state_computation":
-
-            return self.vec_iter_ground_state_computation.cpu().numpy()
-
         else:
 
             message = 'get(identifier, **kwargs): identifier \'{0:s}\' not supported'.format(identifier)
 
             raise Exception(message)
 
-    def compute_n_atoms(self, identifier):
+    def compute_n_atoms(self):
+        return qsolve_core_gpe_3d.compute_n_atoms(self._psi, self._dx, self._dy, self._dz)
 
-        if identifier == "psi":
+    def compute_chemical_potential(self):
 
-            n_atoms = qsolve_core_gpe_3d.compute_n_atoms(self.psi, self.dx, self.dy, self.dz)
+        _mue = qsolve_core_gpe_3d.compute_chemical_potential(
+            self._psi, self._V, self._dx, self._dy, self._dz, self._hbar, self._m_atom, self._g)
 
-        elif identifier == "psi_0":
+        return self._units.unit_energy * _mue
 
-            n_atoms = qsolve_core_gpe_3d.compute_n_atoms(self.psi_0, self.dx, self.dy, self.dz)
+    def compute_total_energy(self):
 
-        else:
+        _E = qsolve_core_gpe_3d.compute_total_energy(
+            self._psi, self._V, self._dx, self._dy, self._dz, self._hbar, self._m_atom, self._g)
 
-            message = 'identifier \'{0:s}\' not supported for this operation'.format(identifier)
+        return self._units.unit_energy * _E
 
-            raise Exception(message)
+    def compute_kinetic_energy(self):
 
-        return n_atoms
+        _E_kinetic = qsolve_core_gpe_3d.compute_kinetic_energy(
+            self._psi, self._dx, self._dy, self._dz, self._hbar, self._m_atom)
 
-    def compute_chemical_potential(self, identifier, **kwargs):
+        return self._units.unit_energy * _E_kinetic
 
-        if "units" in kwargs:
-
-            units = kwargs["units"]
-
-        else:
-
-            units = "si_units"
-
-        if identifier == "psi":
-
-            mue = qsolve_core_gpe_3d.compute_chemical_potential(
-                self.psi,
-                self.V,
-                self.dx,
-                self.dy,
-                self.dz,
-                self._hbar,
-                self._m_atom,
-                self._g)
-
-        elif identifier == "psi_0":
-
-            mue = qsolve_core_gpe_3d.compute_chemical_potential(
-                self.psi_0,
-                self.V,
-                self.dx,
-                self.dy,
-                self.dz,
-                self._hbar,
-                self._m_atom,
-                self._g)
-
-        else:
-
-            message = 'compute_chemical_potential(self, identifier, **kwargs): ' \
-                      'identifier \'{0:s}\'not supported'.format(identifier)
-
-            raise Exception(message)
-
-        if units == "si_units":
-
-            return self._units.unit_energy * mue
-
-        else:
-
-            return mue
-
-    def compute_E_total(self, identifier, **kwargs):
-
-        if "units" in kwargs:
-
-            units = kwargs["units"]
-
-        else:
-
-            units = "si_units"
-
-        if identifier == "psi":
-
-            E = qsolve_core_gpe_3d.compute_total_energy(self.psi, self.V, self.dx, self.dy, self.dz, self._hbar,
-                                                        self._m_atom, self._g)
-
-        elif identifier == "psi_0":
-
-            E = qsolve_core_gpe_3d.compute_total_energy(self.psi_0, self.V, self.dx, self.dy, self.dz, self._hbar,
-                                                        self._m_atom, self._g)
-
-        else:
-
-            message = 'compute_E_total(self, identifier, **kwargs): \'identifier \'{0:s}\' ' \
-                      'not supported'.format(identifier)
-
-            raise Exception(message)
-
-        if units == "si_units":
-
-            return self._units.unit_energy * E
-
-        else:
-
-            return E
-
-    def compute_E_kinetic(self, identifier, **kwargs):
-
-        if "units" in kwargs:
-
-            units = kwargs["units"]
-
-        else:
-
-            units = "si_units"
-
-        if identifier == "psi":
-
-            E_kinetic = qsolve_core_gpe_3d.compute_kinetic_energy(
-                self.psi,
-                self.dx,
-                self.dy,
-                self.dz,
-                self._hbar,
-                self._m_atom)
-
-        elif identifier == "psi_0":
-
-            E_kinetic = qsolve_core_gpe_3d.compute_kinetic_energy(
-                self.psi_0,
-                self.dx,
-                self.dy,
-                self.dz,
-                self._hbar,
-                self._m_atom)
-
-        elif identifier == "psi_tof_free_gpe":
-
-            E_kinetic = qsolve_core_gpe_3d.compute_kinetic_energy(
-                self.psi_tof_free_gpe,
-                self.dx_tof_free_gpe,
-                self.dy_tof_free_gpe,
-                self.dz_tof_free_gpe,
-                self._hbar,
-                self._m_atom)
-
-        else:
-
-            message = 'compute_E_kinetic(self, identifier, **kwargs): \'identifier \'{0:s}\' ' \
-                      'not supported'.format(identifier)
-
-            raise Exception(message)
-
-        if units == "si_units":
-
-            return self.units.unit_energy * E_kinetic
-
-        else:
-
-            return E_kinetic
 
     def compute_E_potential(self, identifier, **kwargs):
 
@@ -760,11 +570,11 @@ class SolverGPE3D(object):
 
         if identifier == "psi":
 
-            E_potential = qsolve_core_gpe_3d.compute_potential_energy(self.psi, self.V, self.dx, self.dy, self.dz)
+            E_potential = qsolve_core_gpe_3d.compute_potential_energy(self._psi, self._V, self._dx, self._dy, self._dz)
 
         elif identifier == "psi_0":
 
-            E_potential = qsolve_core_gpe_3d.compute_potential_energy(self.psi_0, self.V, self.dx, self.dy, self.dz)
+            E_potential = qsolve_core_gpe_3d.compute_potential_energy(self.psi_0, self._V, self._dx, self._dy, self._dz)
 
         else:
 
@@ -775,7 +585,7 @@ class SolverGPE3D(object):
 
         if units == "si_units":
 
-            return self.units.unit_energy * E_potential
+            return self._units.unit_energy * E_potential
 
         else:
 
@@ -794,19 +604,19 @@ class SolverGPE3D(object):
         if identifier == "psi":
 
             E_interaction = qsolve_core_gpe_3d.compute_interaction_energy(
-                self.psi,
-                self.dx,
-                self.dy,
-                self.dz,
+                self._psi,
+                self._dx,
+                self._dy,
+                self._dz,
                 self._g)
 
         elif identifier == "psi_0":
 
             E_interaction = qsolve_core_gpe_3d.compute_interaction_energy(
                 self.psi_0,
-                self.dx,
-                self.dy,
-                self.dz,
+                self._dx,
+                self._dy,
+                self._dz,
                 self._g)
 
         elif identifier == "psi_tof_free_gpe":
@@ -827,7 +637,7 @@ class SolverGPE3D(object):
 
         if units == "si_units":
 
-            return self.units.unit_energy * E_interaction
+            return self._units.unit_energy * E_interaction
 
         else:
 
@@ -982,3 +792,63 @@ class SolverGPE3D(object):
         spectrum_abs_xz = spectrum_abs_xz.cpu().numpy()
 
         return spectrum_abs_xz
+
+    @property
+    def V(self):
+        return self._units.unit_energy * self._V.cpu().numpy()
+
+    @property
+    def psi(self):
+        return self._units.unit_wave_function * self._psi.cpu().numpy()
+
+    @psi.setter
+    def psi(self, value):
+        self._psi = torch.tensor(value / self._units.unit_wave_function, device=self._device)
+
+    @property
+    def x(self):
+        return self._units.unit_length * self._x.cpu().numpy()
+
+    @property
+    def y(self):
+        return self._units.unit_length * self._y.cpu().numpy()
+
+    @property
+    def z(self):
+        return self._units.unit_length * self._z.cpu().numpy()
+
+    @property
+    def dx(self):
+        return self._units.unit_length * self._dx
+
+    @property
+    def dy(self):
+        return self._units.unit_length * self._dy
+
+    @property
+    def dz(self):
+        return self._units.unit_length * self._dz
+
+    @property
+    def Jx(self):
+        return self._Jx
+
+    @property
+    def Jy(self):
+        return self._Jy
+
+    @property
+    def Jz(self):
+        return self._Jz
+
+    @property
+    def index_center_x(self):
+        return self._index_center_x
+
+    @property
+    def index_center_y(self):
+        return self._index_center_y
+
+    @property
+    def index_center_z(self):
+        return self._index_center_z

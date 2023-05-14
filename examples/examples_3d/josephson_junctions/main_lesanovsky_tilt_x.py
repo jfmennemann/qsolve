@@ -238,7 +238,7 @@ solver = SolverGPE3D(m_atom=m_Rb_87,
                      seed=1,
                      device='cuda:0',
                      # device='cpu',
-                     num_threads=num_threads_cpu)
+                     num_threads_cpu=num_threads_cpu)
 
 solver.init_grid(x_min=x_min,
                  x_max=x_max,
@@ -252,9 +252,9 @@ solver.init_grid(x_min=x_min,
 
 solver.init_potential(PotentialLesanovskyTiltX, params_potential)
 
-x = solver.get('x')
-y = solver.get('y')
-z = solver.get('z')
+x = solver.x
+y = solver.y
+z = solver.z
 
 # -------------------------------------------------------------------------------------------------
 solver.init_time_evolution(t_final=t_final, dt=dt)
@@ -358,17 +358,17 @@ solver.set_V(u=[u1_0, u2_0])
 # -------------------------------------------------------------------------------------------------
 
 # -------------------------------------------------------------------------------------------------
-solver.compute_ground_state_solution(N=N, n_iter=5000, tau=0.005e-3, tau_adaptive=True)
+psi_0 = solver.compute_ground_state_solution(n_atoms=N, n_iter=5000, tau=0.005e-3, adaptive_tau=True)
 
-psi_0 = solver.get('psi_0')
+solver.psi = psi_0
 
-N_psi_0 = solver.compute_n_atoms('psi_0')
-mue_psi_0 = solver.compute_chemical_potential('psi_0')
-E_psi_0 = solver.compute_E_total('psi_0')
+N_0 = solver.compute_n_atoms()
+mue_0 = solver.compute_chemical_potential()
+E_0 = solver.compute_total_energy()
 
-print('N_psi_0 = {:1.16e}'.format(N_psi_0))
-print('mue_psi_0 / h: {0:1.6} kHz'.format(mue_psi_0 / (1e3 * (2 * pi * hbar))))
-print('E_psi_0 / (N_psi_0*h): {0:1.6} kHz'.format(E_psi_0 / (1e3 * (2 * pi * hbar * N_psi_0))))
+print('N_0 = {:1.16e}'.format(N_0))
+print('mue_0 / h: {0:1.6} kHz'.format(mue_0 / (1e3 * (2 * pi * hbar))))
+print('E_0 / (N_0*h): {0:1.6} kHz'.format(E_0 / (1e3 * (2 * pi * hbar * N_0))))
 print()
 # -------------------------------------------------------------------------------------------------
 
@@ -377,15 +377,15 @@ print()
 # set wave function psi to ground state solution psi_0
 # =================================================================================================
 
-solver.set_psi('numpy', array=psi_0)
+solver.psi = psi_0
 
-N_psi = solver.compute_n_atoms('psi')
-mue_psi = solver.compute_chemical_potential('psi')
-E_psi = solver.compute_E_total('psi')
+N = solver.compute_n_atoms()
+mue = solver.compute_chemical_potential()
+E = solver.compute_total_energy()
 
-print('N_psi = {:1.16e}'.format(N_psi))
-print('mue_psi / h: {0:1.6} kHz'.format(mue_psi / (1e3 * (2 * pi * hbar))))
-print('E_psi / (N_psi*h): {0:1.6} kHz'.format(E_psi / (1e3 * (2 * pi * hbar * N_psi))))
+print('N = {:1.16e}'.format(N))
+print('mue / h: {0:1.6} kHz'.format(mue / (1e3 * (2 * pi * hbar))))
+print('E / (N_psi*h): {0:1.6} kHz'.format(E / (1e3 * (2 * pi * hbar * N))))
 print()
 
 
@@ -424,7 +424,7 @@ if T > 0:
 
     solver.init_sgpe_z_eff(
         T_temp_des=T,
-        mue_des=mue_psi_0,
+        mue_des=mue_0,
         gamma=0.1,
         dt=dt,
         filter_z1=-45e-6,
@@ -620,7 +620,7 @@ while True:
 
     if n < n_times - n_inc:
 
-        solver.propagate_gpe(n_start=n, n_inc=n_inc, mue_shift=mue_psi_0)
+        solver.propagate_gpe(n_start=n, n_inc=n_inc, mue_shift=mue_0)
 
         n = n + n_inc
 

@@ -101,20 +101,20 @@ def compute_number_imbalance(psi, dx, dy, dz, index_center_x):
 
 def eval_data(solver):
 
-    dx = solver.get('dx')
-    dy = solver.get('dy')
-    dz = solver.get('dz')
+    dx = solver.dx
+    dy = solver.dy
+    dz = solver.dz
 
-    Jx = solver.get('Jx')
+    Jx = solver.Jx
 
-    index_center_x = solver.get('index_center_x')
-    index_center_y = solver.get('index_center_y')
-    index_center_z = solver.get('index_center_z')
+    index_center_x = solver.index_center_x
+    index_center_y = solver.index_center_y
+    index_center_z = solver.index_center_z
 
     data = type('', (), {})()
 
     # ---------------------------------------------------------------------------------------------
-    V = solver.get('V')
+    V = solver.V
 
     V_x = V[:, index_center_y, index_center_z].squeeze()
 
@@ -130,7 +130,7 @@ def eval_data(solver):
     # ---------------------------------------------------------------------------------------------
 
     # ---------------------------------------------------------------------------------------------
-    psi = solver.get('psi')
+    psi = solver.psi
 
     psi_x = psi[:, index_center_y, index_center_z].squeeze()
 
@@ -188,7 +188,7 @@ def eval_data(solver):
     # ---------------------------------------------------------------------------------------------
 
     # ---------------------------------------------------------------------------------------------
-    data.N = solver.compute_n_atoms('psi')
+    data.N = solver.compute_n_atoms()
     # ---------------------------------------------------------------------------------------------
 
     # ---------------------------------------------------------------------------------------------
