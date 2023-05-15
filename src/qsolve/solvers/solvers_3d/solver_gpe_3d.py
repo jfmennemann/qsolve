@@ -177,10 +177,10 @@ class SolverGPE3D(object):
 
             return filter_z
 
-        self.T_des_sgpe = kwargs["T_temp_des"] / self._units.unit_temperature
-        self.mue_des_sgpe = kwargs["mue_des"] / self._units.unit_energy
-        self.gamma_sgpe = kwargs["gamma"]
-        self.dt_sgpe = kwargs["dt"] / self._units.unit_time
+        self._T_des_sgpe = kwargs["T_temp_des"] / self._units.unit_temperature
+        self._mue_des_sgpe = kwargs["mue_des"] / self._units.unit_energy
+        self._gamma_sgpe = kwargs["gamma"]
+        self._dt_sgpe = kwargs["dt"] / self._units.unit_time
 
         z1 = kwargs["filter_z1"] / self._units.unit_length
         z2 = kwargs["filter_z2"] / self._units.unit_length
@@ -234,10 +234,10 @@ class SolverGPE3D(object):
         self._Jy_tof_free_gpe = params["Jy_tof_free_gpe"]
         self._Jz_tof_free_gpe = params["Jz_tof_free_gpe"]
 
-        self.T_tof_total = params["T_tof_total"] / self._units.unit_time
-        self.T_tof_free_gpe = params["T_tof_free_gpe"] / self._units.unit_time
+        self._T_tof_total = params["T_tof_total"] / self._units.unit_time
+        self._T_tof_free_gpe = params["T_tof_free_gpe"] / self._units.unit_time
 
-        self.T_tof_free_schroedinger = self.T_tof_total - self.T_tof_free_gpe
+        self._T_tof_free_schroedinger = self._T_tof_total - self._T_tof_free_gpe
 
         self._dt_tof_free_gpe = params["dt_tof_free_gpe"] / self._units.unit_time
 
@@ -246,9 +246,9 @@ class SolverGPE3D(object):
         self._dz_tof_free_gpe = self._dz
 
         # ---------------------------------------------------------------------------------------------
-        self.n_time_steps_tof_free_gpe = int(np.round(self.T_tof_free_gpe / self._dt_tof_free_gpe))
+        self._n_time_steps_tof_free_gpe = int(np.round(self._T_tof_free_gpe / self._dt_tof_free_gpe))
 
-        assert (self.n_time_steps_tof_free_gpe * self._dt_tof_free_gpe - self.T_tof_free_gpe) < 1e-14
+        assert (self._n_time_steps_tof_free_gpe * self._dt_tof_free_gpe - self._T_tof_free_gpe) < 1e-14
         # ---------------------------------------------------------------------------------------------
 
         # ---------------------------------------------------------------------------------------------
@@ -346,24 +346,24 @@ class SolverGPE3D(object):
             self._dy_tof_free_gpe,
             self._dz_tof_free_gpe,
             self._dt_tof_free_gpe,
-            self.n_time_steps_tof_free_gpe,
+            self._n_time_steps_tof_free_gpe,
             self._hbar,
             self._m_atom,
             self._g)
 
-        self.psi_0_tof_free_schroedinger = self._psi_tof_free_gpe
+        self._psi_0_tof_free_schroedinger = self._psi_tof_free_gpe.clone()
 
         print("compute psi_tof_free_schroedinger ...")
 
         self._psi_f_tof_free_schroedinger = qsolve_core_gpe_3d.solve_tof_free_schroedinger(
-            self.psi_0_tof_free_schroedinger,
+            self._psi_0_tof_free_schroedinger,
             self._x_0_tof_free_schroedinger,
             self._y_0_tof_free_schroedinger,
             self._z_0_tof_free_schroedinger,
             self._x_f_tof_free_schroedinger,
             self._y_f_tof_free_schroedinger,
             self._z_f_tof_free_schroedinger,
-            self.T_tof_free_schroedinger,
+            self._T_tof_free_schroedinger,
             self._hbar,
             self._m_atom)
 
@@ -379,11 +379,11 @@ class SolverGPE3D(object):
             self._dx,
             self._dy,
             self._dz,
-            self.dt_sgpe,
+            self._dt_sgpe,
             kwargs["n_inc"],
-            self.T_des_sgpe,
-            self.mue_des_sgpe,
-            self.gamma_sgpe,
+            self._T_des_sgpe,
+            self._mue_des_sgpe,
+            self._gamma_sgpe,
             self._hbar,
             self._k_B,
             self._m_atom,
@@ -426,90 +426,6 @@ class SolverGPE3D(object):
         _E_interaction = qsolve_core_gpe_3d.compute_interaction_energy(self._psi, self._dx, self._dy, self._dz, self._g)
 
         return self._units.unit_energy * _E_interaction
-
-    def compute_density_xy(self, identifier, **kwargs):
-
-        if "rescaling" in kwargs:
-
-            rescaling = kwargs["rescaling"]
-
-        else:
-
-            rescaling = False
-
-        if identifier == "psi_tof_gpe":
-
-            if "index_z" in kwargs:
-
-                index_z = kwargs["index_z"]
-
-            else:
-
-                index_z = self._index_center_z_tof_free_gpe
-
-            density_xy = qsolve_core_gpe_3d.compute_density_xy(self._psi_tof_free_gpe, index_z, rescaling)
-
-        elif identifier == "psi_f_tof_free_schroedinger":
-
-            if "index_z" in kwargs:
-
-                index_z = kwargs["index_z"]
-
-            else:
-
-                index_z = self._index_center_z_f_tof_free_schroedinger
-
-            density_xy = qsolve_core_gpe_3d.compute_density_xy(self._psi_f_tof_free_schroedinger, index_z, rescaling)
-
-        else:
-
-            message = 'compute_density_xz(identifier, **kwargs): identifier \'{0:s}\' not supported'.format(identifier)
-
-            raise Exception(message)
-
-        return density_xy.cpu().numpy()
-
-    def compute_density_xz(self, identifier, **kwargs):
-
-        if "rescaling" in kwargs:
-
-            rescaling = kwargs["rescaling"]
-
-        else:
-
-            rescaling = False
-
-        if identifier == "psi_tof_gpe":
-
-            if "index_y" in kwargs:
-
-                index_y = kwargs["index_y"]
-
-            else:
-
-                index_y = self._index_center_y_tof_free_gpe
-
-            density_xz = qsolve_core_gpe_3d.compute_density_xz(self._psi_tof_free_gpe, index_y, rescaling)
-
-        elif identifier == "psi_f_tof_free_schroedinger":
-
-            if "index_y" in kwargs:
-
-                index_y = kwargs["index_y"]
-
-            else:
-
-                index_y = self._index_center_y_f_tof_free_schroedinger
-
-            density_xz = qsolve_core_gpe_3d.compute_density_xz(self._psi_f_tof_free_schroedinger, index_y, rescaling)
-
-        else:
-
-            message = 'compute_density_xz(identifier, **kwargs): identifier \'{0:s}\' not supported'.format(identifier)
-
-            raise Exception(message)
-
-        return density_xz.cpu().numpy()
 
     def compute_spectrum_abs_xy(self, identifier, **kwargs):
 
@@ -638,16 +554,12 @@ class SolverGPE3D(object):
         return self._index_center_z
 
     @property
-    def x_tof_final(self):
-        return self._units.unit_length * self._x_f_tof_free_schroedinger.cpu().numpy()
+    def psi_tof_free_gpe(self):
+        return self._units.unit_wave_function * self._psi_tof_free_gpe.cpu().numpy()
 
-    @property
-    def y_tof_final(self):
-        return self._units.unit_length * self._y_f_tof_free_schroedinger.cpu().numpy()
-
-    @property
-    def z_tof_final(self):
-        return self._units.unit_length * self._z_f_tof_free_schroedinger.cpu().numpy()
+    @psi_tof_free_gpe.setter
+    def psi_tof_free_gpe(self, value):
+        self._psi_tof_free_gpe = torch.tensor(value / self._units.unit_wave_function, device=self._device)
 
     @property
     def x_tof_free_gpe(self):
@@ -662,9 +574,59 @@ class SolverGPE3D(object):
         return self._units.unit_length * self._z_tof_free_gpe.cpu().numpy()
 
     @property
-    def psi_tof_free_gpe(self):
-        return self._units.unit_wave_function * self._psi_tof_free_gpe.cpu().numpy()
-
-    @property
     def psi_f_tof_free_schroedinger(self):
         return self._units.unit_wave_function * self._psi_f_tof_free_schroedinger.cpu().numpy()
+
+    @psi_f_tof_free_schroedinger.setter
+    def psi_f_tof_free_schroedinger(self, value):
+        self._psi_f_tof_free_schroedinger = torch.tensor(value / self._units.unit_wave_function, device=self._device)
+
+    @property
+    def x_tof_final(self):
+        return self._units.unit_length * self._x_f_tof_free_schroedinger.cpu().numpy()
+
+    @property
+    def y_tof_final(self):
+        return self._units.unit_length * self._y_f_tof_free_schroedinger.cpu().numpy()
+
+    @property
+    def z_tof_final(self):
+        return self._units.unit_length * self._z_f_tof_free_schroedinger.cpu().numpy()
+
+
+
+
+
+
+
+    @property
+    def density_xy_tof_free_gpe(self, rescaling=True):
+
+        density_xy_tof_free_gpe = qsolve_core_gpe_3d.compute_density_xy(
+            self._psi_tof_free_gpe, self._index_center_z_tof_free_gpe, rescaling)
+
+        return density_xy_tof_free_gpe.cpu().numpy()
+
+    @property
+    def density_xz_tof_free_gpe(self, rescaling=True):
+
+        density_xz_tof_free_gpe = qsolve_core_gpe_3d.compute_density_xz(
+            self._psi_tof_free_gpe, self._index_center_y_tof_free_gpe, rescaling)
+
+        return density_xz_tof_free_gpe.cpu().numpy()
+
+    @property
+    def density_f_xy_tof_free_schroedinger(self, rescaling=True):
+
+        density_f_xy_tof_free_schroedinger = qsolve_core_gpe_3d.compute_density_xy(
+            self._psi_f_tof_free_schroedinger, self._index_center_z_f_tof_free_schroedinger, rescaling)
+
+        return density_f_xy_tof_free_schroedinger.cpu().numpy()
+
+    @property
+    def density_f_xz_tof_free_schroedinger(self, rescaling=True):
+
+        density_f_xz_tof_free_schroedinger = qsolve_core_gpe_3d.compute_density_xz(
+            self._psi_f_tof_free_schroedinger, self._index_center_y_f_tof_free_schroedinger, rescaling)
+
+        return density_f_xz_tof_free_schroedinger.cpu().numpy()

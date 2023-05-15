@@ -1,5 +1,7 @@
 import numpy as np
 
+from time import time
+
 
 def get_indices_x1_x2(V_x, Jx, index_center_x):
 
@@ -220,9 +222,21 @@ def eval_data_tof(solver):
 
     data_tof = type('', (), {})()
 
+    time_1 = time()
+    psi_tof_free_gpe = solver.psi_tof_free_gpe
+    time_2 = time()
+    print('elapsed_time: {0:f}'.format(time_2 - time_1))
+    print()
+
+    time_1 = time()
+    psi_f_tof_free_schroedinger = solver.psi_f_tof_free_schroedinger
+    time_2 = time()
+    print('elapsed_time: {0:f}'.format(time_2 - time_1))
+    print()
+
     # ---------------------------------------------------------------------------------------------
-    data_tof.density_xy_tof_gpe = solver.compute_density_xy('psi_tof_gpe', rescaling=True)
-    data_tof.density_xz_tof_gpe = solver.compute_density_xz('psi_tof_gpe', rescaling=True)
+    data_tof.density_xy_tof_gpe = solver.density_xy_tof_free_gpe
+    data_tof.density_xz_tof_gpe = solver.density_xz_tof_free_gpe
 
     data_tof.density_xy_mask_tof_gpe = data_tof.density_xy_tof_gpe > 1e-6
     data_tof.density_xz_mask_tof_gpe = data_tof.density_xz_tof_gpe > 1e-6
@@ -237,8 +251,8 @@ def eval_data_tof(solver):
     # ---------------------------------------------------------------------------------------------
 
     # ---------------------------------------------------------------------------------------------
-    data_tof.density_xz_tof_final = solver.compute_density_xz('psi_f_tof_free_schroedinger', rescaling=True)
-    data_tof.density_xy_tof_final = solver.compute_density_xy('psi_f_tof_free_schroedinger', rescaling=True)
+    data_tof.density_xy_tof_final = solver.density_f_xy_tof_free_schroedinger
+    data_tof.density_xz_tof_final = solver.density_f_xz_tof_free_schroedinger
     # ---------------------------------------------------------------------------------------------
 
     return data_tof
