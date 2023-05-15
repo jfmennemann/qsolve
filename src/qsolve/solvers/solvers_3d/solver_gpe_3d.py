@@ -189,15 +189,12 @@ class SolverGPE3D(object):
 
         self.filter_z_sgpe = __compute_filter_z(self._z, z1, z2, s)
 
-    def set_u_of_times(self, u_of_times):
-        self.u_of_times = u_of_times
+    def propagate_gpe(self, *, times, u_of_times, n_start, n_inc, mue_shift=0.0):
 
-    def propagate_gpe(self, **kwargs):
+        _times = times / self._units.unit_time
+        _dt = _times[1] - _times[0]
 
-        n_start = kwargs["n_start"]
-        n_inc = kwargs["n_inc"]
-
-        mue_shift = kwargs["mue_shift"] / self._units.unit_energy
+        _mue_shift = mue_shift / self._units.unit_energy
 
         n_local = 0
 
@@ -205,13 +202,15 @@ class SolverGPE3D(object):
 
             n = n_start + n_local
 
-            if self.u_of_times.ndim > 1:
+            _t = _times[n]
 
-                u = 0.5 * (self.u_of_times[:, n] + self.u_of_times[:, n + 1])
+            if u_of_times.ndim > 1:
+
+                u = 0.5 * (u_of_times[:, n] + u_of_times[:, n + 1])
 
             else:
 
-                u = 0.5 * (self.u_of_times[n] + self.u_of_times[n + 1])
+                u = 0.5 * (u_of_times[n] + u_of_times[n + 1])
 
             self._V = self.potential.eval(u)
 
@@ -221,8 +220,8 @@ class SolverGPE3D(object):
                 self._dx,
                 self._dy,
                 self._dz,
-                self.dt,
-                mue_shift,
+                _dt,
+                _mue_shift,
                 self._hbar,
                 self._m_atom,
                 self._g)
@@ -240,16 +239,16 @@ class SolverGPE3D(object):
 
         self.T_tof_free_schroedinger = self.T_tof_total - self.T_tof_free_gpe
 
-        self.dt_tof_free_gpe = self.dt
+        self._dt_tof_free_gpe = params["dt_tof_free_gpe"] / self._units.unit_time
 
-        self.dx_tof_free_gpe = self._dx
-        self.dy_tof_free_gpe = self._dy
-        self.dz_tof_free_gpe = self._dz
+        self._dx_tof_free_gpe = self._dx
+        self._dy_tof_free_gpe = self._dy
+        self._dz_tof_free_gpe = self._dz
 
         # ---------------------------------------------------------------------------------------------
-        self.n_time_steps_tof_free_gpe = int(np.round(self.T_tof_free_gpe / self.dt_tof_free_gpe))
+        self.n_time_steps_tof_free_gpe = int(np.round(self.T_tof_free_gpe / self._dt_tof_free_gpe))
 
-        assert (self.n_time_steps_tof_free_gpe * self.dt_tof_free_gpe - self.T_tof_free_gpe) < 1e-14
+        assert (self.n_time_steps_tof_free_gpe * self._dt_tof_free_gpe - self.T_tof_free_gpe) < 1e-14
         # ---------------------------------------------------------------------------------------------
 
         # ---------------------------------------------------------------------------------------------
@@ -271,63 +270,65 @@ class SolverGPE3D(object):
         # ---------------------------------------------------------------------------------------------
 
         # ---------------------------------------------------------------------------------------------
-        x_tof_free_gpe = self.dx_tof_free_gpe * np.arange(-self.Jx_tof_free_gpe // 2, self.Jx_tof_free_gpe // 2)
-        y_tof_free_gpe = self.dy_tof_free_gpe * np.arange(-self.Jy_tof_free_gpe // 2, self.Jy_tof_free_gpe // 2)
-        z_tof_free_gpe = self.dz_tof_free_gpe * np.arange(-self.Jz_tof_free_gpe // 2, self.Jz_tof_free_gpe // 2)
+        _x_tof_free_gpe = self._dx_tof_free_gpe * np.arange(-self.Jx_tof_free_gpe // 2, self.Jx_tof_free_gpe // 2)
+        _y_tof_free_gpe = self._dy_tof_free_gpe * np.arange(-self.Jy_tof_free_gpe // 2, self.Jy_tof_free_gpe // 2)
+        _z_tof_free_gpe = self._dz_tof_free_gpe * np.arange(-self.Jz_tof_free_gpe // 2, self.Jz_tof_free_gpe // 2)
 
-        self.index_center_x_tof_free_gpe = np.argmin(np.abs(x_tof_free_gpe))
-        self.index_center_y_tof_free_gpe = np.argmin(np.abs(y_tof_free_gpe))
-        self.index_center_z_tof_free_gpe = np.argmin(np.abs(z_tof_free_gpe))
+        self._index_center_x_tof_free_gpe = np.argmin(np.abs(_x_tof_free_gpe))
+        self._index_center_y_tof_free_gpe = np.argmin(np.abs(_y_tof_free_gpe))
+        self._index_center_z_tof_free_gpe = np.argmin(np.abs(_z_tof_free_gpe))
 
-        assert (np.abs(x_tof_free_gpe[self.index_center_x_tof_free_gpe]) < 1e-14)
-        assert (np.abs(y_tof_free_gpe[self.index_center_y_tof_free_gpe]) < 1e-14)
-        assert (np.abs(z_tof_free_gpe[self.index_center_z_tof_free_gpe]) < 1e-14)
+        assert (np.abs(_x_tof_free_gpe[self._index_center_x_tof_free_gpe]) < 1e-14)
+        assert (np.abs(_y_tof_free_gpe[self._index_center_y_tof_free_gpe]) < 1e-14)
+        assert (np.abs(_z_tof_free_gpe[self._index_center_z_tof_free_gpe]) < 1e-14)
 
-        self.x_tof_free_gpe = torch.tensor(x_tof_free_gpe, dtype=torch.float64, device=self._device)
-        self.y_tof_free_gpe = torch.tensor(y_tof_free_gpe, dtype=torch.float64, device=self._device)
-        self.z_tof_free_gpe = torch.tensor(z_tof_free_gpe, dtype=torch.float64, device=self._device)
+        self._x_tof_free_gpe = torch.tensor(_x_tof_free_gpe, dtype=torch.float64, device=self._device)
+        self._y_tof_free_gpe = torch.tensor(_y_tof_free_gpe, dtype=torch.float64, device=self._device)
+        self._z_tof_free_gpe = torch.tensor(_z_tof_free_gpe, dtype=torch.float64, device=self._device)
         # ---------------------------------------------------------------------------------------------
 
         # ---------------------------------------------------------------------------------------------
-        self.x_0_tof_free_schroedinger = self.x_tof_free_gpe
-        self.y_0_tof_free_schroedinger = self.y_tof_free_gpe
-        self.z_0_tof_free_schroedinger = self.z_tof_free_gpe
+        self._x_0_tof_free_schroedinger = self._x_tof_free_gpe
+        self._y_0_tof_free_schroedinger = self._y_tof_free_gpe
+        self._z_0_tof_free_schroedinger = self._z_tof_free_gpe
 
-        Jx_tof_final = params["Jx_tof_final"]
-        Jy_tof_final = params["Jy_tof_final"]
-        Jz_tof_final = params["Jz_tof_final"]
+        _Jx_tof_final = params["Jx_tof_final"]
+        _Jy_tof_final = params["Jy_tof_final"]
+        _Jz_tof_final = params["Jz_tof_final"]
 
-        x_min_tof_final = params["x_min_tof_final"] / self._units.unit_length
-        x_max_tof_final = params["x_max_tof_final"] / self._units.unit_length
+        _x_min_tof_final = params["x_min_tof_final"] / self._units.unit_length
+        _x_max_tof_final = params["x_max_tof_final"] / self._units.unit_length
 
-        y_min_tof_final = params["y_min_tof_final"] / self._units.unit_length
-        y_max_tof_final = params["y_max_tof_final"] / self._units.unit_length
+        _y_min_tof_final = params["y_min_tof_final"] / self._units.unit_length
+        _y_max_tof_final = params["y_max_tof_final"] / self._units.unit_length
 
-        z_min_tof_final = params["z_min_tof_final"] / self._units.unit_length
-        z_max_tof_final = params["z_max_tof_final"] / self._units.unit_length
+        _z_min_tof_final = params["z_min_tof_final"] / self._units.unit_length
+        _z_max_tof_final = params["z_max_tof_final"] / self._units.unit_length
 
-        x_f_tof_free_schroedinger = np.linspace(x_min_tof_final, x_max_tof_final, Jx_tof_final, endpoint=True)
-        y_f_tof_free_schroedinger = np.linspace(y_min_tof_final, y_max_tof_final, Jy_tof_final, endpoint=True)
-        z_f_tof_free_schroedinger = np.linspace(z_min_tof_final, z_max_tof_final, Jz_tof_final, endpoint=True)
+        _x_f_tof_free_schroedinger = np.linspace(_x_min_tof_final, _x_max_tof_final, _Jx_tof_final, endpoint=True)
+        _y_f_tof_free_schroedinger = np.linspace(_y_min_tof_final, _y_max_tof_final, _Jy_tof_final, endpoint=True)
+        _z_f_tof_free_schroedinger = np.linspace(_z_min_tof_final, _z_max_tof_final, _Jz_tof_final, endpoint=True)
 
-        index_center_x_f_tof_free_schroedinger = np.argmin(np.abs(x_f_tof_free_schroedinger))
-        index_center_y_f_tof_free_schroedinger = np.argmin(np.abs(y_f_tof_free_schroedinger))
-        index_center_z_f_tof_free_schroedinger = np.argmin(np.abs(z_f_tof_free_schroedinger))
+        _index_center_x_f_tof_free_schroedinger = np.argmin(np.abs(_x_f_tof_free_schroedinger))
+        _index_center_y_f_tof_free_schroedinger = np.argmin(np.abs(_y_f_tof_free_schroedinger))
+        _index_center_z_f_tof_free_schroedinger = np.argmin(np.abs(_z_f_tof_free_schroedinger))
 
-        assert (np.abs(x_f_tof_free_schroedinger[index_center_x_f_tof_free_schroedinger]) < 5e-14)
-        assert (np.abs(y_f_tof_free_schroedinger[index_center_y_f_tof_free_schroedinger]) < 5e-14)
-        assert (np.abs(z_f_tof_free_schroedinger[index_center_z_f_tof_free_schroedinger]) < 5e-14)
+        assert (np.abs(_x_f_tof_free_schroedinger[_index_center_x_f_tof_free_schroedinger]) < 5e-14)
+        assert (np.abs(_y_f_tof_free_schroedinger[_index_center_y_f_tof_free_schroedinger]) < 5e-14)
+        assert (np.abs(_z_f_tof_free_schroedinger[_index_center_z_f_tof_free_schroedinger]) < 5e-14)
 
-        self.x_f_tof_free_schroedinger = torch.tensor(x_f_tof_free_schroedinger, dtype=torch.float64,
-                                                      device=self._device)
-        self.y_f_tof_free_schroedinger = torch.tensor(y_f_tof_free_schroedinger, dtype=torch.float64,
-                                                      device=self._device)
-        self.z_f_tof_free_schroedinger = torch.tensor(z_f_tof_free_schroedinger, dtype=torch.float64,
-                                                      device=self._device)
+        self._x_f_tof_free_schroedinger = torch.tensor(
+            _x_f_tof_free_schroedinger, dtype=torch.float64, device=self._device)
 
-        self.index_center_x_f_tof_free_schroedinger = index_center_x_f_tof_free_schroedinger
-        self.index_center_y_f_tof_free_schroedinger = index_center_y_f_tof_free_schroedinger
-        self.index_center_z_f_tof_free_schroedinger = index_center_z_f_tof_free_schroedinger
+        self._y_f_tof_free_schroedinger = torch.tensor(
+            _y_f_tof_free_schroedinger, dtype=torch.float64, device=self._device)
+
+        self._z_f_tof_free_schroedinger = torch.tensor(
+            _z_f_tof_free_schroedinger, dtype=torch.float64, device=self._device)
+
+        self.index_center_x_f_tof_free_schroedinger = _index_center_x_f_tof_free_schroedinger
+        self.index_center_y_f_tof_free_schroedinger = _index_center_y_f_tof_free_schroedinger
+        self.index_center_z_f_tof_free_schroedinger = _index_center_z_f_tof_free_schroedinger
         # ---------------------------------------------------------------------------------------------
 
     def compute_time_of_flight(self, **kwargs):
@@ -335,7 +336,7 @@ class SolverGPE3D(object):
         print('----------------------------------------------------------------------------------------')
         print("time of flight:")
 
-        self.psi_tof_free_gpe = qsolve_core_gpe_3d.init_psi_tof_free_gpe(
+        self._psi_tof_free_gpe = qsolve_core_gpe_3d.init_psi_tof_free_gpe(
             self._psi,
             self.Jx_tof_free_gpe,
             self.Jy_tof_free_gpe,
@@ -343,29 +344,29 @@ class SolverGPE3D(object):
 
         print("propagate psi_tof_free_gpe ...")
 
-        self.psi_tof_free_gpe = qsolve_core_gpe_3d.propagate_free_gpe(
-            self.psi_tof_free_gpe,
-            self.dx_tof_free_gpe,
-            self.dy_tof_free_gpe,
-            self.dz_tof_free_gpe,
-            self.dt_tof_free_gpe,
+        self._psi_tof_free_gpe = qsolve_core_gpe_3d.propagate_free_gpe(
+            self._psi_tof_free_gpe,
+            self._dx_tof_free_gpe,
+            self._dy_tof_free_gpe,
+            self._dz_tof_free_gpe,
+            self._dt_tof_free_gpe,
             self.n_time_steps_tof_free_gpe,
             self._hbar,
             self._m_atom,
             self._g)
 
-        self.psi_0_tof_free_schroedinger = self.psi_tof_free_gpe
+        self.psi_0_tof_free_schroedinger = self._psi_tof_free_gpe
 
         print("compute psi_tof_free_schroedinger ...")
 
-        self.psi_f_tof_free_schroedinger = qsolve_core_gpe_3d.solve_tof_free_schroedinger(
+        self._psi_f_tof_free_schroedinger = qsolve_core_gpe_3d.solve_tof_free_schroedinger(
             self.psi_0_tof_free_schroedinger,
-            self.x_0_tof_free_schroedinger,
-            self.y_0_tof_free_schroedinger,
-            self.z_0_tof_free_schroedinger,
-            self.x_f_tof_free_schroedinger,
-            self.y_f_tof_free_schroedinger,
-            self.z_f_tof_free_schroedinger,
+            self._x_0_tof_free_schroedinger,
+            self._y_0_tof_free_schroedinger,
+            self._z_0_tof_free_schroedinger,
+            self._x_f_tof_free_schroedinger,
+            self._y_f_tof_free_schroedinger,
+            self._z_f_tof_free_schroedinger,
             self.T_tof_free_schroedinger,
             self._hbar,
             self._m_atom)
@@ -394,145 +395,6 @@ class SolverGPE3D(object):
 
         self._psi = self.filter_z_sgpe * self._psi
 
-    def init_time_evolution(self, **kwargs):
-
-        self.t_final = kwargs["t_final"] / self._units.unit_time
-        self.dt = kwargs["dt"] / self._units.unit_time
-
-        self.n_time_steps = int(np.round(self.t_final / self.dt))
-
-        self.n_times = self.n_time_steps + 1
-
-        assert (np.abs(self.n_time_steps * self.dt - self.t_final)) < 1e-14
-
-        self.times = self.dt * np.arange(self.n_times)
-
-        assert (np.abs(self.times[-1] - self.t_final)) < 1e-14
-
-    def get(self, identifier, **kwargs):
-
-        units = "si_units"
-
-        if identifier == "times":
-
-            if units == "si_units":
-
-                return self._units.unit_time * self.times
-
-            else:
-
-                return self.times
-
-        elif identifier == "filter_z_sgpe":
-
-            filter_z_sgpe = self.filter_z_sgpe.cpu().numpy()
-
-            filter_z_sgpe = np.squeeze(filter_z_sgpe)
-
-            return filter_z_sgpe
-
-        elif identifier == "psi_tof_free_gpe":
-
-            psi_tof_free_gpe = self.psi_tof_free_gpe.cpu().numpy()
-
-            if units == "si_units":
-
-                return self._units.unit_wave_function * psi_tof_free_gpe
-
-            else:
-
-                return psi_tof_free_gpe
-
-        elif identifier == "psi_f_tof_free_schroedinger":
-
-            psi_f_tof_free_schroedinger = self.psi_f_tof_free_schroedinger.cpu().numpy()
-
-            if units == "si_units":
-
-                return self._units.unit_wave_function * psi_f_tof_free_schroedinger
-
-            else:
-
-                return psi_f_tof_free_schroedinger
-
-        elif identifier == "x_tof_free_gpe":
-
-            x_tof_free_gpe = self.x_tof_free_gpe.cpu().numpy()
-
-            if units == "si_units":
-
-                return self._units.unit_length * x_tof_free_gpe
-
-            else:
-
-                return x_tof_free_gpe
-
-        elif identifier == "y_tof_free_gpe":
-
-            y_tof_free_gpe = self.y_tof_free_gpe.cpu().numpy()
-
-            if units == "si_units":
-
-                return self._units.unit_length * y_tof_free_gpe
-
-            else:
-
-                return y_tof_free_gpe
-
-        elif identifier == "z_tof_free_gpe":
-
-            z_tof_free_gpe = self.z_tof_free_gpe.cpu().numpy()
-
-            if units == "si_units":
-
-                return self._units.unit_length * z_tof_free_gpe
-
-            else:
-
-                return z_tof_free_gpe
-
-        elif identifier == "x_tof_final":
-
-            x_f_tof_free_schroedinger = self.x_f_tof_free_schroedinger.cpu().numpy()
-
-            if units == "si_units":
-
-                return self._units.unit_length * x_f_tof_free_schroedinger
-
-            else:
-
-                return x_f_tof_free_schroedinger
-
-        elif identifier == "y_tof_final":
-
-            y_f_tof_free_schroedinger = self.y_f_tof_free_schroedinger.cpu().numpy()
-
-            if units == "si_units":
-
-                return self._units.unit_length * y_f_tof_free_schroedinger
-
-            else:
-
-                return y_f_tof_free_schroedinger
-
-        elif identifier == "z_tof_final":
-
-            z_f_tof_free_schroedinger = self.z_f_tof_free_schroedinger.cpu().numpy()
-
-            if units == "si_units":
-
-                return self._units.unit_length * z_f_tof_free_schroedinger
-
-            else:
-
-                return z_f_tof_free_schroedinger
-
-        else:
-
-            message = 'get(identifier, **kwargs): identifier \'{0:s}\' not supported'.format(identifier)
-
-            raise Exception(message)
-
     def compute_n_atoms(self):
         return qsolve_core_gpe_3d.compute_n_atoms(self._psi, self._dx, self._dy, self._dz)
 
@@ -557,91 +419,17 @@ class SolverGPE3D(object):
 
         return self._units.unit_energy * _E_kinetic
 
+    def compute_potential_energy(self):
 
-    def compute_E_potential(self, identifier, **kwargs):
+        _E_potential = qsolve_core_gpe_3d.compute_potential_energy(self._psi, self._V, self._dx, self._dy, self._dz)
 
-        if "units" in kwargs:
+        return self._units.unit_energy * _E_potential
 
-            units = kwargs["units"]
+    def compute_interaction_energy(self):
 
-        else:
+        _E_interaction = qsolve_core_gpe_3d.compute_interaction_energy(self._psi, self._dx, self._dy, self._dz, self._g)
 
-            units = "si_units"
-
-        if identifier == "psi":
-
-            E_potential = qsolve_core_gpe_3d.compute_potential_energy(self._psi, self._V, self._dx, self._dy, self._dz)
-
-        elif identifier == "psi_0":
-
-            E_potential = qsolve_core_gpe_3d.compute_potential_energy(self.psi_0, self._V, self._dx, self._dy, self._dz)
-
-        else:
-
-            message = 'compute_E_potential(self, identifier, **kwargs): \'identifier \'{0:s}\' ' \
-                      'not supported'.format(identifier)
-
-            raise Exception(message)
-
-        if units == "si_units":
-
-            return self._units.unit_energy * E_potential
-
-        else:
-
-            return E_potential
-
-    def compute_E_interaction(self, identifier, **kwargs):
-
-        if "units" in kwargs:
-
-            units = kwargs["units"]
-
-        else:
-
-            units = "si_units"
-
-        if identifier == "psi":
-
-            E_interaction = qsolve_core_gpe_3d.compute_interaction_energy(
-                self._psi,
-                self._dx,
-                self._dy,
-                self._dz,
-                self._g)
-
-        elif identifier == "psi_0":
-
-            E_interaction = qsolve_core_gpe_3d.compute_interaction_energy(
-                self.psi_0,
-                self._dx,
-                self._dy,
-                self._dz,
-                self._g)
-
-        elif identifier == "psi_tof_free_gpe":
-
-            E_interaction = qsolve_core_gpe_3d.compute_interaction_energy(
-                self.psi_tof_free_gpe,
-                self.dx_tof_free_gpe,
-                self.dy_tof_free_gpe,
-                self.dz_tof_free_gpe,
-                self._g)
-
-        else:
-
-            message = 'compute_E_interaction(self, identifier, **kwargs): \'identifier \'{0:s}\' ' \
-                      'not supported'.format(identifier)
-
-            raise Exception(message)
-
-        if units == "si_units":
-
-            return self._units.unit_energy * E_interaction
-
-        else:
-
-            return E_interaction
+        return self._units.unit_energy * _E_interaction
 
     def compute_density_xy(self, identifier, **kwargs):
 
@@ -661,9 +449,9 @@ class SolverGPE3D(object):
 
             else:
 
-                index_z = self.index_center_z_tof_free_gpe
+                index_z = self._index_center_z_tof_free_gpe
 
-            density_xy = qsolve_core_gpe_3d.compute_density_xy(self.psi_tof_free_gpe, index_z, rescaling)
+            density_xy = qsolve_core_gpe_3d.compute_density_xy(self._psi_tof_free_gpe, index_z, rescaling)
 
         elif identifier == "psi_f_tof_free_schroedinger":
 
@@ -675,7 +463,7 @@ class SolverGPE3D(object):
 
                 index_z = self.index_center_z_f_tof_free_schroedinger
 
-            density_xy = qsolve_core_gpe_3d.compute_density_xy(self.psi_f_tof_free_schroedinger, index_z, rescaling)
+            density_xy = qsolve_core_gpe_3d.compute_density_xy(self._psi_f_tof_free_schroedinger, index_z, rescaling)
 
         else:
 
@@ -703,9 +491,9 @@ class SolverGPE3D(object):
 
             else:
 
-                index_y = self.index_center_y_tof_free_gpe
+                index_y = self._index_center_y_tof_free_gpe
 
-            density_xz = qsolve_core_gpe_3d.compute_density_xz(self.psi_tof_free_gpe, index_y, rescaling)
+            density_xz = qsolve_core_gpe_3d.compute_density_xz(self._psi_tof_free_gpe, index_y, rescaling)
 
         elif identifier == "psi_f_tof_free_schroedinger":
 
@@ -717,7 +505,7 @@ class SolverGPE3D(object):
 
                 index_y = self.index_center_y_f_tof_free_schroedinger
 
-            density_xz = qsolve_core_gpe_3d.compute_density_xz(self.psi_f_tof_free_schroedinger, index_y, rescaling)
+            density_xz = qsolve_core_gpe_3d.compute_density_xz(self._psi_f_tof_free_schroedinger, index_y, rescaling)
 
         else:
 
@@ -745,9 +533,9 @@ class SolverGPE3D(object):
 
             else:
 
-                index_z = self.index_center_z_tof_free_gpe
+                index_z = self._index_center_z_tof_free_gpe
 
-            spectrum_abs_xy = qsolve_core_gpe_3d.compute_spectrum_abs_xy(self.psi_tof_free_gpe, index_z, rescaling)
+            spectrum_abs_xy = qsolve_core_gpe_3d.compute_spectrum_abs_xy(self._psi_tof_free_gpe, index_z, rescaling)
 
         else:
 
@@ -778,9 +566,9 @@ class SolverGPE3D(object):
 
             else:
 
-                index_y = self.index_center_y_tof_free_gpe
+                index_y = self._index_center_y_tof_free_gpe
 
-            spectrum_abs_xz = qsolve_core_gpe_3d.compute_spectrum_abs_xz(self.psi_tof_free_gpe, index_y, rescaling)
+            spectrum_abs_xz = qsolve_core_gpe_3d.compute_spectrum_abs_xz(self._psi_tof_free_gpe, index_y, rescaling)
 
         else:
 
@@ -852,3 +640,35 @@ class SolverGPE3D(object):
     @property
     def index_center_z(self):
         return self._index_center_z
+
+    @property
+    def x_tof_final(self):
+        return self._units.unit_length * self._x_f_tof_free_schroedinger.cpu().numpy()
+
+    @property
+    def y_tof_final(self):
+        return self._units.unit_length * self._y_f_tof_free_schroedinger.cpu().numpy()
+
+    @property
+    def z_tof_final(self):
+        return self._units.unit_length * self._z_f_tof_free_schroedinger.cpu().numpy()
+
+    @property
+    def x_tof_free_gpe(self):
+        return self._units.unit_length * self._x_tof_free_gpe.cpu().numpy()
+
+    @property
+    def y_tof_free_gpe(self):
+        return self._units.unit_length * self._y_tof_free_gpe.cpu().numpy()
+
+    @property
+    def z_tof_free_gpe(self):
+        return self._units.unit_length * self._z_tof_free_gpe.cpu().numpy()
+
+    @property
+    def psi_tof_free_gpe(self):
+        return self._units.unit_wave_function * self._psi_tof_free_gpe.cpu().numpy()
+
+    @property
+    def psi_f_tof_free_schroedinger(self):
+        return self._units.unit_wave_function * self._psi_f_tof_free_schroedinger.cpu().numpy()

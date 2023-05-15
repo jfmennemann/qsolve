@@ -188,7 +188,8 @@ params_tof = {
     "Jy_tof_final": Jy_tof_final,
     "Jz_tof_final": Jz_tof_final,
     "T_tof_free_gpe": T_tof_free_gpe,
-    "T_tof_total": T_tof_total
+    "T_tof_total": T_tof_total,
+    "dt_tof_free_gpe": dt
 }
 # =================================================================================================
 
@@ -257,31 +258,36 @@ y = solver.y
 z = solver.z
 
 # -------------------------------------------------------------------------------------------------
-solver.init_time_evolution(t_final=t_final, dt=dt)
+# solver.init_time_evolution(t_final=t_final, dt=dt)
+#
+# times = solver.get('times')
+#
+# n_times = times.size
 
-times = solver.get('times')
+# =================================================================================================
+# init time evolution
+# =================================================================================================
 
-n_times = times.size
+# -------------------------------------------------------------------------------------------------
+n_time_steps = int(np.round(t_final / dt))
+
+n_times = n_time_steps + 1
+
+assert (np.abs(n_time_steps * dt - t_final)) < 1e-14
+
+times = dt * np.arange(n_times)
+
+assert (np.abs(times[-1] - t_final)) < 1e-14
 # -------------------------------------------------------------------------------------------------
 
 # -------------------------------------------------------------------------------------------------
+
 times_analysis = times[0::n_mod_times_analysis]
 
 n_times_analysis = times_analysis.size
 
-assert (times_analysis[-1] == t_final)
+assert (np.abs(times_analysis[-1] - t_final) / t_final < 1e-14)
 # -------------------------------------------------------------------------------------------------
-
-# -------------------------------------------------------------------------------------------------
-"""
-times_tof = times_analysis.copy()
-
-indices_tmp = times_analysis >= 21.5e-3
-
-times_tof = times_tof[indices_tmp]
-"""
-# -------------------------------------------------------------------------------------------------
-
 
 # =================================================================================================
 # init control inputs
@@ -371,23 +377,6 @@ print('mue_0 / h: {0:1.6} kHz'.format(mue_0 / (1e3 * (2 * pi * hbar))))
 print('E_0 / (N_0*h): {0:1.6} kHz'.format(E_0 / (1e3 * (2 * pi * hbar * N_0))))
 print()
 # -------------------------------------------------------------------------------------------------
-
-
-# =================================================================================================
-# set wave function psi to ground state solution psi_0
-# =================================================================================================
-
-solver.psi = psi_0
-
-N = solver.compute_n_atoms()
-mue = solver.compute_chemical_potential()
-E = solver.compute_total_energy()
-
-print('N = {:1.16e}'.format(N))
-print('mue / h: {0:1.6} kHz'.format(mue / (1e3 * (2 * pi * hbar))))
-print('E / (N_psi*h): {0:1.6} kHz'.format(E / (1e3 * (2 * pi * hbar * N))))
-print()
-
 
 # =================================================================================================
 # init figure
@@ -502,14 +491,12 @@ if quickstart:
 
     psi = np.exp(-1j * phase_shift) * psi
 
-    solver.set_psi('numpy', array=psi)
+    solver.psi = psi
 
 
 # =================================================================================================
 # compute time evolution
 # =================================================================================================
-
-solver.set_u_of_times(u_of_times)
 
 # -------------------------------------------------------------------------------------------------
 data_time_evolution = type('', (), {})()
@@ -540,13 +527,13 @@ if time_of_flight:
 
     solver.init_time_of_flight(params_tof)
 
-    x_tof_gpe = solver.get('x_tof_free_gpe')
-    y_tof_gpe = solver.get('y_tof_free_gpe')
-    z_tof_gpe = solver.get('z_tof_free_gpe')
+    x_tof_gpe = solver.x_tof_free_gpe
+    y_tof_gpe = solver.y_tof_free_gpe
+    z_tof_gpe = solver.z_tof_free_gpe
 
-    x_tof_final = solver.get('x_tof_final')
-    y_tof_final = solver.get('y_tof_final')
-    z_tof_final = solver.get('z_tof_final')
+    x_tof_final = solver.x_tof_final
+    y_tof_final = solver.y_tof_final
+    z_tof_final = solver.z_tof_final
 
     figure_tof = FigureTof(x_tof_gpe, y_tof_gpe, z_tof_gpe, x_tof_final, y_tof_final, z_tof_final)
     # figure_tof = FigureTofExtended(x_tof_gpe, y_tof_gpe, z_tof_gpe, x_tof_final, y_tof_final, z_tof_final)
@@ -620,7 +607,8 @@ while True:
 
     if n < n_times - n_inc:
 
-        solver.propagate_gpe(n_start=n, n_inc=n_inc, mue_shift=mue_0)
+        # solver.propagate_gpe(n_start=n, n_inc=n_inc, mue_shift=mue_0)
+        solver.propagate_gpe(times=times, u_of_times=u_of_times, n_start=n, n_inc=n_inc, mue_shift=mue_0)
 
         n = n + n_inc
 
