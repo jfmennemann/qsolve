@@ -230,9 +230,9 @@ class SolverGPE3D(object):
 
     def init_time_of_flight(self, params):
 
-        self.Jx_tof_free_gpe = params["Jx_tof_free_gpe"]
-        self.Jy_tof_free_gpe = params["Jy_tof_free_gpe"]
-        self.Jz_tof_free_gpe = params["Jz_tof_free_gpe"]
+        self._Jx_tof_free_gpe = params["Jx_tof_free_gpe"]
+        self._Jy_tof_free_gpe = params["Jy_tof_free_gpe"]
+        self._Jz_tof_free_gpe = params["Jz_tof_free_gpe"]
 
         self.T_tof_total = params["T_tof_total"] / self._units.unit_time
         self.T_tof_free_gpe = params["T_tof_free_gpe"] / self._units.unit_time
@@ -252,27 +252,23 @@ class SolverGPE3D(object):
         # ---------------------------------------------------------------------------------------------
 
         # ---------------------------------------------------------------------------------------------
-        assert (self.Jx_tof_free_gpe >= self._Jx)
-        assert (self.Jy_tof_free_gpe >= self._Jy)
-        assert (self.Jz_tof_free_gpe >= self._Jz)
+        assert (self._Jx_tof_free_gpe >= self._Jx)
+        assert (self._Jy_tof_free_gpe >= self._Jy)
+        assert (self._Jz_tof_free_gpe >= self._Jz)
 
-        assert (self.Jx_tof_free_gpe % 2 == 0)
-        assert (self.Jy_tof_free_gpe % 2 == 0)
-        assert (self.Jz_tof_free_gpe % 2 == 0)
+        assert (self._Jx_tof_free_gpe % 2 == 0)
+        assert (self._Jy_tof_free_gpe % 2 == 0)
+        assert (self._Jz_tof_free_gpe % 2 == 0)
 
-        prime_factors_Jx_tof_free_gpe = get_prime_factors(self.Jx_tof_free_gpe)
-        prime_factors_Jy_tof_free_gpe = get_prime_factors(self.Jy_tof_free_gpe)
-        prime_factors_Jz_tof_free_gpe = get_prime_factors(self.Jz_tof_free_gpe)
-
-        assert (np.max(prime_factors_Jx_tof_free_gpe) < 11)
-        assert (np.max(prime_factors_Jy_tof_free_gpe) < 11)
-        assert (np.max(prime_factors_Jz_tof_free_gpe) < 11)
+        assert (np.max(get_prime_factors(self._Jx_tof_free_gpe)) < 11)
+        assert (np.max(get_prime_factors(self._Jy_tof_free_gpe)) < 11)
+        assert (np.max(get_prime_factors(self._Jz_tof_free_gpe)) < 11)
         # ---------------------------------------------------------------------------------------------
 
         # ---------------------------------------------------------------------------------------------
-        _x_tof_free_gpe = self._dx_tof_free_gpe * np.arange(-self.Jx_tof_free_gpe // 2, self.Jx_tof_free_gpe // 2)
-        _y_tof_free_gpe = self._dy_tof_free_gpe * np.arange(-self.Jy_tof_free_gpe // 2, self.Jy_tof_free_gpe // 2)
-        _z_tof_free_gpe = self._dz_tof_free_gpe * np.arange(-self.Jz_tof_free_gpe // 2, self.Jz_tof_free_gpe // 2)
+        _x_tof_free_gpe = self._dx_tof_free_gpe * np.arange(-self._Jx_tof_free_gpe // 2, self._Jx_tof_free_gpe // 2)
+        _y_tof_free_gpe = self._dy_tof_free_gpe * np.arange(-self._Jy_tof_free_gpe // 2, self._Jy_tof_free_gpe // 2)
+        _z_tof_free_gpe = self._dz_tof_free_gpe * np.arange(-self._Jz_tof_free_gpe // 2, self._Jz_tof_free_gpe // 2)
 
         self._index_center_x_tof_free_gpe = np.argmin(np.abs(_x_tof_free_gpe))
         self._index_center_y_tof_free_gpe = np.argmin(np.abs(_y_tof_free_gpe))
@@ -326,9 +322,9 @@ class SolverGPE3D(object):
         self._z_f_tof_free_schroedinger = torch.tensor(
             _z_f_tof_free_schroedinger, dtype=torch.float64, device=self._device)
 
-        self.index_center_x_f_tof_free_schroedinger = _index_center_x_f_tof_free_schroedinger
-        self.index_center_y_f_tof_free_schroedinger = _index_center_y_f_tof_free_schroedinger
-        self.index_center_z_f_tof_free_schroedinger = _index_center_z_f_tof_free_schroedinger
+        self._index_center_x_f_tof_free_schroedinger = _index_center_x_f_tof_free_schroedinger
+        self._index_center_y_f_tof_free_schroedinger = _index_center_y_f_tof_free_schroedinger
+        self._index_center_z_f_tof_free_schroedinger = _index_center_z_f_tof_free_schroedinger
         # ---------------------------------------------------------------------------------------------
 
     def compute_time_of_flight(self, **kwargs):
@@ -338,9 +334,9 @@ class SolverGPE3D(object):
 
         self._psi_tof_free_gpe = qsolve_core_gpe_3d.init_psi_tof_free_gpe(
             self._psi,
-            self.Jx_tof_free_gpe,
-            self.Jy_tof_free_gpe,
-            self.Jz_tof_free_gpe)
+            self._Jx_tof_free_gpe,
+            self._Jy_tof_free_gpe,
+            self._Jz_tof_free_gpe)
 
         print("propagate psi_tof_free_gpe ...")
 
@@ -461,7 +457,7 @@ class SolverGPE3D(object):
 
             else:
 
-                index_z = self.index_center_z_f_tof_free_schroedinger
+                index_z = self._index_center_z_f_tof_free_schroedinger
 
             density_xy = qsolve_core_gpe_3d.compute_density_xy(self._psi_f_tof_free_schroedinger, index_z, rescaling)
 
@@ -503,7 +499,7 @@ class SolverGPE3D(object):
 
             else:
 
-                index_y = self.index_center_y_f_tof_free_schroedinger
+                index_y = self._index_center_y_f_tof_free_schroedinger
 
             density_xz = qsolve_core_gpe_3d.compute_density_xz(self._psi_f_tof_free_schroedinger, index_y, rescaling)
 
