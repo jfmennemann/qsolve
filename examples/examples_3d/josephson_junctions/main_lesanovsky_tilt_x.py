@@ -257,13 +257,6 @@ x = solver.x
 y = solver.y
 z = solver.z
 
-# -------------------------------------------------------------------------------------------------
-# solver.init_time_evolution(t_final=t_final, dt=dt)
-#
-# times = solver.get('times')
-#
-# n_times = times.size
-
 # =================================================================================================
 # init time evolution
 # =================================================================================================
@@ -461,9 +454,9 @@ if T > 0:
 
 if quickstart:
 
-    psi = solver.get('psi')
+    psi = solver.psi
 
-    x = solver.get('x')
+    x = solver.x
 
     phi_ext = 1.1 * xi_ext * pi
 

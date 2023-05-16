@@ -371,7 +371,7 @@ class SolverGPE3D(object):
 
         print()
 
-    def propagate_sgpe_z_eff(self, **kwargs):
+    def propagate_sgpe_z_eff(self, *, n_inc):
 
         self._psi = qsolve_core_gpe_3d.propagate_sgpe_z_eff(
             self._psi,
@@ -380,7 +380,7 @@ class SolverGPE3D(object):
             self._dy,
             self._dz,
             self._dt_sgpe,
-            kwargs["n_inc"],
+            n_inc,
             self._T_des_sgpe,
             self._mue_des_sgpe,
             self._gamma_sgpe,
@@ -427,71 +427,40 @@ class SolverGPE3D(object):
 
         return self._units.unit_energy * _E_interaction
 
-    def compute_spectrum_abs_xy(self, identifier, **kwargs):
+    def trace_psi_tof_free_gpe_xy(self, index_z=None):
 
-        if "rescaling" in kwargs:
+        if index_z is None:
+            index_z = self._index_center_z_tof_free_gpe
 
-            rescaling = kwargs["rescaling"]
+        tmp = torch.squeeze(self._psi_tof_free_gpe[:, :, index_z])
+        return self._units.unit_wave_function * tmp.cpu().numpy()
 
-        else:
+    def trace_psi_tof_free_gpe_xz(self, index_y=None):
 
-            rescaling = False
+        if index_y is None:
+            index_y = self._index_center_y_tof_free_gpe
 
-        if identifier == "psi_tof_gpe":
+        tmp = torch.squeeze(self._psi_tof_free_gpe[:, index_y, :])
 
-            if "index_z" in kwargs:
+        return self._units.unit_wave_function * tmp.cpu().numpy()
 
-                index_z = kwargs["index_z"]
+    def trace_psi_f_tof_free_schroedinger_xy(self, index_z=None):
 
-            else:
+        if index_z is None:
+            index_z = self._index_center_z_f_tof_free_schroedinger
 
-                index_z = self._index_center_z_tof_free_gpe
+        tmp = torch.squeeze(self._psi_f_tof_free_schroedinger[:, :, index_z])
 
-            spectrum_abs_xy = qsolve_core_gpe_3d.compute_spectrum_abs_xy(self._psi_tof_free_gpe, index_z, rescaling)
+        return self._units.unit_wave_function * tmp.cpu().numpy()
 
-        else:
+    def trace_psi_f_tof_free_schroedinger_xz(self, index_y=None):
 
-            message = 'compute_spectrum_abs_xy(self, identifier, **kwargs): \'identifier \'{0:s}\' ' \
-                      'not supported'.format(identifier)
+        if index_y is None:
+            index_y = self._index_center_y_f_tof_free_schroedinger
 
-            raise Exception(message)
+        tmp = torch.squeeze(self._psi_f_tof_free_schroedinger[:, index_y, :])
 
-        spectrum_abs_xy = spectrum_abs_xy.cpu().numpy()
-
-        return spectrum_abs_xy
-
-    def compute_spectrum_abs_xz(self, identifier, **kwargs):
-
-        if "rescaling" in kwargs:
-
-            rescaling = kwargs["rescaling"]
-
-        else:
-
-            rescaling = False
-
-        if identifier == "psi_tof_gpe":
-
-            if "index_y" in kwargs:
-
-                index_y = kwargs["index_y"]
-
-            else:
-
-                index_y = self._index_center_y_tof_free_gpe
-
-            spectrum_abs_xz = qsolve_core_gpe_3d.compute_spectrum_abs_xz(self._psi_tof_free_gpe, index_y, rescaling)
-
-        else:
-
-            message = 'compute_spectrum_abs_xy(self, identifier, **kwargs): \'identifier \'{0:s}\' ' \
-                      'not supported'.format(identifier)
-
-            raise Exception(message)
-
-        spectrum_abs_xz = spectrum_abs_xz.cpu().numpy()
-
-        return spectrum_abs_xz
+        return self._units.unit_wave_function * tmp.cpu().numpy()
 
     @property
     def V(self):
@@ -554,14 +523,6 @@ class SolverGPE3D(object):
         return self._index_center_z
 
     @property
-    def psi_tof_free_gpe(self):
-        return self._units.unit_wave_function * self._psi_tof_free_gpe.cpu().numpy()
-
-    @psi_tof_free_gpe.setter
-    def psi_tof_free_gpe(self, value):
-        self._psi_tof_free_gpe = torch.tensor(value / self._units.unit_wave_function, device=self._device)
-
-    @property
     def x_tof_free_gpe(self):
         return self._units.unit_length * self._x_tof_free_gpe.cpu().numpy()
 
@@ -574,14 +535,6 @@ class SolverGPE3D(object):
         return self._units.unit_length * self._z_tof_free_gpe.cpu().numpy()
 
     @property
-    def psi_f_tof_free_schroedinger(self):
-        return self._units.unit_wave_function * self._psi_f_tof_free_schroedinger.cpu().numpy()
-
-    @psi_f_tof_free_schroedinger.setter
-    def psi_f_tof_free_schroedinger(self, value):
-        self._psi_f_tof_free_schroedinger = torch.tensor(value / self._units.unit_wave_function, device=self._device)
-
-    @property
     def x_tof_final(self):
         return self._units.unit_length * self._x_f_tof_free_schroedinger.cpu().numpy()
 
@@ -592,41 +545,3 @@ class SolverGPE3D(object):
     @property
     def z_tof_final(self):
         return self._units.unit_length * self._z_f_tof_free_schroedinger.cpu().numpy()
-
-
-
-
-
-
-
-    @property
-    def density_xy_tof_free_gpe(self, rescaling=True):
-
-        density_xy_tof_free_gpe = qsolve_core_gpe_3d.compute_density_xy(
-            self._psi_tof_free_gpe, self._index_center_z_tof_free_gpe, rescaling)
-
-        return density_xy_tof_free_gpe.cpu().numpy()
-
-    @property
-    def density_xz_tof_free_gpe(self, rescaling=True):
-
-        density_xz_tof_free_gpe = qsolve_core_gpe_3d.compute_density_xz(
-            self._psi_tof_free_gpe, self._index_center_y_tof_free_gpe, rescaling)
-
-        return density_xz_tof_free_gpe.cpu().numpy()
-
-    @property
-    def density_f_xy_tof_free_schroedinger(self, rescaling=True):
-
-        density_f_xy_tof_free_schroedinger = qsolve_core_gpe_3d.compute_density_xy(
-            self._psi_f_tof_free_schroedinger, self._index_center_z_f_tof_free_schroedinger, rescaling)
-
-        return density_f_xy_tof_free_schroedinger.cpu().numpy()
-
-    @property
-    def density_f_xz_tof_free_schroedinger(self, rescaling=True):
-
-        density_f_xz_tof_free_schroedinger = qsolve_core_gpe_3d.compute_density_xz(
-            self._psi_f_tof_free_schroedinger, self._index_center_y_f_tof_free_schroedinger, rescaling)
-
-        return density_f_xz_tof_free_schroedinger.cpu().numpy()

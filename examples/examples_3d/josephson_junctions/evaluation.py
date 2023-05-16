@@ -222,37 +222,45 @@ def eval_data_tof(solver):
 
     data_tof = type('', (), {})()
 
-    time_1 = time()
-    psi_tof_free_gpe = solver.psi_tof_free_gpe
-    time_2 = time()
-    print('elapsed_time: {0:f}'.format(time_2 - time_1))
-    print()
 
-    time_1 = time()
-    psi_f_tof_free_schroedinger = solver.psi_f_tof_free_schroedinger
-    time_2 = time()
-    print('elapsed_time: {0:f}'.format(time_2 - time_1))
-    print()
+
+    # time_1 = time()
+    # psi_f_tof_free_schroedinger = solver.psi_f_tof_free_schroedinger
+    # time_2 = time()
+    # print('elapsed_time: {0:f}'.format(time_2 - time_1))
+    # print()
 
     # ---------------------------------------------------------------------------------------------
-    data_tof.density_xy_tof_gpe = solver.density_xy_tof_free_gpe
-    data_tof.density_xz_tof_gpe = solver.density_xz_tof_free_gpe
+    psi_tof_free_gpe_xy = solver.trace_psi_tof_free_gpe_xy()
+    psi_tof_free_gpe_xz = solver.trace_psi_tof_free_gpe_xz()
+
+    density_tof_free_gpe_xy = np.abs(psi_tof_free_gpe_xy) ** 2
+    density_tof_free_gpe_xz = np.abs(psi_tof_free_gpe_xz) ** 2
+
+    data_tof.density_xy_tof_gpe = density_tof_free_gpe_xy / np.max(density_tof_free_gpe_xy)
+    data_tof.density_xz_tof_gpe = density_tof_free_gpe_xz / np.max(density_tof_free_gpe_xz)
 
     data_tof.density_xy_mask_tof_gpe = data_tof.density_xy_tof_gpe > 1e-6
     data_tof.density_xz_mask_tof_gpe = data_tof.density_xz_tof_gpe > 1e-6
     # ---------------------------------------------------------------------------------------------
 
     # ---------------------------------------------------------------------------------------------
-    data_tof.spectrum_abs_xz_tof_gpe = solver.compute_spectrum_abs_xz('psi_tof_gpe', rescaling=True)
-    data_tof.spectrum_abs_xy_tof_gpe = solver.compute_spectrum_abs_xy('psi_tof_gpe', rescaling=True)
-
-    data_tof.spectrum_abs_xz_mask_tof_gpe = data_tof.spectrum_abs_xz_tof_gpe > 1e-2
-    data_tof.spectrum_abs_xy_mask_tof_gpe = data_tof.spectrum_abs_xy_tof_gpe > 1e-2
+    # data_tof.spectrum_abs_xz_tof_gpe = solver.compute_spectrum_abs_xz('psi_tof_gpe', rescaling=True)
+    # data_tof.spectrum_abs_xy_tof_gpe = solver.compute_spectrum_abs_xy('psi_tof_gpe', rescaling=True)
+    #
+    # data_tof.spectrum_abs_xz_mask_tof_gpe = data_tof.spectrum_abs_xz_tof_gpe > 1e-2
+    # data_tof.spectrum_abs_xy_mask_tof_gpe = data_tof.spectrum_abs_xy_tof_gpe > 1e-2
     # ---------------------------------------------------------------------------------------------
 
     # ---------------------------------------------------------------------------------------------
-    data_tof.density_xy_tof_final = solver.density_f_xy_tof_free_schroedinger
-    data_tof.density_xz_tof_final = solver.density_f_xz_tof_free_schroedinger
+    psi_f_tof_free_schroedinger_xy = solver.trace_psi_f_tof_free_schroedinger_xy()
+    psi_f_tof_free_schroedinger_xz = solver.trace_psi_f_tof_free_schroedinger_xz()
+
+    density_f_tof_free_schroedinger_xy = np.abs(psi_f_tof_free_schroedinger_xy) ** 2
+    density_f_tof_free_schroedinger_xz = np.abs(psi_f_tof_free_schroedinger_xz) ** 2
+
+    data_tof.density_xy_tof_final = density_f_tof_free_schroedinger_xy / np.max(density_f_tof_free_schroedinger_xy)
+    data_tof.density_xz_tof_final = density_f_tof_free_schroedinger_xz / np.max(density_f_tof_free_schroedinger_xz)
     # ---------------------------------------------------------------------------------------------
 
     return data_tof
