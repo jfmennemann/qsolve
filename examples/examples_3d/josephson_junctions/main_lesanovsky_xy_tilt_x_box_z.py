@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 
 from figures.figure_main.figure_main import FigureMain
 
-from potential_lesanovsky_xy_tilt_x_box_z import PotentialLesanovskyXYTiltXBoxZ
+from potential_lesanovsky_xy_tilt_x_box_z import compute_external_potential
 
 from evaluation import eval_data
 
@@ -115,21 +115,35 @@ z_max = +60e-6
 
 a_s = 5.24e-9
 
-params_potential = {
-    "name": 'lesanovsky_xy_tilt_x_box_z',
-    "g_F": -1/2,
-    "m_F": -1,
-    "m_F_prime": -1,
-    "omega_perp": omega_perp,
-    "omega_para": 2 * np.pi * 22.5,
-    "omega_delta_detuning": -2 * np.pi * 50e3,
-    "omega_trap_bottom": 2 * np.pi * 1216e3,
-    "omega_rabi_ref": 2 * np.pi * 575e3,
-    "gamma_tilt_ref": gamma_tilt_ref,
-    "V_box_z_max": hbar*omega_perp,
-    "w_box_z": 90e-6,
-    "s_box_z": 1e-6
-}
+# params_potential = {
+#     "name": 'lesanovsky_xy_tilt_x_box_z',
+#     "g_F": -1/2,
+#     "m_F": -1,
+#     "m_F_prime": -1,
+#     "omega_perp": omega_perp,
+#     "omega_para": 2 * np.pi * 22.5,
+#     "omega_delta_detuning": -2 * np.pi * 50e3,
+#     "omega_trap_bottom": 2 * np.pi * 1216e3,
+#     "omega_rabi_ref": 2 * np.pi * 575e3,
+#     "gamma_tilt_ref": gamma_tilt_ref,
+#     "V_box_z_max": hbar*omega_perp,
+#     "w_box_z": 90e-6,
+#     "s_box_z": 1e-6
+# }
+
+parameters_potential = {'g_F': -1/2,
+                        'm_F': -1,
+                        'm_F_prime': -1,
+                        'nu_perp': (3e3, 'Hz'),
+                        'nu_para': (22.5, 'Hz'),
+                        'nu_delta_detuning': (-50e3, 'Hz'),
+                        'nu_trap_bottom': (1216e3, 'Hz'),
+                        'nu_rabi_ref': (575e3, 'Hz'),
+                        'gamma_tilt_ref': (gamma_tilt_ref, 'J/m'),
+                        'V_box_z_max': (hbar*omega_perp, 'J'),
+                        'w_box_z': (90e-6, 'm'),
+                        's_box_z': (1e-6, 'm')
+                        }
 
 params_figure_main = {
     'm_atom': m_Rb_87,
@@ -142,7 +156,7 @@ params_figure_main = {
 # -------------------------------------------------------------------------------------------------
 
 # -------------------------------------------------------------------------------------------------
-simulation_id = params_potential['name']
+simulation_id = 'test'
 
 simulation_id = simulation_id.replace(".", "_")
 # -------------------------------------------------------------------------------------------------
@@ -173,7 +187,7 @@ if export_frames_figure_main:
 
 
 # =================================================================================================
-# init solver and its potential
+# init solver
 # =================================================================================================
 
 solver = SolverGPE3D(m_atom=m_Rb_87,
@@ -191,8 +205,6 @@ solver.init_grid(x_min=x_min,
                  Jx=Jx,
                  Jy=Jy,
                  Jz=Jz)
-
-solver.init_potential(PotentialLesanovskyXYTiltXBoxZ, params_potential)
 
 x = solver.x
 y = solver.y
@@ -289,15 +301,17 @@ u_of_times[1, :] = u2_of_times
 
 
 # =================================================================================================
-# compute ground state solution psi_0
+# init external potential
 # =================================================================================================
 
-# -------------------------------------------------------------------------------------------------
-u1_0 = u1_of_times[0]
-u2_0 = u2_of_times[0]
+solver.init_external_potential(compute_external_potential, parameters_potential)
 
-solver.set_V(u=[u1_0, u2_0])
-# -------------------------------------------------------------------------------------------------
+solver.set_external_potential(t=0.0, u=u_of_times[0])
+
+
+# =================================================================================================
+# compute ground state solution
+# =================================================================================================
 
 # -------------------------------------------------------------------------------------------------
 psi_0 = solver.compute_ground_state_solution(n_atoms=N, n_iter=5000, tau=0.005e-3, adaptive_tau=True)
@@ -313,6 +327,7 @@ print('mue_0 / h: {0:1.6} kHz'.format(mue_0 / (1e3 * (2 * pi * hbar))))
 print('E_0 / (N_0*h): {0:1.6} kHz'.format(E_0 / (1e3 * (2 * pi * hbar * N_0))))
 print()
 # -------------------------------------------------------------------------------------------------
+
 
 # =================================================================================================
 # init figure
