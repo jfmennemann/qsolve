@@ -1,24 +1,12 @@
-from qsolve.potentials.components_3d.harmonic_3d import eval_potential_harmonic_3d
+import math
 
 
-class Potential(object):
+def compute_external_potential(x_3d, y_3d, z_3d, t, u, p):
 
-    def __init__(self, params_solver, params_user):
+    m_atom = p["m_atom"]
 
-        x_3d = params_solver["x_3d"]
-        y_3d = params_solver["y_3d"]
-        z_3d = params_solver["z_3d"]
+    omega_x = 2.0 * math.pi * p["nu_x"]
+    omega_y = 2.0 * math.pi * p["nu_y"]
+    omega_z = 2.0 * math.pi * p["nu_z"]
 
-        m_atom = params_solver["m_atom"]
-
-        unit_frequency = params_solver["unit_frequency"]
-
-        omega_x = params_user["omega_x"] / unit_frequency
-        omega_y = params_user["omega_y"] / unit_frequency
-        omega_z = params_user["omega_z"] / unit_frequency
-
-        self.V = eval_potential_harmonic_3d(x_3d, y_3d, z_3d, omega_x, omega_y, omega_z, m_atom)
-
-    def eval(self, u):
-
-        return self.V
+    return 0.5 * m_atom * (omega_x**2 * x_3d**2 + omega_y**2 * y_3d**2 + omega_z**2 * z_3d**2)

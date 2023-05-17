@@ -12,11 +12,9 @@ import matplotlib.pyplot as plt
 
 from figures.figure_main.figure_main import FigureMain
 
-from potential_harmonic_xyz import Potential
+from potential_harmonic_xyz import compute_external_potential
 
 from evaluation import eval_data
-
-from time import time, sleep
 
 
 # -------------------------------------------------------------------------------------------------
@@ -90,10 +88,10 @@ dt = 0.001e-3
 
 n_mod_times_analysis = 100
 
-params_potential = {
-    "omega_x": 2 * np.pi * 200,
-    "omega_y": 2 * np.pi * 100,
-    "omega_z": 2 * np.pi * 50
+parameters_potential = {
+    'nu_x': (200, 'Hz'),
+    'nu_y': (100, 'Hz'),
+    'nu_z': (50, 'Hz')
 }
 
 params_figure_main = {
@@ -144,14 +142,15 @@ if export_frames_figure_tof:
 
 
 # =================================================================================================
-# init solver and its potential
+# init solver
 # =================================================================================================
 
 solver = SolverGPE3D(m_atom=m_Rb_87,
                      a_s=a_s,
                      seed=1,
                      device='cuda:0',
-                     num_threads=num_threads_cpu)
+                     # device='cpu',
+                     num_threads_cpu=num_threads_cpu)
 
 solver.init_grid(x_min=x_min,
                  x_max=x_max,
@@ -163,26 +162,34 @@ solver.init_grid(x_min=x_min,
                  Jy=Jy,
                  Jz=Jz)
 
-solver.init_potential(Potential, params_potential)
+x = solver.x
+y = solver.y
+z = solver.z
 
-x = solver.get('x')
-y = solver.get('y')
-z = solver.get('z')
 
-# -------------------------------------------------------------------------------------------------
-solver.init_time_evolution(t_final=t_final, dt=dt)
-
-times = solver.get('times')
-
-n_times = times.size
-# -------------------------------------------------------------------------------------------------
+# =================================================================================================
+# init time evolution
+# =================================================================================================
 
 # -------------------------------------------------------------------------------------------------
+n_time_steps = int(np.round(t_final / dt))
+
+n_times = n_time_steps + 1
+
+assert (np.abs(n_time_steps * dt - t_final)) < 1e-14
+
+times = dt * np.arange(n_times)
+
+assert (np.abs(times[-1] - t_final)) < 1e-14
+# -------------------------------------------------------------------------------------------------
+
+# -------------------------------------------------------------------------------------------------
+
 times_analysis = times[0::n_mod_times_analysis]
 
 n_times_analysis = times_analysis.size
 
-assert (abs(times_analysis[-1] - t_final) < 1e-14)
+assert (np.abs(times_analysis[-1] - t_final) / t_final < 1e-14)
 # -------------------------------------------------------------------------------------------------
 
 # =================================================================================================
@@ -199,48 +206,32 @@ u_of_times[1, :] = u2_of_times
 
 
 # =================================================================================================
-# compute ground state solution psi_0
+# init external potential
+# =================================================================================================
+
+solver.init_external_potential(compute_external_potential, parameters_potential)
+
+solver.set_external_potential(t=0.0, u=u_of_times[0])
+
+
+# =================================================================================================
+# compute ground state solution
 # =================================================================================================
 
 # -------------------------------------------------------------------------------------------------
-u1_0 = u1_of_times[0]
-u2_0 = u2_of_times[0]
+psi_0 = solver.compute_ground_state_solution(n_atoms=N, n_iter=5000, tau=0.005e-3, adaptive_tau=True)
 
-solver.set_V(u=[u1_0, u2_0])
-# -------------------------------------------------------------------------------------------------
+solver.psi = psi_0
 
+N_0 = solver.compute_n_atoms()
+mue_0 = solver.compute_chemical_potential()
+E_0 = solver.compute_total_energy()
 
-# -------------------------------------------------------------------------------------------------
-time_1 = time()
-
-solver.compute_ground_state_solution(N=N, n_iter=5000, tau=0.001e-3, adaptive_tau=True)
-
-time_2 = time()
-
-print('elapsed time: {0:f}'.format(time_2 - time_1))
-
-sleep(2)
-
-psi_0 = solver.get('psi_0')
-
-N_psi_0 = solver.compute_n_atoms('psi_0')
-mue_psi_0 = solver.compute_chemical_potential('psi_0')
-E_psi_0 = solver.compute_E_total('psi_0')
-
-vec_res = solver.get('vec_res_ground_state_computation')
-vec_iter = solver.get('vec_iter_ground_state_computation')
-
-print('N_psi_0 = {:1.16e}'.format(N_psi_0))
-print('mue_psi_0 / h: {0:1.6} kHz'.format(mue_psi_0 / (1e3 * (2 * pi * hbar))))
-print('E_psi_0 / (N_psi_0*h): {0:1.6} kHz'.format(E_psi_0 / (1e3 * (2 * pi * hbar * N_psi_0))))
+print('N_0 = {:1.16e}'.format(N_0))
+print('mue_0 / h: {0:1.6} kHz'.format(mue_0 / (1e3 * (2 * pi * hbar))))
+print('E_0 / (N_0*h): {0:1.6} kHz'.format(E_0 / (1e3 * (2 * pi * hbar * N_0))))
 print()
 # -------------------------------------------------------------------------------------------------
-
-# =================================================================================================
-# set wave function psi to ground state solution psi_0
-# =================================================================================================
-
-solver.set_psi('numpy', array=psi_0)
 
 
 # =================================================================================================
@@ -264,45 +255,9 @@ figure_main.redraw()
 # -------------------------------------------------------------------------------------------------
 
 
-# -------------------------------------------------------------------------------------------------
-fig = plt.figure("figure_residual_error", figsize=(6, 5), facecolor="white")
-
-gridspec = fig.add_gridspec(
-        nrows=1, ncols=1,
-        left=0.175, right=0.95,
-        bottom=0.125, top=0.95,
-        wspace=0.5,
-        hspace=0.7,
-        width_ratios=[1],
-        height_ratios=[1])
-
-ax_00 = fig.add_subplot(gridspec[0, 0])
-
-ax_00.set_yscale('log')
-
-# x_values = vec_iter[1:]
-# y_values = vec_res[1:]
-
-x_values = vec_iter
-y_values = vec_res
-
-plt.plot(x_values, y_values, linewidth=1, linestyle='-', color='k')
-
-ax_00.set_xlim(0, 1.1 * x_values[-1])
-ax_00.set_ylim(1e-8, 1)
-
-plt.xlabel(r'number of iterations')
-plt.ylabel(r'relative residual error')
-
-plt.grid(visible=True, which='major', color='k', linestyle='-', linewidth=0.5)
-# -------------------------------------------------------------------------------------------------
-
-
 # =================================================================================================
 # compute time evolution
 # =================================================================================================
-
-solver.set_u_of_times(u_of_times)
 
 # -------------------------------------------------------------------------------------------------
 data_time_evolution = type('', (), {})()
@@ -339,9 +294,6 @@ while True:
 
         data_time_evolution.psi_of_times_analysis[nr_times_analysis, :] = data.psi
 
-    # data_time_evolution.global_phase_difference_of_times_analysis[nr_times_analysis] = data.global_phase_difference
-    # data_time_evolution.number_imbalance_of_times_analysis[nr_times_analysis] = data.number_imbalance
-
     data_time_evolution.nr_times_analysis = nr_times_analysis
 
     print('----------------------------------------------------------------------------------------')
@@ -376,8 +328,7 @@ while True:
 
     if n < n_times - n_inc:
 
-        # solver.propagate_gpe(n_start=n, n_inc=n_inc, mue_shift=mue_psi_0)
-        solver.propagate_gpe(n_start=n, n_inc=n_inc, mue_shift=0.0)
+        solver.propagate_gpe(times=times, u_of_times=u_of_times, n_start=n, n_inc=n_inc, mue_shift=mue_0)
 
         n = n + n_inc
 
