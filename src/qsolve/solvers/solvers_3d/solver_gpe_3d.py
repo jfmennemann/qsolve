@@ -52,6 +52,13 @@ class SolverGPE3D(object):
         assert (self._m_atom == 1.0)
         # ---------------------------------------------------------------------------------------------
 
+        self._p = {
+            "hbar": self._hbar,
+            "mu_B": self._mu_B,
+            "k_B": self._k_B,
+            "m_atom": self._m_atom
+        }
+
     def init_grid(self, **kwargs):
 
         self._x_min = kwargs['x_min'] / self._units.unit_length
@@ -103,33 +110,41 @@ class SolverGPE3D(object):
         self._y_3d = torch.reshape(self._y, (1, self._Jy, 1))
         self._z_3d = torch.reshape(self._z, (1, 1, self._Jz))
 
-    def init_potential(self, Potential, params):
+    def init_external_potential(self, compute_external_potential, parameters_potential):
 
-        params_solver = {
-            "x_3d": self._x_3d,
-            "y_3d": self._y_3d,
-            "z_3d": self._z_3d,
-            "Lx": self._Lx,
-            "Ly": self._Ly,
-            "Lz": self._Lz,
-            "hbar": self._hbar,
-            "mu_B": self._mu_B,
-            "m_atom": self._m_atom,
-            "unit_length": self._units.unit_length,
-            "unit_time": self._units.unit_time,
-            "unit_mass": self._units.unit_mass,
-            "unit_energy": self._units.unit_energy,
-            "unit_frequency": self._units.unit_frequency,
-            "device": self._device
-        }
+        self._compute_external_potential = compute_external_potential
 
-        self.potential = Potential(params_solver, params)
+        for key, p in parameters_potential.items():
 
-    def set_V(self, **kwargs):
+            if type(p) is not tuple:
 
-        u = kwargs['u']
+                _value = p
 
-        self._V = self.potential.eval(u)
+            else:
+
+                value = p[0]
+                unit = p[1]
+
+                if unit == 'm':
+                    _value = value / self._units.unit_length
+                elif unit == 's':
+                    _value = value / self._units.unit_time
+                elif unit == 'Hz':
+                    _value = value / self._units.unit_frequency
+                elif unit == 'J':
+                    _value = value / self._units.unit_energy
+                elif unit == 'J/m':
+                    _value = value * self._units.unit_length / self._units.unit_energy
+                else:
+                    raise Exception('unknown unit')
+
+            self._p[key] = _value
+
+    def set_external_potential(self, *, t, u):
+
+        _t = t / self._units.unit_time
+
+        self._V = self._compute_external_potential(self._x_3d, self._y_3d, self._z_3d, t, u, self._p)
 
     def compute_ground_state_solution(self, *, n_atoms, n_iter, tau, adaptive_tau=True, return_residuals=False):
 
@@ -212,7 +227,7 @@ class SolverGPE3D(object):
 
                 u = 0.5 * (u_of_times[n] + u_of_times[n + 1])
 
-            self._V = self.potential.eval(u)
+            self._V = self._compute_external_potential(self._x_3d, self._y_3d, self._z_3d, _t, u, self._p)
 
             self._psi = qsolve_core_gpe_3d.propagate_gpe(
                 self._psi,

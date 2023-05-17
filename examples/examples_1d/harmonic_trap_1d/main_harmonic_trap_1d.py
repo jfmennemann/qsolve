@@ -65,8 +65,8 @@ n_mod_times_analysis = 100
 n_control_inputs = 1
 # =================================================================================================
 
-parameters_potential = {'nu_start': [40, "Hz"],
-                        'nu_final': [20, "Hz"]}
+parameters_potential = {'nu_start': (40, "Hz"),
+                        'nu_final': (20, "Hz")}
 
 parameters_figure_main = {'density_min': -20,
                           'density_max': +220,

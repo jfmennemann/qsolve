@@ -72,15 +72,9 @@ x_max = +1.5e-6
 y_min = -20e-6
 y_max = +20e-6
 
-# params_potential = {
-#     "omega_x": omega_perp,
-#     "V_ref_gaussian": 2 * hbar * omega_perp,
-#     "sigma_gaussian": 1e-6
-# }
-
-parameters_potential = {'nu_x': [1e3, 'Hz'],
-                        'V_ref_gaussian_y': [2 * hbar * omega_perp, 'J'],
-                        'sigma_gaussian_y': [1e-6, 'm']}
+parameters_potential = {'nu_x': (1e3, 'Hz'),
+                        'V_ref_gaussian_y': (2 * hbar * omega_perp, 'J'),
+                        'sigma_gaussian_y': (1e-6, 'm')}
 # -------------------------------------------------------------------------------------------------
 
 # -------------------------------------------------------------------------------------------------

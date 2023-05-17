@@ -16,7 +16,7 @@ from figures.figure_main.figure_main import FigureMain
 from figures.figure_tof.figure_tof import FigureTof
 from figures.figure_tof_extended.figure_tof_extended import FigureTofExtended
 
-from potential_lesanovsky_tilt_x import PotentialLesanovskyTiltX
+from potential_lesanovsky_tilt_x import compute_external_potential
 
 from evaluation import eval_data
 from evaluation import eval_data_tof
@@ -122,17 +122,15 @@ y_max = +1.2e-6
 z_min = -60e-6
 z_max = +60e-6
 
-params_potential = {
-    "g_F": -1/2,
-    "m_F": -1,
-    "m_F_prime": -1,
-    "omega_perp": 2 * np.pi * 3e3,
-    "omega_para": 2 * np.pi * 22.5,
-    "omega_delta_detuning": -2 * np.pi * 50e3,
-    "omega_trap_bottom": 2 * np.pi * 1216e3,
-    "omega_rabi_ref": 2 * np.pi * 575e3,
-    "gamma_tilt_ref": gamma_tilt_ref
-}
+parameters_potential = {'g_F': -1/2,
+                        'm_F': -1,
+                        'm_F_prime': -1,
+                        'nu_perp': (3e3, 'Hz'),
+                        'nu_para': (22.5, 'Hz'),
+                        'nu_delta_detuning': (-50e3, 'Hz'),
+                        'nu_trap_bottom': (1216e3, 'Hz'),
+                        'nu_rabi_ref': (575e3, 'Hz'),
+                        'gamma_tilt_ref': (gamma_tilt_ref, 'J/m')}
 
 params_figure_main = {
     'm_atom': m_atom,
@@ -251,11 +249,10 @@ solver.init_grid(x_min=x_min,
                  Jy=Jy,
                  Jz=Jz)
 
-solver.init_potential(PotentialLesanovskyTiltX, params_potential)
-
 x = solver.x
 y = solver.y
 z = solver.z
+
 
 # =================================================================================================
 # init time evolution
@@ -281,6 +278,7 @@ n_times_analysis = times_analysis.size
 
 assert (np.abs(times_analysis[-1] - t_final) / t_final < 1e-14)
 # -------------------------------------------------------------------------------------------------
+
 
 # =================================================================================================
 # init control inputs
@@ -346,15 +344,17 @@ u_of_times[1, :] = u2_of_times
 
 
 # =================================================================================================
-# compute ground state solution psi_0
+# init external potential
 # =================================================================================================
 
-# -------------------------------------------------------------------------------------------------
-u1_0 = u1_of_times[0]
-u2_0 = u2_of_times[0]
+solver.init_external_potential(compute_external_potential, parameters_potential)
 
-solver.set_V(u=[u1_0, u2_0])
-# -------------------------------------------------------------------------------------------------
+solver.set_external_potential(t=0.0, u=u_of_times[0])
+
+
+# =================================================================================================
+# compute ground state solution
+# =================================================================================================
 
 # -------------------------------------------------------------------------------------------------
 psi_0 = solver.compute_ground_state_solution(n_atoms=N, n_iter=5000, tau=0.005e-3, adaptive_tau=True)

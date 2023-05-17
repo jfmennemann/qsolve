@@ -106,19 +106,27 @@ class SolverGPE1D(object):
 
         for key, p in parameters_potential.items():
 
-            value = p[0]
-            unit = p[1]
+            if type(p) is not tuple:
 
-            if unit == 'm':
-                _value = value / self._units.unit_length
-            elif unit == 's':
-                _value = value / self._units.unit_time
-            elif unit == 'Hz':
-                _value = value / self._units.unit_frequency
-            elif unit == 'J':
-                _value = value / self._units.unit_energy
+                _value = p
+
             else:
-                raise Exception('unknown unit')
+
+                value = p[0]
+                unit = p[1]
+
+                if unit == 'm':
+                    _value = value / self._units.unit_length
+                elif unit == 's':
+                    _value = value / self._units.unit_time
+                elif unit == 'Hz':
+                    _value = value / self._units.unit_frequency
+                elif unit == 'J':
+                    _value = value / self._units.unit_energy
+                elif unit == 'J/m':
+                    _value = value * self._units.unit_length / self._units.unit_energy
+                else:
+                    raise Exception('unknown unit')
 
             self._p[key] = _value
 
