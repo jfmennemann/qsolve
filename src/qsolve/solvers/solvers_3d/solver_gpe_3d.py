@@ -110,6 +110,10 @@ class SolverGPE3D(object):
         self._y_3d = torch.reshape(self._y, (1, self._Jy, 1))
         self._z_3d = torch.reshape(self._z, (1, 1, self._Jz))
 
+        self._p['Lx'] = self._Lx
+        self._p['Ly'] = self._Ly
+        self._p['Lz'] = self._Lz
+
     def init_external_potential(self, compute_external_potential, parameters_potential):
 
         self._compute_external_potential = compute_external_potential

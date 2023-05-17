@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 
 from figures.figure_main.figure_main import FigureMain
 
-from potential_harmonic_xy_gaussian_z import Potential
+from potential_harmonic_xy_gaussian_z import compute_external_potential
 
 from evaluation import eval_data
 
@@ -60,10 +60,12 @@ export_psi_of_times_analysis = False
 # -------------------------------------------------------------------------------------------------
 N = 4000
 
-omega_perp = 2 * np.pi * 1e3
+omega_1 = 2 * np.pi * 1e3
 
 t_final = 16e-3
 dt = 0.0025e-3
+
+n_mod_times_analysis = 100
 
 m_Rb_87 = 87 * amu
 
@@ -82,11 +84,11 @@ y_max = +1.5e-6
 z_min = -20e-6
 z_max = +20e-6
 
-params_potential = {
-    "omega_x": omega_perp,
-    "omega_y": omega_perp,
-    "V_ref_gaussian": hbar*omega_perp,
-    "sigma_gaussian": 1e-6
+parameters_potential = {
+    'nu_x': (1e3, 'Hz'),
+    'nu_y': (1e3, 'Hz'),
+    'V_ref_gaussian_z': (hbar * omega_1, 'J'),
+    'sigma_gaussian_z': (1e-6, 'm')
 }
 # -------------------------------------------------------------------------------------------------
 
@@ -120,13 +122,14 @@ if export_frames_figure_main:
 
 
 # =================================================================================================
-# init solver and its potential
+# init solver
 # =================================================================================================
 
 solver = SolverGPE3D(m_atom=m_Rb_87,
                      a_s=a_s,
                      seed=1,
                      device='cuda:0',
+                     # device='cpu',
                      num_threads_cpu=num_threads_cpu)
 
 solver.init_grid(x_min=x_min,
@@ -139,26 +142,28 @@ solver.init_grid(x_min=x_min,
                  Jy=Jy,
                  Jz=Jz)
 
-solver.init_potential(Potential, params_potential)
-
-x = solver.get('x')
-y = solver.get('y')
-z = solver.get('z')
+x = solver.x
+y = solver.y
+z = solver.z
 
 
 # =================================================================================================
 # init time evolution
 # =================================================================================================
 
-solver.init_time_evolution(t_final=t_final, dt=dt)
+# -------------------------------------------------------------------------------------------------
+n_time_steps = int(np.round(t_final / dt))
 
-times = solver.get('times')
+n_times = n_time_steps + 1
 
-n_times = times.size
+assert (np.abs(n_time_steps * dt - t_final)) < 1e-14
+
+times = dt * np.arange(n_times)
+
+assert (np.abs(times[-1] - t_final)) < 1e-14
 # -------------------------------------------------------------------------------------------------
 
 # -------------------------------------------------------------------------------------------------
-n_mod_times_analysis = 50
 
 times_analysis = times[0::n_mod_times_analysis]
 
@@ -193,51 +198,32 @@ u_of_times = f(times)
 
 
 # =================================================================================================
-# compute ground state solution psi_0
+# init external potential
+# =================================================================================================
+
+solver.init_external_potential(compute_external_potential, parameters_potential)
+
+solver.set_external_potential(t=0.0, u=u_of_times[0])
+
+
+# =================================================================================================
+# compute ground state solution
 # =================================================================================================
 
 # -------------------------------------------------------------------------------------------------
-u_0 = u_of_times[0]
+psi_0 = solver.compute_ground_state_solution(n_atoms=N, n_iter=5000, tau=0.005e-3, adaptive_tau=True)
 
-solver.set_V(u=u_0)
-# -------------------------------------------------------------------------------------------------
+solver.psi = psi_0
 
-# -------------------------------------------------------------------------------------------------
-solver.compute_ground_state_solution(N=N, n_iter=5000, tau=0.005e-3)
+N_0 = solver.compute_n_atoms()
+mue_0 = solver.compute_chemical_potential()
+E_0 = solver.compute_total_energy()
 
-psi_0 = solver.get('psi_0')
-
-N_psi_0 = solver.compute_n_atoms('psi_0')
-mue_psi_0 = solver.compute_chemical_potential('psi_0')
-E_psi_0 = solver.compute_E_total('psi_0')
-
-print('N_psi_0 = {:1.16e}'.format(N_psi_0))
-print('mue_psi_0 / h: {0:1.6} kHz'.format(mue_psi_0 / (1e3 * (2 * pi * hbar))))
-print('E_psi_0 / (N_psi_0*h): {0:1.6} kHz'.format(E_psi_0 / (1e3 * (2 * pi * hbar * N_psi_0))))
+print('N_0 = {:1.16e}'.format(N_0))
+print('mue_0 / h: {0:1.6} kHz'.format(mue_0 / (1e3 * (2 * pi * hbar))))
+print('E_0 / (N_0*h): {0:1.6} kHz'.format(E_0 / (1e3 * (2 * pi * hbar * N_0))))
 print()
 # -------------------------------------------------------------------------------------------------
-
-# -------------------------------------------------------------------------------------------------
-density_0 = np.abs(psi_0)**2
-
-density_0_max = np.max(density_0)
-# -------------------------------------------------------------------------------------------------
-
-
-# =================================================================================================
-# set wave function psi to ground state solution psi_0
-# =================================================================================================
-
-solver.set_psi('numpy', array=psi_0)
-
-N_psi = solver.compute_n_atoms('psi')
-mue_psi = solver.compute_chemical_potential('psi')
-E_psi = solver.compute_E_total('psi')
-
-print('N_psi = {:1.16e}'.format(N_psi))
-print('mue_psi / h: {0:1.6} kHz'.format(mue_psi / (1e3 * (2 * pi * hbar))))
-print('E_psi / (N_psi*h): {0:1.6} kHz'.format(E_psi / (1e3 * (2 * pi * hbar * N_psi))))
-print()
 
 
 # =================================================================================================
@@ -245,7 +231,7 @@ print()
 # =================================================================================================
 
 params_figure_main = {
-    "density_max":  density_0_max,
+    "density_max": 2.2e20,
     "density_z_eff_max": 400,
     "V_min": -1.0,
     "V_max": 11.0,
@@ -266,8 +252,6 @@ figure_main.fig_control_inputs.update_t(0.0)
 # =================================================================================================
 # compute time evolution
 # =================================================================================================
-
-solver.set_u_of_times(u_of_times)
 
 if export_psi_of_times_analysis:
 
@@ -333,7 +317,7 @@ while True:
 
     if n < n_times - n_inc:
 
-        solver.propagate_gpe(n_start=n, n_inc=n_inc, mue_shift=mue_psi_0)
+        solver.propagate_gpe(times=times, u_of_times=u_of_times, n_start=n, n_inc=n_inc, mue_shift=mue_0)
 
         n = n + n_inc
 
