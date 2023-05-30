@@ -155,6 +155,10 @@ u1_of_times = pchip_interpolate(vec_t, vec_u, times)
 
 u_of_times[0, :] = u1_of_times
 
+def u(t):
+
+    pass
+
 
 # =================================================================================================
 # init external potential
