@@ -165,6 +165,29 @@ class SolverGPE1D(object):
 
             return self._units.unit_wave_function * _psi_0.cpu().numpy()
 
+    def init_sgpe(self, **kwargs):
+
+        self._T_des_sgpe = kwargs["T_temp_des"] / self._units.unit_temperature
+        self._mue_des_sgpe = kwargs["mue_des"] / self._units.unit_energy
+        self._gamma_sgpe = kwargs["gamma"]
+        self._dt_sgpe = kwargs["dt"] / self._units.unit_time
+
+    def propagate_sgpe(self, *, n_inc):
+
+        self._psi = qsolve_core_gpe_1d.propagate_sgpe_z_eff(
+            self._psi,
+            self._V,
+            self._dx,
+            self._dt_sgpe,
+            n_inc,
+            self._T_des_sgpe,
+            self._mue_des_sgpe,
+            self._gamma_sgpe,
+            self._hbar,
+            self._k_B,
+            self._m_atom,
+            self._g)
+
     def propagate_gpe(self, *, times, u_of_times, n_start, n_inc, mue_shift=0.0):
 
         _times = times / self._units.unit_time

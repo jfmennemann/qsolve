@@ -155,10 +155,6 @@ u1_of_times = pchip_interpolate(vec_t, vec_u, times)
 
 u_of_times[0, :] = u1_of_times
 
-def u(t):
-
-    pass
-
 
 # =================================================================================================
 # init external potential
@@ -247,6 +243,53 @@ plt.grid(visible=True, which='major', color='k', linestyle='-', linewidth=0.5)
 plt.grid(visible=True, which='minor', color='k', linestyle='-', linewidth=0.25)
 
 plt.draw()
+
+
+# =================================================================================================
+# thermal state sampling
+# =================================================================================================
+
+T = 80e-9
+
+if T > 0:
+
+    solver.init_sgpe(
+        T_temp_des=T,
+        mue_des=mue_0,
+        gamma=0.1,
+        dt=dt
+    )
+
+    n_sgpe_max = 1000000
+
+    n_sgpe_inc = 1000
+
+    n_sgpe = 0
+
+    while n_sgpe < n_sgpe_max:
+
+        N = solver.compute_n_atoms()
+
+        print('----------------------------------------------------------------------------------------')
+        print('n_sgpe: {0:4d} / {1:4d}'.format(n_sgpe, n_sgpe_max))
+        print()
+        print('N:      {0:1.4f}'.format(N))
+        print('----------------------------------------------------------------------------------------')
+        print()
+
+        # -----------------------------------------------------------------------------------------
+        figure_main.update_data(solver.psi, solver.V)
+
+        figure_main.redraw()
+        # -----------------------------------------------------------------------------------------
+
+        # ---------------------------------------------------------------------------------------------
+        # apply thermal state sampling process via sgpe for n_sgpe_inc time steps
+
+        solver.propagate_sgpe(n_inc=n_sgpe_inc)
+        # ---------------------------------------------------------------------------------------------
+
+        n_sgpe = n_sgpe + n_sgpe_inc
 
 
 # =================================================================================================
