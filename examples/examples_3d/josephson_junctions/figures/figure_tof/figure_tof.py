@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 
-from PyQt5 import QtWidgets
+# from PyQt5 import QtWidgets
 
 from .fig_density_xz_tof_gpe import fig_density_xz_tof_gpe
 from .fig_density_xy_tof_gpe import fig_density_xy_tof_gpe
@@ -110,26 +110,33 @@ class FigureTof(object):
 
         # =========================================================================================
         # -----------------------------------------------------------------------------------------
+        # self.fig_name = "figure_time_of_flight"
+        #
+        # self.fig = plt.figure(self.fig_name, facecolor="white")
+        #
+        # window = self.fig.canvas.window()
+        #
+        # window.findChild(QtWidgets.QToolBar).setVisible(False)
+        #
+        # window.statusBar().setVisible(False)
+        # -----------------------------------------------------------------------------------------
+
+        # -----------------------------------------------------------------------------------------
+        # n_pixels_x = 800
+        # n_pixels_y = 600
+        #
+        # pos_x = 2560 - n_pixels_x
+        # pos_y = 0
+        #
+        # window.setGeometry(pos_x, pos_y, n_pixels_x, n_pixels_y)
+        # -----------------------------------------------------------------------------------------
+
+        # -----------------------------------------------------------------------------------------
         self.fig_name = "figure_time_of_flight"
 
-        self.fig = plt.figure(self.fig_name, facecolor="white")
-
-        window = self.fig.canvas.window()
-
-        window.findChild(QtWidgets.QToolBar).setVisible(False)
-
-        window.statusBar().setVisible(False)
+        self.fig = plt.figure(self.fig_name, figsize=(10, 6), facecolor="white")
         # -----------------------------------------------------------------------------------------
 
-        # -----------------------------------------------------------------------------------------
-        n_pixels_x = 800
-        n_pixels_y = 600
-
-        pos_x = 2560 - n_pixels_x
-        pos_y = 0
-
-        window.setGeometry(pos_x, pos_y, n_pixels_x, n_pixels_y)
-        # -----------------------------------------------------------------------------------------
         # =========================================================================================
 
         # -----------------------------------------------------------------------------------------

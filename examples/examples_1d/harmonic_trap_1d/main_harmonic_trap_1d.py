@@ -3,7 +3,10 @@ from qsolve.figures import FigureMain1D
 
 from potential_harmonic_trap_1d import compute_external_potential
 
+# import os
+
 import os
+os.environ['FOR_DISABLE_CONSOLE_CTRL_HANDLER'] = '1'
 
 import mkl
 
@@ -106,7 +109,8 @@ solver = SolverGPE1D(m_atom=m_Rb_87,
                      a_s=5.24e-9,
                      omega_perp=2*np.pi*1000,
                      seed=1,
-                     device='cuda:0',
+                     # device='cuda:0',
+                     device='cpu',
                      num_threads_cpu=num_threads_cpu)
 
 
@@ -260,7 +264,7 @@ if T > 0:
         dt=dt
     )
 
-    n_sgpe_max = 1000000
+    n_sgpe_max = 10000
 
     n_sgpe_inc = 1000
 

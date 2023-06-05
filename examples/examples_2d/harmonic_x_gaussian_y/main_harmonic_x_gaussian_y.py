@@ -4,6 +4,7 @@ from qsolve.figures import FigureMain2d
 from potential_harmonic_x_gaussian_y import compute_external_potential
 
 import os
+os.environ['FOR_DISABLE_CONSOLE_CTRL_HANDLER'] = '1'
 
 import mkl
 
@@ -21,7 +22,7 @@ from evaluation import eval_data
 
 
 # -------------------------------------------------------------------------------------------------
-num_threads_cpu = 8
+num_threads_cpu = 12
 
 os.environ["OMP_NUM_THREADS"] = str(num_threads_cpu)
 os.environ["MKL_NUM_THREADS"] = str(num_threads_cpu)
@@ -114,7 +115,8 @@ solver = SolverGPE2D(m_atom=m_Rb_87,
                      a_s=5.24e-9,
                      omega_z=2*np.pi*1e3,
                      seed=1,
-                     device='cuda:0',
+                     # device='cuda:0',
+                     device='cpu',
                      num_threads_cpu=num_threads_cpu)
 
 
