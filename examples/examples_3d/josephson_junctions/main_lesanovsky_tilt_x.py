@@ -22,7 +22,7 @@ from evaluation import eval_data
 from evaluation import eval_data_tof
 
 # -------------------------------------------------------------------------------------------------
-num_threads_cpu = 12
+num_threads_cpu = 8
 
 os.environ["OMP_NUM_THREADS"] = str(num_threads_cpu)
 os.environ["MKL_NUM_THREADS"] = str(num_threads_cpu)

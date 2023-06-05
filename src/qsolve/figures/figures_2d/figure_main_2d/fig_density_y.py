@@ -2,7 +2,7 @@ from numpy import zeros_like
 
 from numpy import pi
 
-from ..style import colors
+from qsolve.figures.style import colors
 
 
 class fig_density_y(object):

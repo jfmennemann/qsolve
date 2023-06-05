@@ -1,6 +1,6 @@
 import numpy as np
 
-from ..style import colors
+from qsolve.figures.style import colors
 
 
 class fig_control_inputs(object):

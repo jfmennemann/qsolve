@@ -1,5 +1,5 @@
 from qsolve.solvers import SolverGPE2D
-from qsolve.figures import FigureMain2d
+from qsolve.figures import FigureMain2D
 
 from potential_harmonic_x_gaussian_y import compute_external_potential
 
@@ -22,7 +22,7 @@ from evaluation import eval_data
 
 
 # -------------------------------------------------------------------------------------------------
-num_threads_cpu = 12
+num_threads_cpu = 8
 
 os.environ["OMP_NUM_THREADS"] = str(num_threads_cpu)
 os.environ["MKL_NUM_THREADS"] = str(num_threads_cpu)
@@ -219,7 +219,7 @@ params_figure_main = {
 }
 
 # ---------------------------------------------------------------------------------------------
-figure_main = FigureMain2d(solver.x, solver.y, times, params_figure_main)
+figure_main = FigureMain2D(solver.x, solver.y, times, params_figure_main)
 
 figure_main.fig_control_inputs.update_u(u_of_times)
 

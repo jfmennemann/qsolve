@@ -2,7 +2,7 @@ from numpy import zeros_like
 
 import numpy as np
 
-from ..style import colors
+from qsolve.figures.style import colors
 
 
 class fig_real_part_x(object):

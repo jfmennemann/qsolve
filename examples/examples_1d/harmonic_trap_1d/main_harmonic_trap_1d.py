@@ -170,6 +170,13 @@ solver.set_external_potential(t=0.0, u=u_of_times[0])
 
 
 # =================================================================================================
+# compute eigenstates of the linear Schrödinger equation
+# =================================================================================================
+
+eigenstates_lse = solver.compute_eigenstates_lse(n_iter=10000, tau=0.001e-3)
+
+
+# =================================================================================================
 # compute ground state solution
 # =================================================================================================
 
@@ -178,6 +185,7 @@ psi_0, vec_res, vec_iter = solver.compute_ground_state_solution(n_atoms=n_atoms,
                                                                 tau=0.001e-3,
                                                                 adaptive_tau=True,
                                                                 return_residuals=True)
+
 
 # =================================================================================================
 # set wave function to ground state solution

@@ -225,6 +225,26 @@ class SolverGPE1D(object):
 
             n_local = n_local + 1
 
+    def compute_eigenstates_lse(self, *, n_iter, tau):
+
+        _tau = tau / self._units.unit_time
+
+        if n_iter < 2500:
+
+            message = 'compute_ground_state_solution(self, **kwargs): n_iter should not be smaller than 2500'
+
+            raise Exception(message)
+
+        _eigenstates = qsolve_core_gpe_1d.compute_eigenstates_lse(
+            self._V,
+            self._dx,
+            _tau,
+            n_iter,
+            self._hbar,
+            self._m_atom)
+
+        return self._units.unit_wave_function * _eigenstates.cpu().numpy()
+
     @property
     def x(self):
         return self._units.unit_length * self._x.cpu().numpy()
