@@ -1,5 +1,7 @@
 from qsolve.solvers import SolverGPE1D
+
 from qsolve.figures import FigureMain1D
+from qsolve.figures import FigureEigenstatesLSE1D
 
 from potential_harmonic_trap_1d import compute_external_potential
 
@@ -78,6 +80,15 @@ parameters_figure_main = {'density_min': -20,
                           'x_ticks': np.array([-40, -20, 0, 20, 40]),
                           't_ticks': np.array([0, 2, 4, 6, 8]),
                           'n_control_inputs': n_control_inputs}
+
+parameters_figure_eigenstates_lse = {'density_min': 0,
+                                     'density_max': 200,
+                                     'psi_re_min': -15,
+                                     'psi_re_max': +15,
+                                     'V_min': 0.0,
+                                     'V_max': 4.0,
+                                     'x_ticks': np.array([-40, -20, 0, 20, 40])
+                                     }
 # =================================================================================================
 
 # -------------------------------------------------------------------------------------------------
@@ -174,6 +185,16 @@ solver.set_external_potential(t=0.0, u=u_of_times[0])
 # =================================================================================================
 
 eigenstates_lse = solver.compute_eigenstates_lse(n_iter=10000, tau=0.001e-3)
+
+# -------------------------------------------------------------------------------------------------
+figure_eigenstates_lse = FigureEigenstatesLSE1D(eigenstates_lse, solver.V, solver.x, parameters_figure_eigenstates_lse)
+
+# figure_eigenstates_lse.fig_control_inputs.update_u(u_of_times)
+
+# figure_eigenstates_lse.fig_control_inputs.update_t(0.0)
+
+# input('I am here')
+# -------------------------------------------------------------------------------------------------
 
 
 # =================================================================================================
