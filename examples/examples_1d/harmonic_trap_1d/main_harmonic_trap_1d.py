@@ -59,7 +59,7 @@ m_Rb_87 = 87 * amu
 x_min = -40e-6
 x_max = +40e-6
 
-Jx = 128
+Jx = 256
 
 t_final = 8e-3
 
@@ -83,8 +83,8 @@ parameters_figure_main = {'density_min': -20,
 
 parameters_figure_eigenstates_lse = {'density_min': 0,
                                      'density_max': 200,
-                                     'psi_re_min': -15,
-                                     'psi_re_max': +15,
+                                     'psi_re_min': -1,
+                                     'psi_re_max': +1,
                                      'V_min': 0.0,
                                      'V_max': 4.0,
                                      'x_ticks': np.array([-40, -20, 0, 20, 40])
@@ -120,8 +120,8 @@ solver = SolverGPE1D(m_atom=m_Rb_87,
                      a_s=5.24e-9,
                      omega_perp=2*np.pi*1000,
                      seed=1,
-                     # device='cuda:0',
-                     device='cpu',
+                     device='cuda:0',
+                     # device='cpu',
                      num_threads_cpu=num_threads_cpu)
 
 
@@ -184,17 +184,34 @@ solver.set_external_potential(t=0.0, u=u_of_times[0])
 # compute eigenstates of the linear Schrödinger equation
 # =================================================================================================
 
-eigenstates_lse = solver.compute_eigenstates_lse(n_iter=10000, tau=0.001e-3)
+import torch
 
-# -------------------------------------------------------------------------------------------------
+A = torch.tensor([[12., -51, 4], [6, 167, -68], [-4, 24, -41]])
+
+print(A.round())
+
+Q, R = torch.linalg.qr(A)
+
+print(Q.round())
+print(R.round())
+
+Q_times_R = Q @ R
+
+print(Q_times_R.round())
+
+input()
+
+
+
+eigenstates_lse = solver.compute_eigenstates_lse(n_iter=10000, tau=0.0025e-3)
+
 figure_eigenstates_lse = FigureEigenstatesLSE1D(eigenstates_lse, solver.V, solver.x, parameters_figure_eigenstates_lse)
 
-# figure_eigenstates_lse.fig_control_inputs.update_u(u_of_times)
 
-# figure_eigenstates_lse.fig_control_inputs.update_t(0.0)
 
-# input('I am here')
-# -------------------------------------------------------------------------------------------------
+
+
+
 
 
 # =================================================================================================
