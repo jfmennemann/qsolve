@@ -59,7 +59,7 @@ m_Rb_87 = 87 * amu
 x_min = -40e-6
 x_max = +40e-6
 
-Jx = 256
+Jx = 512
 
 t_final = 8e-3
 
@@ -83,8 +83,8 @@ parameters_figure_main = {'density_min': -20,
 
 parameters_figure_eigenstates_lse = {'density_min': 0,
                                      'density_max': 200,
-                                     'psi_re_min': -1,
-                                     'psi_re_max': +1,
+                                     'psi_re_min': -0.5,
+                                     'psi_re_max': +0.5,
                                      'V_min': 0.0,
                                      'V_max': 4.0,
                                      'x_ticks': np.array([-40, -20, 0, 20, 40])
@@ -181,52 +181,6 @@ solver.set_external_potential(t=0.0, u=u_of_times[0])
 
 
 # =================================================================================================
-# compute eigenstates of the linear Schrödinger equation
-# =================================================================================================
-
-import torch
-
-A = torch.tensor([[12., -51, 4], [6, 167, -68], [-4, 24, -41]], dtype=torch.complex128)
-
-# print(A.round())
-
-Q, R = torch.linalg.qr(A)
-
-# print(Q.round())
-# print(R.round())
-
-Q_times_R = Q @ R
-
-# print(Q_times_R.round())
-
-c_00 = torch.sum(torch.conj(Q[:, 0]) * Q[:, 0])
-c_01 = torch.sum(torch.conj(Q[:, 0]) * Q[:, 1])
-
-print(c_00.cpu().numpy())
-print(c_01.cpu().numpy())
-
-tmp = torch.adjoint(Q) @ Q
-
-tmp = tmp.cpu().numpy()
-
-print(tmp.round())
-
-input()
-
-
-
-eigenstates_lse = solver.compute_eigenstates_lse(n_iter=10000, tau=0.0025e-3)
-
-figure_eigenstates_lse = FigureEigenstatesLSE1D(eigenstates_lse, solver.V, solver.x, parameters_figure_eigenstates_lse)
-
-
-
-
-
-
-
-
-# =================================================================================================
 # compute ground state solution
 # =================================================================================================
 
@@ -235,6 +189,18 @@ psi_0, vec_res, vec_iter = solver.compute_ground_state_solution(n_atoms=n_atoms,
                                                                 tau=0.001e-3,
                                                                 adaptive_tau=True,
                                                                 return_residuals=True)
+
+
+# =================================================================================================
+# compute eigenstates of the linear Schrödinger equation
+# =================================================================================================
+
+eigenstates_lse = solver.compute_eigenstates_lse(n_iter=2500, tau=0.001e-3, n_eigenstates_max=100)
+
+figure_eigenstates_lse = FigureEigenstatesLSE1D(eigenstates_lse,
+                                                solver.V,
+                                                solver.x,
+                                                parameters_figure_eigenstates_lse)
 
 
 # =================================================================================================
@@ -311,7 +277,7 @@ plt.draw()
 # thermal state sampling
 # =================================================================================================
 
-T = 80e-9
+T = 0e-9
 
 if T > 0:
 
@@ -404,6 +370,8 @@ while True:
     else:
 
         break
+
+    # input()
 
 plt.ioff()
 plt.show()

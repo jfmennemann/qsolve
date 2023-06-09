@@ -8,6 +8,8 @@ import sys
 
 import math
 
+# import qsolve_core_gpe_1d
+
 from qsolve.core import qsolve_core_gpe_1d
 
 from qsolve.primes import get_prime_factors
@@ -225,7 +227,7 @@ class SolverGPE1D(object):
 
             n_local = n_local + 1
 
-    def compute_eigenstates_lse(self, *, n_iter, tau):
+    def compute_eigenstates_lse(self, *, n_iter, tau, n_eigenstates_max):
 
         _tau = tau / self._units.unit_time
 
@@ -241,7 +243,8 @@ class SolverGPE1D(object):
             _tau,
             n_iter,
             self._hbar,
-            self._m_atom)
+            self._m_atom,
+            n_eigenstates_max)
 
         return self._units.unit_wave_function * _eigenstates.cpu().numpy()
 

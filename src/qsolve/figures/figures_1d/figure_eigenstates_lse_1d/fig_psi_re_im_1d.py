@@ -11,7 +11,7 @@ from qsolve.figures.style import colors
 
 class fig_psi_re_im_1d(object):
 
-    def __init__(self, ax, settings):
+    def __init__(self, ax, settings, legend=True):
 
         self.hbar = settings.hbar
 
@@ -61,12 +61,13 @@ class fig_psi_re_im_1d(object):
         ax2.set_ylabel(r'$h \times \mathrm{kHz}$', labelpad=10)
         # -----------------------------------------------------------------------------------------
 
-        # -----------------------------------------------------------------------------------------
-        lines, labels = ax.get_legend_handles_labels()
-        lines2, labels2 = ax2.get_legend_handles_labels()
-        ax2.legend(lines + lines2, labels + labels2,
-                   loc='upper right', bbox_to_anchor=(1.0, 1.25), fancybox=True, framealpha=1, ncol=1)
-        # -----------------------------------------------------------------------------------------
+        if legend:
+
+            lines, labels = ax.get_legend_handles_labels()
+            lines2, labels2 = ax2.get_legend_handles_labels()
+
+            ax2.legend(lines + lines2, labels + labels2,
+                       loc='upper right', bbox_to_anchor=(1.0, 1.3), fancybox=True, framealpha=1, ncol=1)
 
     def update(self, psi, V):
 

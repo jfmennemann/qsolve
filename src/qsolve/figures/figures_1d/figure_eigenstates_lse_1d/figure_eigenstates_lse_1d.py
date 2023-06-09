@@ -80,10 +80,10 @@ class FigureEigenstatesLSE1D(object):
         # -----------------------------------------------------------------------------------------
 
         # -----------------------------------------------------------------------------------------
-        self.gridspec = self.fig.add_gridspec(nrows=4, ncols=3,
-                                              left=0.1, right=0.9,
-                                              bottom=0.08, top=0.9,
-                                              wspace=0.4,
+        self.gridspec = self.fig.add_gridspec(nrows=4, ncols=2,
+                                              left=0.125, right=0.9,
+                                              bottom=0.08, top=0.95,
+                                              wspace=0.6,
                                               hspace=0.7
                                               # width_ratios=[1, 1],
                                               # height_ratios=[1, 1]
@@ -98,28 +98,18 @@ class FigureEigenstatesLSE1D(object):
         ax_11 = self.fig.add_subplot(self.gridspec[1, 1])
         ax_21 = self.fig.add_subplot(self.gridspec[2, 1])
         ax_31 = self.fig.add_subplot(self.gridspec[3, 1])
-
-        ax_02 = self.fig.add_subplot(self.gridspec[0, 2])
-        ax_12 = self.fig.add_subplot(self.gridspec[1, 2])
-        ax_22 = self.fig.add_subplot(self.gridspec[2, 2])
-        ax_32 = self.fig.add_subplot(self.gridspec[3, 2])
         # -----------------------------------------------------------------------------------------
 
         # -----------------------------------------------------------------------------------------
         self.fig_psi_re_im_1d_00 = fig_psi_re_im_1d(ax_00, settings)
-        self.fig_psi_re_im_1d_10 = fig_psi_re_im_1d(ax_10, settings)
-        self.fig_psi_re_im_1d_20 = fig_psi_re_im_1d(ax_20, settings)
-        self.fig_psi_re_im_1d_30 = fig_psi_re_im_1d(ax_30, settings)
+        self.fig_psi_re_im_1d_10 = fig_psi_re_im_1d(ax_10, settings, legend=False)
+        self.fig_psi_re_im_1d_20 = fig_psi_re_im_1d(ax_20, settings, legend=False)
+        self.fig_psi_re_im_1d_30 = fig_psi_re_im_1d(ax_30, settings, legend=False)
 
         self.fig_psi_re_im_1d_01 = fig_psi_re_im_1d(ax_01, settings)
-        self.fig_psi_re_im_1d_11 = fig_psi_re_im_1d(ax_11, settings)
-        self.fig_psi_re_im_1d_21 = fig_psi_re_im_1d(ax_21, settings)
-        self.fig_psi_re_im_1d_31 = fig_psi_re_im_1d(ax_31, settings)
-
-        self.fig_psi_re_im_1d_02 = fig_psi_re_im_1d(ax_02, settings)
-        self.fig_psi_re_im_1d_12 = fig_psi_re_im_1d(ax_12, settings)
-        self.fig_psi_re_im_1d_22 = fig_psi_re_im_1d(ax_22, settings)
-        self.fig_psi_re_im_1d_32 = fig_psi_re_im_1d(ax_32, settings)
+        self.fig_psi_re_im_1d_11 = fig_psi_re_im_1d(ax_11, settings, legend=False)
+        self.fig_psi_re_im_1d_21 = fig_psi_re_im_1d(ax_21, settings, legend=False)
+        self.fig_psi_re_im_1d_31 = fig_psi_re_im_1d(ax_31, settings, legend=False)
         # -----------------------------------------------------------------------------------------
 
         # -----------------------------------------------------------------------------------------
@@ -131,12 +121,7 @@ class FigureEigenstatesLSE1D(object):
         self.fig_psi_re_im_1d_01.update(eigenstates_lse[4, :], V)
         self.fig_psi_re_im_1d_11.update(eigenstates_lse[5, :], V)
         self.fig_psi_re_im_1d_21.update(eigenstates_lse[6, :], V)
-        self.fig_psi_re_im_1d_31.update(eigenstates_lse[7, :], V)
-
-        self.fig_psi_re_im_1d_02.update(eigenstates_lse[8, :], V)
-        self.fig_psi_re_im_1d_12.update(eigenstates_lse[9, :], V)
-        self.fig_psi_re_im_1d_22.update(eigenstates_lse[10, :], V)
-        self.fig_psi_re_im_1d_32.update(eigenstates_lse[11, :], V)
+        self.fig_psi_re_im_1d_31.update(eigenstates_lse[-1, :], V)
         # -----------------------------------------------------------------------------------------
 
         plt.ion()
