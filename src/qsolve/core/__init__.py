@@ -1,5 +1,3 @@
-# from . import fourier
-
-from . import qsolve_core_gpe_1d
-# from . import qsolve_core_gpe_2d
-# from . import qsolve_core_gpe_3d
+from . import qsolve_core_1d
+from . import qsolve_core_2d
+from . import qsolve_core_3d
