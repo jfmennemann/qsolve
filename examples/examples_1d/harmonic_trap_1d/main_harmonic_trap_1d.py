@@ -223,6 +223,8 @@ print('E_kinetic_0 / (N_0*h): {0:1.6} kHz'.format(E_kinetic_0 / (1e3 * (2 * pi *
 print('E_potential_0 / (N_0*h): {0:1.6} kHz'.format(E_potential_0 / (1e3 * (2 * pi * hbar * N_0))))
 print('E_interaction_0 / (N_0*h): {0:1.6} kHz'.format(E_interaction_0 / (1e3 * (2 * pi * hbar * N_0))))
 print()
+
+# input()
 # -------------------------------------------------------------------------------------------------
 
 
@@ -277,7 +279,7 @@ plt.draw()
 # thermal state sampling
 # =================================================================================================
 
-T = 0e-9
+T = 20e-9
 
 if T > 0:
 

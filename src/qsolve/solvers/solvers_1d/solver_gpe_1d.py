@@ -8,7 +8,7 @@ import sys
 
 import math
 
-# import qsolve_core_gpe_1d
+# import qsolve_core_1d
 
 from qsolve.core import qsolve_core_1d
 
@@ -148,7 +148,7 @@ class SolverGPE1D(object):
 
             raise Exception(message)
 
-        _psi_0, vec_res, vec_iter = qsolve_core_1d.compute_ground_state_solution(
+        _psi_0, vec_res, vec_iter = qsolve_core_1d.ground_state_gpe_1d(
             self._V,
             self._dx,
             _tau,
@@ -269,35 +269,41 @@ class SolverGPE1D(object):
         return self._units.unit_energy * self._V.cpu().numpy()
 
     def compute_n_atoms(self):
-        return qsolve_core_1d.compute_n_atoms(self._psi, self._dx)
-
-    def compute_chemical_potential(self):
-
-        _mue = qsolve_core_1d.compute_chemical_potential(
-            self._psi, self._V, self._dx, self._hbar, self._m_atom, self._g)
-
-        return self._units.unit_energy * _mue
-
-    def compute_total_energy(self):
-
-        _E = qsolve_core_1d.compute_total_energy(self._psi, self._V, self._dx, self._hbar, self._m_atom, self._g)
-
-        return self._units.unit_energy * _E
+        return qsolve_core_1d.n_atoms_1d(self._psi, self._dx)
 
     def compute_kinetic_energy(self):
 
-        _E_kinetic = qsolve_core_1d.compute_kinetic_energy(self._psi, self._dx, self._hbar, self._m_atom)
+        _E_kinetic = qsolve_core_1d.kinetic_energy_lse_1d(self._psi, self._dx, self._hbar, self._m_atom)
 
         return self._units.unit_energy * _E_kinetic
 
     def compute_potential_energy(self):
 
-        _E_potential = qsolve_core_1d.compute_potential_energy(self._psi, self._V, self._dx)
+        _E_potential = qsolve_core_1d.potential_energy_lse_1d(self._psi, self._V, self._dx)
 
         return self._units.unit_energy * _E_potential
 
     def compute_interaction_energy(self):
 
-        _E_interaction = qsolve_core_1d.compute_interaction_energy(self._psi, self._dx, self._g)
+        _E_interaction = qsolve_core_1d.interaction_energy_gpe_1d(self._psi, self._dx, self._g)
 
         return self._units.unit_energy * _E_interaction
+
+    def compute_total_energy(self):
+
+        _E_kinetic = qsolve_core_1d.kinetic_energy_lse_1d(self._psi, self._dx, self._hbar, self._m_atom)
+
+        _E_potential = qsolve_core_1d.potential_energy_lse_1d(self._psi, self._V, self._dx)
+
+        _E_interaction = qsolve_core_1d.interaction_energy_gpe_1d(self._psi, self._dx, self._g)
+
+        _E = _E_kinetic + _E_potential + _E_interaction
+
+        return self._units.unit_energy * _E
+
+    def compute_chemical_potential(self):
+
+        _mue = qsolve_core_1d.chemical_potential_gpe_1d(
+            self._psi, self._V, self._dx, self._hbar, self._m_atom, self._g)
+
+        return self._units.unit_energy * _mue
