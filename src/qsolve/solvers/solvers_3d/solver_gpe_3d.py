@@ -10,7 +10,7 @@ import math
 
 from qsolve.core import qsolve_core_3d
 
-from qsolve.primes import get_prime_factors
+# from qsolve.primes import get_prime_factors
 
 from qsolve.units import Units
 
@@ -74,9 +74,9 @@ class SolverGPE3D(object):
         self._Jy = kwargs['Jy']
         self._Jz = kwargs['Jz']
 
-        assert (np.max(get_prime_factors(self._Jx)) < 11)
-        assert (np.max(get_prime_factors(self._Jy)) < 11)
-        assert (np.max(get_prime_factors(self._Jz)) < 11)
+        assert (np.max(qsolve_core_3d.get_prime_factors(self._Jx)) < 11)
+        assert (np.max(qsolve_core_3d.get_prime_factors(self._Jy)) < 11)
+        assert (np.max(qsolve_core_3d.get_prime_factors(self._Jz)) < 11)
 
         assert (self._Jx % 2 == 0)
         assert (self._Jy % 2 == 0)
@@ -233,7 +233,7 @@ class SolverGPE3D(object):
 
             self._V = self._compute_external_potential(self._x_3d, self._y_3d, self._z_3d, _t, u, self._p)
 
-            self._psi = qsolve_core_3d.propagate_gpe(
+            self._psi = qsolve_core_3d.propagate_gpe_3d(
                 self._psi,
                 self._V,
                 self._dx,
@@ -279,9 +279,9 @@ class SolverGPE3D(object):
         assert (self._Jy_tof_free_gpe % 2 == 0)
         assert (self._Jz_tof_free_gpe % 2 == 0)
 
-        assert (np.max(get_prime_factors(self._Jx_tof_free_gpe)) < 11)
-        assert (np.max(get_prime_factors(self._Jy_tof_free_gpe)) < 11)
-        assert (np.max(get_prime_factors(self._Jz_tof_free_gpe)) < 11)
+        assert (np.max(qsolve_core_3d.get_prime_factors(self._Jx_tof_free_gpe)) < 11)
+        assert (np.max(qsolve_core_3d.get_prime_factors(self._Jy_tof_free_gpe)) < 11)
+        assert (np.max(qsolve_core_3d.get_prime_factors(self._Jz_tof_free_gpe)) < 11)
         # ---------------------------------------------------------------------------------------------
 
         # ---------------------------------------------------------------------------------------------
@@ -392,7 +392,7 @@ class SolverGPE3D(object):
 
     def propagate_sgpe_z_eff(self, *, n_inc):
 
-        self._psi = qsolve_core_3d.propagate_sgpe_z_eff(
+        self._psi = qsolve_core_3d.propagate_sgpe_z_eff_3d(
             self._psi,
             self._V,
             self._dx,
@@ -411,7 +411,7 @@ class SolverGPE3D(object):
         self._psi = self.filter_z_sgpe * self._psi
 
     def compute_n_atoms(self):
-        return qsolve_core_3d.compute_n_atoms(self._psi, self._dx, self._dy, self._dz)
+        return qsolve_core_3d.n_atoms_3d(self._psi, self._dx, self._dy, self._dz)
 
     def compute_chemical_potential(self):
 

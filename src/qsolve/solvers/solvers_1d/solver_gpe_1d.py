@@ -177,7 +177,7 @@ class SolverGPE1D(object):
 
     def propagate_sgpe(self, *, n_inc):
 
-        self._psi = qsolve_core.propagate_sgpe_z_eff(
+        self._psi = qsolve_core.propagate_sgpe_1d(
             self._psi,
             self._V,
             self._dx,
@@ -289,18 +289,6 @@ class SolverGPE1D(object):
         _E_interaction = qsolve_core.interaction_energy_gpe_1d(self._psi, self._dx, self._g)
 
         return self._units.unit_energy * _E_interaction
-
-    # def compute_total_energy(self):
-    #
-    #     _E_kinetic = qsolve_core.kinetic_energy_lse_1d(self._psi, self._dx, self._hbar, self._m_atom)
-    #
-    #     _E_potential = qsolve_core.potential_energy_lse_1d(self._psi, self._V, self._dx)
-    #
-    #     _E_interaction = qsolve_core.interaction_energy_gpe_1d(self._psi, self._dx, self._g)
-    #
-    #     _E = _E_kinetic + _E_potential + _E_interaction
-    #
-    #     return self._units.unit_energy * _E
 
     def compute_total_energy(self):
 
