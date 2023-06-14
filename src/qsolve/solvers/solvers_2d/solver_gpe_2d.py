@@ -8,10 +8,7 @@ import sys
 
 import math
 
-# from qsolve.core import qsolve_core_2d
 from qsolve.core import qsolve_core
-
-from qsolve.primes import get_prime_factors
 
 from qsolve.units import Units
 
@@ -107,8 +104,8 @@ class SolverGPE2D(object):
         self._Jx = kwargs['Jx']
         self._Jy = kwargs['Jy']
 
-        prime_factors_Jx = get_prime_factors(self._Jx)
-        prime_factors_Jy = get_prime_factors(self._Jy)
+        prime_factors_Jx = qsolve_core.get_prime_factors(self._Jx)
+        prime_factors_Jy = qsolve_core.get_prime_factors(self._Jy)
 
         assert (np.max(prime_factors_Jx) < 11)
         assert (np.max(prime_factors_Jy) < 11)

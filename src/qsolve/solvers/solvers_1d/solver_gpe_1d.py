@@ -8,12 +8,7 @@ import sys
 
 import math
 
-# import qsolve_core_1d
-
-# from qsolve.core import qsolve_core_1d
 from qsolve.core import qsolve_core
-
-from qsolve.primes import get_prime_factors
 
 from qsolve.units import Units
 
@@ -91,7 +86,7 @@ class SolverGPE1D(object):
 
         self._Jx = kwargs['Jx']
 
-        assert (np.max(get_prime_factors(self._Jx)) < 11)
+        assert (np.max(qsolve_core.get_prime_factors(self._Jx)) < 11)
 
         assert (self._Jx % 2 == 0)
 
