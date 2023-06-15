@@ -195,7 +195,17 @@ psi_0, vec_res, vec_iter = solver.compute_ground_state_solution(n_atoms=n_atoms,
 # compute eigenstates of the linear Schrödinger equation
 # =================================================================================================
 
-eigenstates_lse = solver.compute_eigenstates_lse(n_iter=2500, tau=0.001e-3, n_eigenstates_max=100)
+import time
+
+time_1 = time.time()
+
+eigenstates_lse = solver.compute_eigenstates_lse(n_iter=20000, tau=0.002e-3, n_eigenstates_max=10)
+
+time_2 = time.time()
+
+print('elapsed time: {0:f}'.format(time_2 - time_1))
+
+# input()
 
 figure_eigenstates_lse = FigureEigenstatesLSE1D(eigenstates_lse,
                                                 solver.V,
