@@ -5,7 +5,8 @@ of ultracold atom experiments at zero and finite temperature.
 
 # Requirements
 
-Ubuntu 22.04 and Python 3.10
+Ubuntu 22.04 or Windows 11\
+Python 3.10
 
 # Getting Started
 
