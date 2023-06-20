@@ -199,7 +199,7 @@ import time
 
 time_1 = time.time()
 
-eigenstates_lse = solver.compute_eigenstates_lse(n_iter=20000, tau=0.002e-3, n_eigenstates_max=10)
+eigenstates_lse = solver.compute_eigenstates_lse(n_iter=10000, tau=0.005e-3, n_eigenstates_max=9)
 
 time_2 = time.time()
 
