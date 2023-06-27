@@ -10,6 +10,8 @@ from potential_harmonic_trap_1d import compute_external_potential
 import os
 os.environ['FOR_DISABLE_CONSOLE_CTRL_HANDLER'] = '1'
 
+import time
+
 import mkl
 
 import numpy as np
@@ -185,34 +187,57 @@ solver.set_external_potential(t=0.0, u=u_of_times[0])
 # =================================================================================================
 
 psi_0, vec_res, vec_iter = solver.compute_ground_state_solution(n_atoms=n_atoms,
-                                                                n_iter=5000,
-                                                                tau=0.001e-3,
+                                                                n_iter_max=5000,
+                                                                tau_0=0.001e-3,
                                                                 adaptive_tau=True,
                                                                 return_residuals=True)
+
+# =================================================================================================
+# show convergence of ground state computation
+# =================================================================================================
+
+fig_conv_ground_state = plt.figure("figure_convergence_ground_state", figsize=(6, 4))
+
+fig_conv_ground_state.subplots_adjust(left=0.175, right=0.95, bottom=0.2, top=0.9)
+
+ax = fig_conv_ground_state.add_subplot(111)
+
+ax.set_yscale('log')
+
+ax.set_title('ground state computation')
+
+plt.plot(vec_iter, vec_res, linewidth=1, linestyle='-', color='k')
+
+ax.set_xlim(0, vec_iter[-1])
+ax.set_ylim(1e-8, 1)
+
+plt.xlabel(r'number of iterations', labelpad=12)
+plt.ylabel(r'relative residual error', labelpad=12)
+
+plt.grid(visible=True, which='major', color='k', linestyle='-', linewidth=0.5)
+plt.grid(visible=True, which='minor', color='k', linestyle='-', linewidth=0.25)
+
+plt.draw()
 
 
 # =================================================================================================
 # compute eigenstates of the linear Schrödinger equation
 # =================================================================================================
 
-import time
-
 time_1 = time.time()
 
-eigenstates_lse = solver.compute_eigenstates_lse(n_iter=10000, tau=0.005e-3, n_eigenstates_max=9)
+eigenstates_lse = solver.compute_eigenstates_lse(n_eigenstates_max=9, n_iter_max=10000, tau_0=0.005e-3)
 
 time_2 = time.time()
 
 print('elapsed time: {0:f}'.format(time_2 - time_1))
-
-# input()
 
 figure_eigenstates_lse = FigureEigenstatesLSE1D(eigenstates_lse,
                                                 solver.V,
                                                 solver.x,
                                                 parameters_figure_eigenstates_lse)
 
-
+input()
 # =================================================================================================
 # set wave function to ground state solution
 # =================================================================================================
@@ -257,32 +282,7 @@ figure_main.redraw()
 # -------------------------------------------------------------------------------------------------
 
 
-# =================================================================================================
-# show convergence of ground state computation
-# =================================================================================================
 
-fig_conv_ground_state = plt.figure("figure_convergence_ground_state", figsize=(6, 4))
-
-fig_conv_ground_state.subplots_adjust(left=0.175, right=0.95, bottom=0.2, top=0.9)
-
-ax = fig_conv_ground_state.add_subplot(111)
-
-ax.set_yscale('log')
-
-ax.set_title('ground state computation')
-
-plt.plot(vec_iter, vec_res, linewidth=1, linestyle='-', color='k')
-
-ax.set_xlim(0, vec_iter[-1])
-ax.set_ylim(1e-8, 1)
-
-plt.xlabel(r'number of iterations', labelpad=12)
-plt.ylabel(r'relative residual error', labelpad=12)
-
-plt.grid(visible=True, which='major', color='k', linestyle='-', linewidth=0.5)
-plt.grid(visible=True, which='minor', color='k', linestyle='-', linewidth=0.25)
-
-plt.draw()
 
 
 # =================================================================================================
