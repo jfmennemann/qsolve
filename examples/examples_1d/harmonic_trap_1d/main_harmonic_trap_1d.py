@@ -237,7 +237,8 @@ figure_eigenstates_lse = FigureEigenstatesLSE1D(eigenstates_lse,
                                                 solver.x,
                                                 parameters_figure_eigenstates_lse)
 
-input()
+# input()
+
 # =================================================================================================
 # set wave function to ground state solution
 # =================================================================================================
