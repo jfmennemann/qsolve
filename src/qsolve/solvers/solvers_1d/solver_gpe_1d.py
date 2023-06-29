@@ -166,7 +166,7 @@ class SolverGPE1D(object):
 
             return self._units.unit_wave_function * _psi_0.cpu().numpy()
 
-    def compute_eigenstates_lse(self, *, n_eigenstates_max, n_iter_max, tau_0):
+    def compute_eigenstates_lse(self, *, n_eigenstates_max, n_iter_max, tau_0, return_residuals=False):
 
         _tau_0 = tau_0 / self._units.unit_time
 
@@ -185,7 +185,17 @@ class SolverGPE1D(object):
             _tau_0
         )
 
-        return self._units.unit_wave_function * _eigenstates_batch.cpu().numpy()
+        if return_residuals:
+
+            return self._units.unit_wave_function * _eigenstates_batch.cpu().numpy(), \
+                matrix_res_batch_of_vec_n_iter, \
+                vec_n_iter
+
+        else:
+
+            return self._units.unit_wave_function * _eigenstates_batch.cpu().numpy()
+
+
 
     def init_sgpe(self, **kwargs):
 

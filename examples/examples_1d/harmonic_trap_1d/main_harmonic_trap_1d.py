@@ -226,7 +226,11 @@ plt.draw()
 
 time_1 = time.time()
 
-eigenstates_lse = solver.compute_eigenstates_lse(n_eigenstates_max=9, n_iter_max=10000, tau_0=0.005e-3)
+eigenstates_lse, matrix_res_batch, vec_iter = solver.compute_eigenstates_lse(
+    n_eigenstates_max=200,
+    n_iter_max=5000,
+    tau_0=0.01e-3,
+    return_residuals=True)
 
 time_2 = time.time()
 
@@ -237,7 +241,46 @@ figure_eigenstates_lse = FigureEigenstatesLSE1D(eigenstates_lse,
                                                 solver.x,
                                                 parameters_figure_eigenstates_lse)
 
+# =================================================================================================
+# show convergence of linear eigenstate computation
+# =================================================================================================
+
+fig_conv_lse = plt.figure("figure_convergence_lse", figsize=(6, 4))
+
+fig_conv_lse.subplots_adjust(left=0.175, right=0.95, bottom=0.2, top=0.9)
+
+ax = fig_conv_lse.add_subplot(111)
+
+ax.set_yscale('log')
+
+ax.set_title('linear eigenstate computation')
+
+# plt.plot(vec_iter, matrix_res_batch, linewidth=1, linestyle='-', color='k')
+
+# for col in range(matrix_res_batch.shape[1]):
+#
+#     # plot(x, y[:, col])
+#     plt.plot(vec_iter, matrix_res_batch[:, col], linewidth=1, linestyle='-', color='k')
+
+plt.plot(vec_iter, matrix_res_batch[:, 0], linewidth=1, linestyle='-', color='k')
+plt.plot(vec_iter, matrix_res_batch[:, 1], linewidth=1, linestyle='-', color='r')
+plt.plot(vec_iter, matrix_res_batch[:, 10], linewidth=1, linestyle='-', color='b')
+plt.plot(vec_iter, matrix_res_batch[:, 199], linewidth=1, linestyle='-', color='g')
+
+ax.set_xlim(0, vec_iter[-1])
+ax.set_ylim(1e-4, 1)
+
+plt.xlabel(r'number of iterations', labelpad=12)
+plt.ylabel(r'relative residual error', labelpad=12)
+
+plt.grid(visible=True, which='major', color='k', linestyle='-', linewidth=0.5)
+plt.grid(visible=True, which='minor', color='k', linestyle='-', linewidth=0.25)
+
+plt.draw()
+
 # input()
+
+
 
 # =================================================================================================
 # set wave function to ground state solution
