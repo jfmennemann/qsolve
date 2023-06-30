@@ -22,6 +22,8 @@ from scipy.interpolate import pchip_interpolate
 
 import matplotlib.pyplot as plt
 
+import matplotlib as mpl
+
 
 # -------------------------------------------------------------------------------------------------
 num_threads_cpu = 8
@@ -227,7 +229,7 @@ plt.draw()
 time_1 = time.time()
 
 eigenstates_lse, matrix_res_batch, vec_iter = solver.compute_eigenstates_lse(
-    n_eigenstates_max=200,
+    n_eigenstates_max=8*8,
     n_iter_max=5000,
     tau_0=0.01e-3,
     return_residuals=True)
@@ -245,41 +247,56 @@ figure_eigenstates_lse = FigureEigenstatesLSE1D(eigenstates_lse,
 # show convergence of linear eigenstate computation
 # =================================================================================================
 
-fig_conv_lse = plt.figure("figure_convergence_lse", figsize=(6, 4))
+n_eigenstates_lse = matrix_res_batch.shape[1]
 
-fig_conv_lse.subplots_adjust(left=0.175, right=0.95, bottom=0.2, top=0.9)
+n_lines = n_eigenstates_lse
+
+c = np.arange(0, n_lines)
+
+cmap_tmp = mpl.colormaps['Spectral']
+
+norm = mpl.colors.Normalize(0, vmax=n_lines-1)
+cmap = mpl.cm.ScalarMappable(norm=norm, cmap=cmap_tmp)
+cmap.set_array([])
+
+
+fig_conv_lse = plt.figure("figure_convergence_lse", figsize=(1.5*6, 1.5*4))
+
+fig_conv_lse.subplots_adjust(left=0.1, right=0.99, bottom=0.125, top=0.925)
 
 ax = fig_conv_lse.add_subplot(111)
+
+ax.set_facecolor((0.25, 0.25, 0.25))
 
 ax.set_yscale('log')
 
 ax.set_title('linear eigenstate computation')
 
-# plt.plot(vec_iter, matrix_res_batch, linewidth=1, linestyle='-', color='k')
-
-# for col in range(matrix_res_batch.shape[1]):
-#
-#     # plot(x, y[:, col])
-#     plt.plot(vec_iter, matrix_res_batch[:, col], linewidth=1, linestyle='-', color='k')
-
-plt.plot(vec_iter, matrix_res_batch[:, 0], linewidth=1, linestyle='-', color='k')
-plt.plot(vec_iter, matrix_res_batch[:, 1], linewidth=1, linestyle='-', color='r')
-plt.plot(vec_iter, matrix_res_batch[:, 10], linewidth=1, linestyle='-', color='b')
-plt.plot(vec_iter, matrix_res_batch[:, 199], linewidth=1, linestyle='-', color='g')
+for nr in range(n_eigenstates_lse):
+    plt.plot(vec_iter, matrix_res_batch[:, nr], linewidth=1.5, linestyle='-', color=cmap.to_rgba(nr))
 
 ax.set_xlim(0, vec_iter[-1])
-ax.set_ylim(1e-4, 1)
+ax.set_ylim(1e-4, 1e0)
 
 plt.xlabel(r'number of iterations', labelpad=12)
-plt.ylabel(r'relative residual error', labelpad=12)
+plt.ylabel(r'residual error', labelpad=12)
 
 plt.grid(visible=True, which='major', color='k', linestyle='-', linewidth=0.5)
-plt.grid(visible=True, which='minor', color='k', linestyle='-', linewidth=0.25)
+# plt.grid(visible=False, which='minor', color='k', linestyle='-', linewidth=0.25)
+
+cbar = fig_conv_lse.colorbar(cmap, ax=ax, label=r'# eigenstate')
+
+# cbar.set_ticks(np.array([0, 1, 2, 3, 4, 5, 6, 7])*7.0/8.0 + (7.0/8.0)/2.0)
+# cbar.ax.set_yticklabels(['0', '1', '2', '3', '4', '5', '6', '7'])
+
+cbar.ax.tick_params(length=6, pad=4, which="major")
+
+
+fig_conv_lse.canvas.start_event_loop(0.001)
 
 plt.draw()
 
-# input()
-
+input()
 
 
 # =================================================================================================
