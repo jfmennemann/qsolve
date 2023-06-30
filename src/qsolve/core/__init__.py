@@ -1,3 +1,3 @@
-import qsolve_core
+# import qsolve_core
 
-# from . import qsolve_core
+from . import qsolve_core
