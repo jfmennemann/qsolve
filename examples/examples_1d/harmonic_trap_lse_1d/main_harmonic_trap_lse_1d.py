@@ -183,44 +183,6 @@ solver.set_external_potential(t=0.0, u=u_of_times[0])
 
 
 # =================================================================================================
-# compute ground state solution
-# =================================================================================================
-
-psi_0, vec_res, vec_iter = solver.compute_ground_state_solution(n_atoms=n_atoms,
-                                                                n_iter_max=5000,
-                                                                tau_0=0.001e-3,
-                                                                adaptive_tau=True,
-                                                                return_residuals=True)
-
-# =================================================================================================
-# show convergence of ground state computation
-# =================================================================================================
-
-fig_conv_ground_state = plt.figure("figure_convergence_ground_state", figsize=(6, 4))
-
-fig_conv_ground_state.subplots_adjust(left=0.175, right=0.95, bottom=0.2, top=0.9)
-
-ax = fig_conv_ground_state.add_subplot(111)
-
-ax.set_yscale('log')
-
-ax.set_title('ground state computation')
-
-plt.plot(vec_iter, vec_res, linewidth=1, linestyle='-', color='k')
-
-ax.set_xlim(0, vec_iter[-1])
-ax.set_ylim(1e-8, 1)
-
-plt.xlabel(r'number of iterations', labelpad=12)
-plt.ylabel(r'relative residual error', labelpad=12)
-
-plt.grid(visible=True, which='major', color='k', linestyle='-', linewidth=0.5)
-plt.grid(visible=True, which='minor', color='k', linestyle='-', linewidth=0.25)
-
-plt.draw()
-
-
-# =================================================================================================
 # compute eigenstates of the linear Schrödinger equation
 # =================================================================================================
 
@@ -229,7 +191,7 @@ time_1 = time.time()
 eigenstates_lse, matrix_res_batch, vec_iter = solver.compute_eigenstates_lse(
     n_eigenstates_max=8*8,
     n_iter_max=5000,
-    tau_0=0.01e-3,
+    tau_0=0.1e-3,
     return_residuals=True)
 
 time_2 = time.time()
@@ -292,155 +254,28 @@ fig_conv_lse.canvas.start_event_loop(0.001)
 
 plt.draw()
 
-input()
-
-
 # =================================================================================================
 # set wave function to ground state solution
 # =================================================================================================
 
-solver.psi = psi_0
-
-N_0 = solver.compute_n_atoms()
-mue_0 = solver.compute_chemical_potential()
-E_total_0 = solver.compute_total_energy()
-E_kinetic_0 = solver.compute_kinetic_energy()
-E_potential_0 = solver.compute_potential_energy()
-E_interaction_0 = solver.compute_interaction_energy()
-
-print('N_0 = {:1.16e}'.format(N_0))
-print('mue_0 / h: {0:1.6} kHz'.format(mue_0 / (1e3 * (2 * pi * hbar))))
-print('E_total_0 / (N_0*h): {0:1.6} kHz'.format(E_total_0 / (1e3 * (2 * pi * hbar * N_0))))
-print('E_kinetic_0 / (N_0*h): {0:1.6} kHz'.format(E_kinetic_0 / (1e3 * (2 * pi * hbar * N_0))))
-print('E_potential_0 / (N_0*h): {0:1.6} kHz'.format(E_potential_0 / (1e3 * (2 * pi * hbar * N_0))))
-print('E_interaction_0 / (N_0*h): {0:1.6} kHz'.format(E_interaction_0 / (1e3 * (2 * pi * hbar * N_0))))
-print()
-
-# input()
+# solver.psi = psi_0
+#
+# N_0 = solver.compute_n_atoms()
+# mue_0 = solver.compute_chemical_potential()
+# E_total_0 = solver.compute_total_energy()
+# E_kinetic_0 = solver.compute_kinetic_energy()
+# E_potential_0 = solver.compute_potential_energy()
+# E_interaction_0 = solver.compute_interaction_energy()
+#
+# print('N_0 = {:1.16e}'.format(N_0))
+# print('mue_0 / h: {0:1.6} kHz'.format(mue_0 / (1e3 * (2 * pi * hbar))))
+# print('E_total_0 / (N_0*h): {0:1.6} kHz'.format(E_total_0 / (1e3 * (2 * pi * hbar * N_0))))
+# print('E_kinetic_0 / (N_0*h): {0:1.6} kHz'.format(E_kinetic_0 / (1e3 * (2 * pi * hbar * N_0))))
+# print('E_potential_0 / (N_0*h): {0:1.6} kHz'.format(E_potential_0 / (1e3 * (2 * pi * hbar * N_0))))
+# print('E_interaction_0 / (N_0*h): {0:1.6} kHz'.format(E_interaction_0 / (1e3 * (2 * pi * hbar * N_0))))
+# print()
 # -------------------------------------------------------------------------------------------------
 
-
-# =================================================================================================
-# init main figure
-# =================================================================================================
-
-# -------------------------------------------------------------------------------------------------
-figure_main = FigureMain1D(solver.x, times, parameters_figure_main)
-
-figure_main.fig_control_inputs.update_u(u_of_times)
-
-figure_main.fig_control_inputs.update_t(0.0)
-# -------------------------------------------------------------------------------------------------
-
-# -------------------------------------------------------------------------------------------------
-figure_main.update_data(solver.psi, solver.V)
-
-figure_main.redraw()
-# -------------------------------------------------------------------------------------------------
-
-
-
-
-
-# =================================================================================================
-# thermal state sampling
-# =================================================================================================
-
-T = 20e-9
-
-if T > 0:
-
-    solver.init_sgpe(
-        T_temp_des=T,
-        mue_des=mue_0,
-        gamma=0.1,
-        dt=dt
-    )
-
-    n_sgpe_max = 10000
-
-    n_sgpe_inc = 1000
-
-    n_sgpe = 0
-
-    while n_sgpe < n_sgpe_max:
-
-        N = solver.compute_n_atoms()
-
-        print('----------------------------------------------------------------------------------------')
-        print('n_sgpe: {0:4d} / {1:4d}'.format(n_sgpe, n_sgpe_max))
-        print()
-        print('N:      {0:1.4f}'.format(N))
-        print('----------------------------------------------------------------------------------------')
-        print()
-
-        # -----------------------------------------------------------------------------------------
-        figure_main.update_data(solver.psi, solver.V)
-
-        figure_main.redraw()
-        # -----------------------------------------------------------------------------------------
-
-        # ---------------------------------------------------------------------------------------------
-        # apply thermal state sampling process via sgpe for n_sgpe_inc time steps
-
-        solver.propagate_sgpe(n_inc=n_sgpe_inc)
-        # ---------------------------------------------------------------------------------------------
-
-        n_sgpe = n_sgpe + n_sgpe_inc
-
-
-# =================================================================================================
-# compute time evolution
-# =================================================================================================
-
-n_inc = n_mod_times_analysis
-
-nr_times_analysis = 0
-
-stop = False
-
-n = 0
-
-while True:
-
-    psi = solver.psi
-    V = solver.V
-
-    t = times[n]
-
-    N = solver.compute_n_atoms()
-
-    print('t: {0:1.2f} / {1:1.2f}, n: {2:4d} / {3:4d}, N:{4:4f}'.format(t / 1e-3, times[-1] / 1e-3, n, n_times, N))
-
-    # ---------------------------------------------------------------------------------------------
-    figure_main.update_data(psi, V)
-
-    figure_main.fig_control_inputs.update_t(t)
-
-    figure_main.redraw()
-
-    if export_frames_figure_main:
-
-        filepath = path_frames_figure_main + 'frame_' + str(nr_frame_figure_main).zfill(5) + '.png'
-
-        figure_main.export(filepath)
-
-        nr_frame_figure_main = nr_frame_figure_main + 1
-    # ---------------------------------------------------------------------------------------------
-
-    nr_times_analysis = nr_times_analysis + 1
-
-    if n < n_times - n_inc:
-
-        solver.propagate_gpe(times=times, u_of_times=u_of_times, n_start=n, n_inc=n_inc, mue_shift=mue_0)
-
-        n = n + n_inc
-
-    else:
-
-        break
-
-    # input()
 
 plt.ioff()
 plt.show()
