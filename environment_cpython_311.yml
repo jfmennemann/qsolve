@@ -1,0 +1,11 @@
+name: qsolve_cpython_311
+channels:
+  - defaults
+dependencies:
+  - python=3.11
+  - pytorch-cuda=11.8
+  - pytorch
+  - h5py
+  - scipy
+  - matplotlib
+prefix: /home/jfmennemann/Software/anaconda3/envs/qsolve_cpython_311

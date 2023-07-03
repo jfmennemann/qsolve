@@ -1,6 +1,0 @@
-torch
-numpy
-scipy
-matplotlib
-h5py
-mkl

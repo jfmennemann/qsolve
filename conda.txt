@@ -1,0 +1,37 @@
+Viewing a list of your environments:
+
+conda env list
+
+
+
+Create an environment with a specific version of Python:
+
+conda create -n myenv python=3.10
+
+
+
+Activate an environment:
+
+conda activate myenv
+
+
+
+Viewing a list of the packages in an environment:
+
+If the environment is activated, in your terminal window or an Anaconda Prompt, run:
+
+conda list
+
+
+
+Exporting an evironment file across platforms:
+
+1. Activate the environment to export: conda activate myenv
+2. conda env export --from-history > environment.yml
+
+
+
+Removing an environment:
+
+1. conda deactivate
+2. conda remove --name myenv --all
