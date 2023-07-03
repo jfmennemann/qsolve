@@ -1,2 +1,3 @@
 include src/qsolve/core/*.so
+include src/qsolve/core/*.pyd
 
