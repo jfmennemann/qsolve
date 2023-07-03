@@ -6,13 +6,25 @@ conda env list
 
 Create an environment with a specific version of Python:
 
-conda create -n myenv python=3.10
+conda create -n myenv python=3.11
 
 
 
 Activate an environment:
 
 conda activate myenv
+
+
+
+Install python packages:
+
+conda install pytorch pytorch-cuda=11.8 -c pytorch -c nvidia
+conda install numpy
+conda install scipy
+conda install matplotlib
+conda install h5py
+
+conda install numpy scipy matplotlib h5py pytorch pytorch-cuda=11.8 -c pytorch -c nvidia
 
 
 
