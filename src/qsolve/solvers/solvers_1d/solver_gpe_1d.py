@@ -166,11 +166,18 @@ class SolverGPE1D(object):
 
             return self._units.unit_wave_function * _psi_0.cpu().numpy()
 
-    def compute_eigenstates_lse(self, *, n_eigenstates_max, n_iter_max, tau_0, return_residuals=False):
+    def compute_eigenstates_lse(self,
+                                *,
+                                n_eigenstates_max,
+                                n_iter_max,
+                                tau_0,
+                                propagation_method,
+                                return_residuals=False):
 
         _tau_0 = tau_0 / self._units.unit_time
 
-        if n_iter_max < 2500:
+        if n_iter_max < 100:
+
             message = 'compute_ground_state_solution(self, **kwargs): n_iter_max should not be smaller than 2500'
 
             raise Exception(message)
@@ -182,7 +189,8 @@ class SolverGPE1D(object):
             self._m_atom,
             n_eigenstates_max,
             n_iter_max,
-            _tau_0
+            _tau_0,
+            propagation_method
         )
 
         if return_residuals:

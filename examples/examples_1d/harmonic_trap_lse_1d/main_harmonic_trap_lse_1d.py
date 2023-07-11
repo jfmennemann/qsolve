@@ -61,7 +61,7 @@ m_Rb_87 = 87 * amu
 x_min = -40e-6
 x_max = +40e-6
 
-Jx = 2*512
+Jx = 1024
 
 t_final = 8e-3
 
@@ -190,8 +190,15 @@ time_1 = time.time()
 
 eigenstates_lse, matrix_res_batch, vec_iter = solver.compute_eigenstates_lse(
     n_eigenstates_max=8*8,
-    n_iter_max=50000,
-    tau_0=0.005e-3,
+    n_iter_max=1000,
+    tau_0=1e-3,
+    # propagation_method='trotter',
+    # propagation_method='strang',
+    # propagation_method='ite_4th',
+    # propagation_method='ite_6th',
+    # propagation_method='ite_8th',
+    # propagation_method='ite_10th',
+    propagation_method='ite_12th',
     return_residuals=True)
 
 time_2 = time.time()
@@ -239,7 +246,7 @@ for nr in range(n_eigenstates_lse):
     plt.plot(vec_iter, matrix_res_batch[:, nr], linewidth=1.5, linestyle='-', color=cmap.to_rgba(nr))
 
 ax.set_xlim(0, vec_iter[-1])
-ax.set_ylim(1e-5, 1e0)
+ax.set_ylim(1e-14, 1e0)
 
 plt.xlabel(r'number of iterations', labelpad=12)
 plt.ylabel(r'residual error', labelpad=12)
