@@ -172,6 +172,7 @@ class SolverGPE1D(object):
                                 n_iter_max,
                                 tau_0,
                                 propagation_method,
+                                orthogonalization_method,
                                 return_residuals=False):
 
         _tau_0 = tau_0 / self._units.unit_time
@@ -190,7 +191,8 @@ class SolverGPE1D(object):
             n_eigenstates_max,
             n_iter_max,
             _tau_0,
-            propagation_method
+            propagation_method,
+            orthogonalization_method
         )
 
         if return_residuals:

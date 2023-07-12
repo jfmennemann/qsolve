@@ -58,10 +58,10 @@ n_atoms = 3500
 
 m_Rb_87 = 87 * amu
 
-x_min = -40e-6
-x_max = +40e-6
+x_min = -60e-6
+x_max = +60e-6
 
-Jx = 1024
+Jx = 512
 
 t_final = 8e-3
 
@@ -72,8 +72,8 @@ n_mod_times_analysis = 100
 n_control_inputs = 1
 # =================================================================================================
 
-parameters_potential = {'nu_start': (40, "Hz"),
-                        'nu_final': (20, "Hz")}
+parameters_potential = {'nu_start': (22.5, "Hz"),
+                        'nu_final': (22.5, "Hz")}
 
 parameters_figure_main = {'density_min': -20,
                           'density_max': +220,
@@ -189,16 +189,18 @@ solver.set_external_potential(t=0.0, u=u_of_times[0])
 time_1 = time.time()
 
 eigenstates_lse, matrix_res_batch, vec_iter = solver.compute_eigenstates_lse(
-    n_eigenstates_max=8*8,
-    n_iter_max=1000,
-    tau_0=1e-3,
+    n_eigenstates_max=128,
+    n_iter_max=2000,
+    tau_0=0.25e-3,
     # propagation_method='trotter',
     # propagation_method='strang',
     # propagation_method='ite_4th',
     # propagation_method='ite_6th',
-    # propagation_method='ite_8th',
+    propagation_method='ite_8th',
     # propagation_method='ite_10th',
-    propagation_method='ite_12th',
+    # propagation_method='ite_12th',
+    # orthogonalization_method='gram_schmidt',
+    orthogonalization_method='qr',
     return_residuals=True)
 
 time_2 = time.time()
