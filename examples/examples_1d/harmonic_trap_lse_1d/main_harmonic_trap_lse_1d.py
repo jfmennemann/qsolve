@@ -189,7 +189,7 @@ solver.set_external_potential(t=0.0, u=u_of_times[0])
 time_1 = time.time()
 
 eigenstates_lse, matrix_res_batch, vec_iter = solver.compute_eigenstates_lse(
-    n_eigenstates_max=128,
+    n_eigenstates_max=12,
     n_iter_max=2000,
     tau_0=0.25e-3,
     # propagation_method='trotter',
