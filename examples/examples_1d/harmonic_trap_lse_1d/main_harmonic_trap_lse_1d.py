@@ -61,7 +61,7 @@ m_Rb_87 = 87 * amu
 x_min = -60e-6
 x_max = +60e-6
 
-Jx = 512
+Jx = 1024
 
 t_final = 8e-3
 
@@ -188,9 +188,9 @@ solver.set_external_potential(t=0.0, u=u_of_times[0])
 
 time_1 = time.time()
 
-eigenstates_lse, matrix_res_batch, vec_iter = solver.compute_eigenstates_lse(
-    n_eigenstates_max=12,
-    n_iter_max=2000,
+eigenstates_lse, eigenvalues_lse, matrix_res_batch, vec_iter = solver.compute_eigenstates_lse(
+    n_eigenstates_max=128,
+    n_iter_max=1000,
     tau_0=0.25e-3,
     # propagation_method='trotter',
     # propagation_method='strang',
@@ -211,6 +211,10 @@ figure_eigenstates_lse = FigureEigenstatesLSE1D(eigenstates_lse,
                                                 solver.V,
                                                 solver.x,
                                                 parameters_figure_eigenstates_lse)
+print('eigenvalues_lse: ')
+print(eigenvalues_lse)
+print()
+
 
 # =================================================================================================
 # show convergence of linear eigenstate computation

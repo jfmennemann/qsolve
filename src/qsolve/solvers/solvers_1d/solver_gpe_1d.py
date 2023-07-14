@@ -10,8 +10,6 @@ import math
 
 from qsolve.core import qsolve_core
 
-# import qsolve_core
-
 from qsolve.units import Units
 
 
@@ -146,7 +144,7 @@ class SolverGPE1D(object):
 
             raise Exception(message)
 
-        _psi_0, vec_res, vec_iter = qsolve_core.ground_state_gpe_1d(
+        _psi_0, mue, vec_res, vec_iter = qsolve_core.ground_state_gpe_1d(
             self._V,
             self._dx,
             n_atoms,
@@ -160,11 +158,17 @@ class SolverGPE1D(object):
 
         if return_residuals:
 
-            return self._units.unit_wave_function * _psi_0.cpu().numpy(), vec_res, vec_iter
+            return \
+                self._units.unit_wave_function * _psi_0.cpu().numpy(), \
+                self._units.unit_energy * mue, \
+                vec_res, \
+                vec_iter
 
         else:
 
-            return self._units.unit_wave_function * _psi_0.cpu().numpy()
+            return \
+                self._units.unit_wave_function * _psi_0.cpu().numpy(), \
+                self._units.unit_energy * mue
 
     def compute_eigenstates_lse(self,
                                 *,
@@ -183,7 +187,7 @@ class SolverGPE1D(object):
 
             raise Exception(message)
 
-        _eigenstates_batch, matrix_res_batch_of_vec_n_iter, vec_n_iter = qsolve_core.compute_eigenstates_lse_1d(
+        _eigenstates_batch, _eigenvalues_batch, matrix_res_batch_of_vec_n_iter, vec_n_iter = qsolve_core.compute_eigenstates_lse_1d(
             self._V,
             self._dx,
             self._hbar,
@@ -197,15 +201,17 @@ class SolverGPE1D(object):
 
         if return_residuals:
 
-            return self._units.unit_wave_function * _eigenstates_batch.cpu().numpy(), \
+            return \
+                self._units.unit_wave_function * _eigenstates_batch.cpu().numpy(), \
+                self._units.unit_energy * _eigenvalues_batch.cpu().numpy(), \
                 matrix_res_batch_of_vec_n_iter, \
                 vec_n_iter
 
         else:
 
-            return self._units.unit_wave_function * _eigenstates_batch.cpu().numpy()
-
-
+            return \
+                    self._units.unit_wave_function * _eigenstates_batch.cpu().numpy(), \
+                    self._units.unit_energy * _eigenvalues_batch.cpu().numpy()
 
     def init_sgpe(self, **kwargs):
 
@@ -266,8 +272,6 @@ class SolverGPE1D(object):
                 self._g)
 
             n_local = n_local + 1
-
-
 
     @property
     def x(self):

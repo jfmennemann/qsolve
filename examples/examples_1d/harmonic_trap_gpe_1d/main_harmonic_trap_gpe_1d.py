@@ -40,6 +40,8 @@ pi = scipy.constants.pi
 hbar = scipy.constants.hbar
 
 amu = scipy.constants.physical_constants["atomic mass constant"][0]
+
+k_B = scipy.constants.Boltzmann
 # -------------------------------------------------------------------------------------------------
 
 # -------------------------------------------------------------------------------------------------
@@ -58,10 +60,12 @@ n_atoms = 3500
 
 m_Rb_87 = 87 * amu
 
-x_min = -40e-6
-x_max = +40e-6
+T = 20e-9
 
-Jx = 512
+x_min = -60e-6
+x_max = +60e-6
+
+Jx = 2*1024
 
 t_final = 8e-3
 
@@ -72,8 +76,8 @@ n_mod_times_analysis = 100
 n_control_inputs = 1
 # =================================================================================================
 
-parameters_potential = {'nu_start': (40, "Hz"),
-                        'nu_final': (20, "Hz")}
+parameters_potential = {'nu_start': (22.5, "Hz"),
+                        'nu_final': (40, "Hz")}
 
 parameters_figure_main = {'density_min': -20,
                           'density_max': +220,
@@ -186,7 +190,7 @@ solver.set_external_potential(t=0.0, u=u_of_times[0])
 # compute ground state solution
 # =================================================================================================
 
-psi_0, vec_res, vec_iter = solver.compute_ground_state_solution(n_atoms=n_atoms,
+psi_0, mue_0, vec_res, vec_iter = solver.compute_ground_state_solution(n_atoms=n_atoms,
                                                                 n_iter_max=5000,
                                                                 tau_0=0.001e-3,
                                                                 adaptive_tau=True,
@@ -226,20 +230,54 @@ plt.draw()
 
 time_1 = time.time()
 
-eigenstates_lse, matrix_res_batch, vec_iter = solver.compute_eigenstates_lse(
-    n_eigenstates_max=8*8,
-    n_iter_max=5000,
-    tau_0=0.01e-3,
+eigenstates_lse, energies_lse, matrix_res_batch, vec_iter = solver.compute_eigenstates_lse(
+    n_eigenstates_max=128,
+    n_iter_max=1000,
+    tau_0=0.25e-3,
+    # propagation_method='trotter',
+    # propagation_method='strang',
+    # propagation_method='ite_4th',
+    # propagation_method='ite_6th',
+    propagation_method='ite_8th',
+    # propagation_method='ite_10th',
+    # propagation_method='ite_12th',
+    # orthogonalization_method='gram_schmidt',
+    orthogonalization_method='qr',
     return_residuals=True)
 
 time_2 = time.time()
 
 print('elapsed time: {0:f}'.format(time_2 - time_1))
+print()
+
+# -------------------------------------------------------------------------------------------------
+print('3 * k_B * T / mue_0:' )
+print(3 * k_B * T / mue_0)
+print()
+
+E_cutoff = mue_0 + 3 * k_B * T
+
+print('energies_lse / E_cutoff: ')
+print(energies_lse / E_cutoff)
+print()
+
+indices_lse_selected = (energies_lse / E_cutoff) <= 1
+
+eigenstates_lse = eigenstates_lse[indices_lse_selected, :]
+energies_lse = energies_lse[indices_lse_selected]
+
+print('energies_lse / E_cutoff: ')
+print(energies_lse / E_cutoff)
+print()
+# -------------------------------------------------------------------------------------------------
+
 
 figure_eigenstates_lse = FigureEigenstatesLSE1D(eigenstates_lse,
                                                 solver.V,
                                                 solver.x,
                                                 parameters_figure_eigenstates_lse)
+
+# input()
 
 # =================================================================================================
 # show convergence of linear eigenstate computation
@@ -277,7 +315,7 @@ for nr in range(n_eigenstates_lse):
     plt.plot(vec_iter, matrix_res_batch[:, nr], linewidth=1.5, linestyle='-', color=cmap.to_rgba(nr))
 
 ax.set_xlim(0, vec_iter[-1])
-ax.set_ylim(1e-4, 1e0)
+ax.set_ylim(1e-14, 1e0)
 
 plt.xlabel(r'number of iterations', labelpad=12)
 plt.ylabel(r'residual error', labelpad=12)
@@ -291,8 +329,6 @@ cbar.ax.tick_params(length=6, pad=4, which="major")
 fig_conv_lse.canvas.start_event_loop(0.001)
 
 plt.draw()
-
-input()
 
 
 # =================================================================================================
@@ -315,8 +351,6 @@ print('E_kinetic_0 / (N_0*h): {0:1.6} kHz'.format(E_kinetic_0 / (1e3 * (2 * pi *
 print('E_potential_0 / (N_0*h): {0:1.6} kHz'.format(E_potential_0 / (1e3 * (2 * pi * hbar * N_0))))
 print('E_interaction_0 / (N_0*h): {0:1.6} kHz'.format(E_interaction_0 / (1e3 * (2 * pi * hbar * N_0))))
 print()
-
-# input()
 # -------------------------------------------------------------------------------------------------
 
 
@@ -339,14 +373,9 @@ figure_main.redraw()
 # -------------------------------------------------------------------------------------------------
 
 
-
-
-
 # =================================================================================================
 # thermal state sampling
 # =================================================================================================
-
-T = 20e-9
 
 if T > 0:
 
@@ -387,6 +416,10 @@ if T > 0:
         # ---------------------------------------------------------------------------------------------
 
         n_sgpe = n_sgpe + n_sgpe_inc
+
+# -------------------------------------------------------------------------------------------------
+solver.psi = solver.dx * eigenstates_lse.T @ (eigenstates_lse @ solver.psi)
+# -------------------------------------------------------------------------------------------------
 
 
 # =================================================================================================
