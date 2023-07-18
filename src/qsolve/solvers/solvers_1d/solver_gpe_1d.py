@@ -181,11 +181,11 @@ class SolverGPE1D(object):
 
         _tau_0 = tau_0 / self._units.unit_time
 
-        if n_iter_max < 100:
-
-            message = 'compute_ground_state_solution(self, **kwargs): n_iter_max should not be smaller than 2500'
-
-            raise Exception(message)
+        # if n_iter_max < 100:
+        #
+        #     message = 'compute_ground_state_solution(self, **kwargs): n_iter_max should not be smaller than 2500'
+        #
+        #     raise Exception(message)
 
         _eigenstates_batch, _eigenvalues_batch, matrix_res_batch_of_vec_n_iter, vec_n_iter = qsolve_core.compute_eigenstates_lse_1d(
             self._V,
@@ -212,6 +212,24 @@ class SolverGPE1D(object):
             return \
                     self._units.unit_wave_function * _eigenstates_batch.cpu().numpy(), \
                     self._units.unit_energy * _eigenvalues_batch.cpu().numpy()
+
+    def compute_eigenstates_lse_fd(self, *, n_eigenstates_max):
+
+        _eigenstates_batch, _eigenvalues_batch = qsolve_core.compute_eigenstates_lse_1d_fd(
+            self._V,
+            self._dx,
+            self._hbar,
+            self._m_atom,
+            n_eigenstates_max
+        )
+
+        return \
+            self._units.unit_wave_function * _eigenstates_batch.cpu().numpy(), \
+            self._units.unit_energy * _eigenvalues_batch.cpu().numpy()
+
+        # return \
+        #     self._units.unit_wave_function * _eigenstates_batch, \
+        #     self._units.unit_energy * _eigenvalues_batch
 
     def init_sgpe(self, **kwargs):
 

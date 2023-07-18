@@ -62,6 +62,7 @@ x_min = -60e-6
 x_max = +60e-6
 
 Jx = 1024
+# Jx = 32*512
 
 t_final = 8e-3
 
@@ -188,20 +189,26 @@ solver.set_external_potential(t=0.0, u=u_of_times[0])
 
 time_1 = time.time()
 
-eigenstates_lse, eigenvalues_lse, matrix_res_batch, vec_iter = solver.compute_eigenstates_lse(
-    n_eigenstates_max=128,
-    n_iter_max=1000,
-    tau_0=0.25e-3,
-    # propagation_method='trotter',
-    # propagation_method='strang',
-    propagation_method='ite_4th',
-    # propagation_method='ite_6th',
-    # propagation_method='ite_8th',
-    # propagation_method='ite_10th',
-    # propagation_method='ite_12th',
-    # orthogonalization_method='gram_schmidt',
-    orthogonalization_method='qr',
-    return_residuals=True)
+# eigenstates_lse, eigenvalues_lse, matrix_res_batch, vec_iter = solver.compute_eigenstates_lse(
+#     n_eigenstates_max=128,
+#     # n_eigenstates_max=Jx,
+#     n_iter_max=1000,
+#     tau_0=0.25e-3,
+#     # propagation_method='trotter',
+#     # propagation_method='strang',
+#     propagation_method='ite_4th',
+#     # propagation_method='ite_6th',
+#     # propagation_method='ite_8th',
+#     # propagation_method='ite_10th',
+#     # propagation_method='ite_12th',
+#     # orthogonalization_method='gram_schmidt',
+#     orthogonalization_method='qr',
+#     return_residuals=True)
+
+# print(4 * (64 * 1024)**2 / 1e09)
+# input()
+
+eigenstates_lse, eigenvalues_lse = solver.compute_eigenstates_lse_fd(n_eigenstates_max=128)
 
 time_2 = time.time()
 
@@ -219,7 +226,7 @@ print()
 # =================================================================================================
 # show convergence of linear eigenstate computation
 # =================================================================================================
-
+"""
 n_eigenstates_lse = matrix_res_batch.shape[1]
 
 n_lines = n_eigenstates_lse
@@ -266,6 +273,7 @@ cbar.ax.tick_params(length=6, pad=4, which="major")
 fig_conv_lse.canvas.start_event_loop(0.001)
 
 plt.draw()
+"""
 
 # =================================================================================================
 # set wave function to ground state solution
