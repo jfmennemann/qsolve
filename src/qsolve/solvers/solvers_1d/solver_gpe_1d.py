@@ -144,7 +144,7 @@ class SolverGPE1D(object):
 
             raise Exception(message)
 
-        _psi_0, mue, vec_res, vec_iter = qsolve_core.ground_state_gpe_1d(
+        _psi_0, _mue, vec_res, vec_iter = qsolve_core.ground_state_gpe_1d(
             self._V,
             self._dx,
             n_atoms,
@@ -160,7 +160,7 @@ class SolverGPE1D(object):
 
             return \
                 self._units.unit_wave_function * _psi_0.cpu().numpy(), \
-                self._units.unit_energy * mue, \
+                self._units.unit_energy * _mue, \
                 vec_res, \
                 vec_iter
 
@@ -221,6 +221,24 @@ class SolverGPE1D(object):
             self._hbar,
             self._m_atom,
             n_eigenstates_max
+        )
+
+        return \
+            self._units.unit_wave_function * _eigenstates_batch.cpu().numpy(), \
+            self._units.unit_energy * _eigenvalues_batch.cpu().numpy()
+
+        # return \
+        #     self._units.unit_wave_function * _eigenstates_batch, \
+        #     self._units.unit_energy * _eigenvalues_batch
+
+    def compute_eigenstates_bdg(self, *, psi_0, mue_0, n_eigenstates):
+
+        _eigenstates_batch, _eigenvalues_batch = qsolve_core.compute_eigenstates_bdg_1d(
+            self._V,
+            self._dx,
+            self._hbar,
+            self._m_atom,
+            n_eigenstates
         )
 
         return \
