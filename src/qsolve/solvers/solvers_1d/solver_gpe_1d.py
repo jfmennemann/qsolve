@@ -144,7 +144,7 @@ class SolverGPE1D(object):
 
             raise Exception(message)
 
-        _psi_0, _mue, vec_res, vec_iter = qsolve_core.ground_state_gpe_1d(
+        _psi_0, _mue_0, vec_res, vec_iter = qsolve_core.ground_state_gpe_1d(
             self._V,
             self._dx,
             n_atoms,
@@ -160,7 +160,7 @@ class SolverGPE1D(object):
 
             return \
                 self._units.unit_wave_function * _psi_0.cpu().numpy(), \
-                self._units.unit_energy * _mue, \
+                self._units.unit_energy * _mue_0, \
                 vec_res, \
                 vec_iter
 
@@ -168,7 +168,7 @@ class SolverGPE1D(object):
 
             return \
                 self._units.unit_wave_function * _psi_0.cpu().numpy(), \
-                self._units.unit_energy * mue
+                self._units.unit_energy * _mue_0
 
     def compute_eigenstates_lse(self,
                                 *,
@@ -233,21 +233,24 @@ class SolverGPE1D(object):
 
     def compute_eigenstates_bdg(self, *, psi_0, mue_0, n_eigenstates):
 
-        _eigenstates_batch, _eigenvalues_batch = qsolve_core.compute_eigenstates_bdg_1d(
+        _psi_0 = torch.tensor(psi_0 / self._units.unit_wave_function, device=self._device)
+
+        _mue_0 = mue_0 / self._units.unit_energy
+
+        qsolve_core.compute_eigenstates_bdg_1d(
             self._V,
+            _psi_0,
+            _mue_0,
             self._dx,
             self._hbar,
             self._m_atom,
+            self._g,
             n_eigenstates
         )
 
-        return \
-            self._units.unit_wave_function * _eigenstates_batch.cpu().numpy(), \
-            self._units.unit_energy * _eigenvalues_batch.cpu().numpy()
-
         # return \
-        #     self._units.unit_wave_function * _eigenstates_batch, \
-        #     self._units.unit_energy * _eigenvalues_batch
+        #     self._units.unit_wave_function * _eigenstates_batch.cpu().numpy(), \
+        #     self._units.unit_energy * _eigenvalues_batch.cpu().numpy()
 
     def init_sgpe(self, **kwargs):
 
@@ -322,8 +325,8 @@ class SolverGPE1D(object):
         return self._units.unit_wave_function * self._psi.cpu().numpy()
 
     @psi.setter
-    def psi(self, value):
-        self._psi = torch.tensor(value / self._units.unit_wave_function, device=self._device)
+    def psi(self, psi):
+        self._psi = torch.tensor(psi / self._units.unit_wave_function, device=self._device)
 
     @property
     def V(self):

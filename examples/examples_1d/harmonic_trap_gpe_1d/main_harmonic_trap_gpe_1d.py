@@ -65,7 +65,7 @@ T = 20e-9
 x_min = -60e-6
 x_max = +60e-6
 
-Jx = 2*1024
+Jx = 1024
 
 t_final = 8e-3
 
@@ -192,10 +192,11 @@ solver.set_external_potential(t=0.0, u=u_of_times[0])
 
 psi_0, mue_0, vec_res, vec_iter = solver.compute_ground_state_solution(
     n_atoms=n_atoms,
-    n_iter_max=15000,
+    n_iter_max=5000,
     tau_0=0.001e-3,
     adaptive_tau=True,
     return_residuals=True)
+
 
 # =================================================================================================
 # show convergence of ground state computation
@@ -224,12 +225,16 @@ plt.grid(visible=True, which='minor', color='k', linestyle='-', linewidth=0.25)
 
 plt.draw()
 
+
 # =================================================================================================
 # compute quasiparticle amplitudes u and v
 # =================================================================================================
 
 # eigenstates_u, eigenstates_v, eigenvalues_omega, eigenstates_w_plus, eigenstates_w_minus, eigenvalues_lambda = \
-#     solver.compute_eigenstates_bdg(psi_0, mue_0, n_eigenstates=128)
+#     solver.compute_eigenstates_bdg(psi_0=psi_0, mue_0=mue_0, n_eigenstates=128)
+
+solver.compute_eigenstates_bdg(psi_0=psi_0, mue_0=mue_0, n_eigenstates=128)
+
 
 # =================================================================================================
 # compute eigenstates of the linear Schrödinger equation
