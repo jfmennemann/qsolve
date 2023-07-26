@@ -240,7 +240,7 @@ import matplotlib.pyplot as plt
 # ----
 fig_tmp = plt.figure("figure_tmp", figsize=(12, 12), facecolor="white")
 
-nrows = 20
+nrows = 10
 
 gridspec = fig_tmp.add_gridspec(ncols=2, nrows=nrows, left=0.1, bottom=0.065, right=0.9, top=0.965, wspace=0.25,
                                 hspace=0.65, width_ratios=[1, 1])
