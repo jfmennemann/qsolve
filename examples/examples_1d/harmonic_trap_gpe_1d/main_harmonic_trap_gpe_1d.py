@@ -190,50 +190,126 @@ solver.set_external_potential(t=0.0, u=u_of_times[0])
 # compute ground state solution
 # =================================================================================================
 
-psi_0, mue_0, vec_res, vec_iter = solver.compute_ground_state_solution(
-    n_atoms=n_atoms,
-    n_iter_max=5000,
-    tau_0=0.001e-3,
-    adaptive_tau=True,
-    return_residuals=True)
+# psi_0, mue_0, vec_res, vec_iter = solver.compute_ground_state_solution(
+#     n_atoms=n_atoms,
+#     n_iter_max=20000,
+#     tau_0=0.001e-3,
+#     adaptive_tau=True,
+#     return_residuals=True)
 
 
 # =================================================================================================
 # show convergence of ground state computation
 # =================================================================================================
 
-fig_conv_ground_state = plt.figure("figure_convergence_ground_state", figsize=(6, 4))
-
-fig_conv_ground_state.subplots_adjust(left=0.175, right=0.95, bottom=0.2, top=0.9)
-
-ax = fig_conv_ground_state.add_subplot(111)
-
-ax.set_yscale('log')
-
-ax.set_title('ground state computation')
-
-plt.plot(vec_iter, vec_res, linewidth=1, linestyle='-', color='k')
-
-ax.set_xlim(0, vec_iter[-1])
-ax.set_ylim(1e-8, 1)
-
-plt.xlabel(r'number of iterations', labelpad=12)
-plt.ylabel(r'relative residual error', labelpad=12)
-
-plt.grid(visible=True, which='major', color='k', linestyle='-', linewidth=0.5)
-plt.grid(visible=True, which='minor', color='k', linestyle='-', linewidth=0.25)
-
-plt.draw()
+# fig_conv_ground_state = plt.figure("figure_convergence_ground_state", figsize=(6, 4))
+#
+# fig_conv_ground_state.subplots_adjust(left=0.175, right=0.95, bottom=0.2, top=0.9)
+#
+# ax = fig_conv_ground_state.add_subplot(111)
+#
+# ax.set_yscale('log')
+#
+# ax.set_title('ground state computation')
+#
+# plt.plot(vec_iter, vec_res, linewidth=1, linestyle='-', color='k')
+#
+# ax.set_xlim(0, vec_iter[-1])
+# ax.set_ylim(1e-8, 1)
+#
+# plt.xlabel(r'number of iterations', labelpad=12)
+# plt.ylabel(r'relative residual error', labelpad=12)
+#
+# plt.grid(visible=True, which='major', color='k', linestyle='-', linewidth=0.5)
+# plt.grid(visible=True, which='minor', color='k', linestyle='-', linewidth=0.25)
+#
+# plt.draw()
 
 
 # =================================================================================================
 # compute quasiparticle amplitudes u and v
 # =================================================================================================
 
-# eigenstates_u, eigenstates_v, eigenvalues_omega, eigenstates_w_plus, eigenstates_w_minus, eigenvalues_lambda = \
-#     solver.compute_eigenstates_bdg(psi_0=psi_0, mue_0=mue_0, n_eigenstates=128)
+eigenvectors_u, eigenvectors_v, eigenvalues_omega, psi_0, mue_0 = solver.bdg(n_atoms=n_atoms, n=128)
 
-solver.compute_eigenstates_bdg(psi_0=psi_0, mue_0=mue_0, n_eigenstates=128)
+# ================================================================================================
+# visualize u and v
+
+import matplotlib.pyplot as plt
+
+# ----
+fig_tmp = plt.figure("figure_tmp", figsize=(12, 12), facecolor="white")
+
+nrows = 20
+
+gridspec = fig_tmp.add_gridspec(ncols=2, nrows=nrows, left=0.1, bottom=0.065, right=0.9, top=0.965, wspace=0.25,
+                                hspace=0.65, width_ratios=[1, 1])
+
+plt.clf()
+
+for j in np.arange(nrows):
+
+    ax_re = fig_tmp.add_subplot(gridspec[j, 0])
+    ax_im = fig_tmp.add_subplot(gridspec[j, 1])
+
+    # -------------------------------------------------------------------------------------------------------------
+    # ----
+    ax_re.plot(solver.x / 1e-6, np.real(eigenvectors_u[:, j]), linewidth=1.0, linestyle='-', color='k', label=r'$\Re(u)$')
+    ax_re.plot(solver.x / 1e-6, np.real(eigenvectors_v[:, j]), linewidth=1.0, linestyle='--', color='r', label=r'$\Re(v)$')
+
+    ax_re.set_xlabel('z in um')
+    ax_re.set_ylabel('a.u.')
+
+    # ax_re.set_ylim([-5000, 5000])
+
+    # ax_re.set_xticks(z_ticks)
+
+    ax_re.grid(visible=True, which='major', color='k', linestyle='-', linewidth=0.5)
+    ax_re.grid(visible=True, which='minor', color='k', linestyle='-', linewidth=0.5, alpha=0.2)
+
+    ax_re.legend(loc='upper right', bbox_to_anchor=(1, 1), fancybox=False, framealpha=1.0, ncol=1)
+    # ----
+
+    # ----
+    ax_im.plot(solver.x / 1e-6, np.imag(eigenvectors_u[:, j]), linewidth=1.0, linestyle='-', color='k', label=r'$\Im(u)$')
+    ax_im.plot(solver.x / 1e-6, np.imag(eigenvectors_v[:, j]), linewidth=1.0, linestyle='--', color='r', label=r'$\Im(v)$')
+
+    ax_im.set_xlabel('z in um')
+    ax_im.set_ylabel('a.u.')
+
+    # ax_im.set_ylim([-5000, 5000])
+
+    # ax_im.set_xticks(z_ticks)
+
+    ax_im.grid(visible=True, which='major', color='k', linestyle='-', linewidth=0.5)
+    ax_im.grid(visible=True, which='minor', color='k', linestyle='-', linewidth=0.5, alpha=0.2)
+
+    ax_im.legend(loc='upper right', bbox_to_anchor=(1, 1), fancybox=False, framealpha=1.0, ncol=1)
+    # ----
+    # ---------------------------------------------------------------------------------------------
+
+plt.draw()
+fig_tmp.canvas.start_event_loop(0.001)
+
+plt.draw()
+fig_tmp.canvas.start_event_loop(0.001)
+# =================================================================================================
+
+print()
+
+# input("press any key ...")
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # =================================================================================================

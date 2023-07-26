@@ -231,26 +231,27 @@ class SolverGPE1D(object):
         #     self._units.unit_wave_function * _eigenstates_batch, \
         #     self._units.unit_energy * _eigenvalues_batch
 
-    def compute_eigenstates_bdg(self, *, psi_0, mue_0, n_eigenstates):
+    def bdg(self, *, n_atoms, n):
 
-        _psi_0 = torch.tensor(psi_0 / self._units.unit_wave_function, device=self._device)
+        # _psi_0 = torch.tensor(psi_0 / self._units.unit_wave_function, device=self._device)
+        # _mue_0 = mue_0 / self._units.unit_energy
 
-        _mue_0 = mue_0 / self._units.unit_energy
-
-        qsolve_core.compute_eigenstates_bdg_1d(
+        _eigenvectors_u, _eigenvectors_v, _eigenvalues_omega, _psi_0, _mue_0 = qsolve_core.bdg_1d(
             self._V,
-            _psi_0,
-            _mue_0,
             self._dx,
             self._hbar,
             self._m_atom,
             self._g,
-            n_eigenstates
+            n_atoms,
+            n
         )
 
-        # return \
-        #     self._units.unit_wave_function * _eigenstates_batch.cpu().numpy(), \
-        #     self._units.unit_energy * _eigenvalues_batch.cpu().numpy()
+        return \
+            self._units.unit_wave_function * _eigenvectors_u.cpu().numpy(), \
+            self._units.unit_wave_function * _eigenvectors_v.cpu().numpy(), \
+            self._units.unit_frequency * _eigenvalues_omega.cpu().numpy(), \
+            self._units.unit_wave_function * _psi_0.cpu().numpy(), \
+            self._units.unit_energy * _mue_0
 
     def init_sgpe(self, **kwargs):
 
