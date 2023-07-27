@@ -2,6 +2,7 @@ from qsolve.solvers import SolverGPE1D
 
 from qsolve.figures import FigureMain1D
 from qsolve.figures import FigureEigenstatesLSE1D
+from qsolve.figures import FigureEigenstatesBDG1D
 
 from potential_harmonic_trap_1d import compute_external_potential
 
@@ -91,6 +92,13 @@ parameters_figure_eigenstates_lse = {'density_min': 0,
                                      'density_max': 200,
                                      'psi_re_min': -0.5,
                                      'psi_re_max': +0.5,
+                                     'V_min': 0.0,
+                                     'V_max': 4.0,
+                                     'x_ticks': np.array([-40, -20, 0, 20, 40])
+                                     }
+
+parameters_figure_eigenstates_bdg = {'u_v_re_im_min': -1.0,
+                                     'u_v_re_im_max': +1.0,
                                      'V_min': 0.0,
                                      'V_max': 4.0,
                                      'x_ticks': np.array([-40, -20, 0, 20, 40])
@@ -232,70 +240,76 @@ solver.set_external_potential(t=0.0, u=u_of_times[0])
 
 eigenvectors_u, eigenvectors_v, eigenvalues_omega, psi_0, mue_0 = solver.bdg(n_atoms=n_atoms, n=128)
 
+figure_eigenstates_bdg = FigureEigenstatesBDG1D(eigenvectors_u,
+                                                eigenvectors_v,
+                                                solver.V,
+                                                solver.x,
+                                                parameters_figure_eigenstates_bdg)
+
 # ================================================================================================
 # visualize u and v
 
-import matplotlib.pyplot as plt
-
-# ----
-fig_tmp = plt.figure("figure_tmp", figsize=(12, 12), facecolor="white")
-
-nrows = 10
-
-gridspec = fig_tmp.add_gridspec(ncols=2, nrows=nrows, left=0.1, bottom=0.065, right=0.9, top=0.965, wspace=0.25,
-                                hspace=0.65, width_ratios=[1, 1])
-
-plt.clf()
-
-for j in np.arange(nrows):
-
-    ax_re = fig_tmp.add_subplot(gridspec[j, 0])
-    ax_im = fig_tmp.add_subplot(gridspec[j, 1])
-
-    # -------------------------------------------------------------------------------------------------------------
-    # ----
-    ax_re.plot(solver.x / 1e-6, np.real(eigenvectors_u[:, j]), linewidth=1.0, linestyle='-', color='k', label=r'$\Re(u)$')
-    ax_re.plot(solver.x / 1e-6, np.real(eigenvectors_v[:, j]), linewidth=1.0, linestyle='--', color='r', label=r'$\Re(v)$')
-
-    ax_re.set_xlabel('z in um')
-    ax_re.set_ylabel('a.u.')
-
-    # ax_re.set_ylim([-5000, 5000])
-
-    # ax_re.set_xticks(z_ticks)
-
-    ax_re.grid(visible=True, which='major', color='k', linestyle='-', linewidth=0.5)
-    ax_re.grid(visible=True, which='minor', color='k', linestyle='-', linewidth=0.5, alpha=0.2)
-
-    ax_re.legend(loc='upper right', bbox_to_anchor=(1, 1), fancybox=False, framealpha=1.0, ncol=1)
-    # ----
-
-    # ----
-    ax_im.plot(solver.x / 1e-6, np.imag(eigenvectors_u[:, j]), linewidth=1.0, linestyle='-', color='k', label=r'$\Im(u)$')
-    ax_im.plot(solver.x / 1e-6, np.imag(eigenvectors_v[:, j]), linewidth=1.0, linestyle='--', color='r', label=r'$\Im(v)$')
-
-    ax_im.set_xlabel('z in um')
-    ax_im.set_ylabel('a.u.')
-
-    # ax_im.set_ylim([-5000, 5000])
-
-    # ax_im.set_xticks(z_ticks)
-
-    ax_im.grid(visible=True, which='major', color='k', linestyle='-', linewidth=0.5)
-    ax_im.grid(visible=True, which='minor', color='k', linestyle='-', linewidth=0.5, alpha=0.2)
-
-    ax_im.legend(loc='upper right', bbox_to_anchor=(1, 1), fancybox=False, framealpha=1.0, ncol=1)
-    # ----
-    # ---------------------------------------------------------------------------------------------
-
-plt.draw()
-fig_tmp.canvas.start_event_loop(0.001)
-
-plt.draw()
-fig_tmp.canvas.start_event_loop(0.001)
-# =================================================================================================
-
-print()
+# import matplotlib.pyplot as plt
+#
+# # ----
+# fig_tmp = plt.figure("figure_tmp", figsize=(12, 12), facecolor="white")
+#
+# nrows = 10
+#
+# gridspec = fig_tmp.add_gridspec(ncols=2, nrows=nrows, left=0.1, bottom=0.065, right=0.9, top=0.965, wspace=0.25,
+#                                 hspace=0.65, width_ratios=[1, 1])
+#
+# plt.clf()
+#
+# for j in np.arange(nrows):
+#
+#     ax_re = fig_tmp.add_subplot(gridspec[j, 0])
+#     ax_im = fig_tmp.add_subplot(gridspec[j, 1])
+#
+#     # -------------------------------------------------------------------------------------------------------------
+#     # ----
+#     ax_re.plot(solver.x / 1e-6, np.real(eigenvectors_u[:, j]), linewidth=1.0, linestyle='-', color='k', label=r'$\Re(u)$')
+#     ax_re.plot(solver.x / 1e-6, np.real(eigenvectors_v[:, j]), linewidth=1.0, linestyle='--', color='r', label=r'$\Re(v)$')
+#
+#     ax_re.set_xlabel('z in um')
+#     ax_re.set_ylabel('a.u.')
+#
+#     # ax_re.set_ylim([-5000, 5000])
+#
+#     # ax_re.set_xticks(z_ticks)
+#
+#     ax_re.grid(visible=True, which='major', color='k', linestyle='-', linewidth=0.5)
+#     ax_re.grid(visible=True, which='minor', color='k', linestyle='-', linewidth=0.5, alpha=0.2)
+#
+#     ax_re.legend(loc='upper right', bbox_to_anchor=(1, 1), fancybox=False, framealpha=1.0, ncol=1)
+#     # ----
+#
+#     # ----
+#     ax_im.plot(solver.x / 1e-6, np.imag(eigenvectors_u[:, j]), linewidth=1.0, linestyle='-', color='k', label=r'$\Im(u)$')
+#     ax_im.plot(solver.x / 1e-6, np.imag(eigenvectors_v[:, j]), linewidth=1.0, linestyle='--', color='r', label=r'$\Im(v)$')
+#
+#     ax_im.set_xlabel('z in um')
+#     ax_im.set_ylabel('a.u.')
+#
+#     # ax_im.set_ylim([-5000, 5000])
+#
+#     # ax_im.set_xticks(z_ticks)
+#
+#     ax_im.grid(visible=True, which='major', color='k', linestyle='-', linewidth=0.5)
+#     ax_im.grid(visible=True, which='minor', color='k', linestyle='-', linewidth=0.5, alpha=0.2)
+#
+#     ax_im.legend(loc='upper right', bbox_to_anchor=(1, 1), fancybox=False, framealpha=1.0, ncol=1)
+#     # ----
+#     # ---------------------------------------------------------------------------------------------
+#
+# plt.draw()
+# fig_tmp.canvas.start_event_loop(0.001)
+#
+# plt.draw()
+# fig_tmp.canvas.start_event_loop(0.001)
+# # =================================================================================================
+#
+# print()
 
 # input("press any key ...")
 
@@ -384,7 +398,7 @@ cmap = mpl.cm.ScalarMappable(norm=norm, cmap=cmap_tmp)
 cmap.set_array([])
 
 
-fig_conv_lse = plt.figure("figure_convergence_lse", figsize=(1.5*6, 1.5*4))
+fig_conv_lse = plt.figure(num="figure_convergence_lse_1d", figsize=(1.5*6, 1.5*4))
 
 fig_conv_lse.subplots_adjust(left=0.1, right=1.0, bottom=0.125, top=0.925)
 

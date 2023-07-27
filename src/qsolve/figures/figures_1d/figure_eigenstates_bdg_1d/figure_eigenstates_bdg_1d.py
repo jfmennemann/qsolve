@@ -2,14 +2,14 @@ import matplotlib.pyplot as plt
 
 from scipy import constants
 
-from .fig_psi_re_im_1d import fig_psi_re_im_1d
+from .fig_u_v_re_im_1d import fig_u_v_re_im_1d
 
 from qsolve.figures.style import colors
 
 
-class FigureEigenstatesLSE1D(object):
+class FigureEigenstatesBDG1D(object):
 
-    def __init__(self, eigenstates_lse, V, x, params):
+    def __init__(self, eigenvectors_u, eigenvectors_v, V, x, params):
 
         x_ticks = params["x_ticks"]
 
@@ -29,8 +29,8 @@ class FigureEigenstatesLSE1D(object):
 
         settings.hbar = constants.hbar
 
-        settings.psi_re_min = params["psi_re_min"]
-        settings.psi_re_max = params["psi_re_max"]
+        settings.u_v_re_im_min = params["u_v_re_im_min"]
+        settings.u_v_re_im_max = params["u_v_re_im_max"]
 
         settings.V_min = params['V_min']
         settings.V_max = params['V_max']
@@ -65,7 +65,7 @@ class FigureEigenstatesLSE1D(object):
         # -----------------------------------------------------------------------------------------
 
         # -----------------------------------------------------------------------------------------
-        self.fig_name = "figure_eigenstates_lse_1d"
+        self.fig_name = "figure_eigenstates_bdg_1d"
                 
         self.fig = plt.figure(self.fig_name, figsize=(8, 8), facecolor="white")
         # -----------------------------------------------------------------------------------------
@@ -92,27 +92,27 @@ class FigureEigenstatesLSE1D(object):
         # -----------------------------------------------------------------------------------------
 
         # -----------------------------------------------------------------------------------------
-        self.fig_psi_re_im_1d_00 = fig_psi_re_im_1d(ax_00, settings)
-        self.fig_psi_re_im_1d_10 = fig_psi_re_im_1d(ax_10, settings, legend=False)
-        self.fig_psi_re_im_1d_20 = fig_psi_re_im_1d(ax_20, settings, legend=False)
-        self.fig_psi_re_im_1d_30 = fig_psi_re_im_1d(ax_30, settings, legend=False)
+        self.fig_u_v_re_im_1d_00 = fig_u_v_re_im_1d(ax_00, settings)
+        self.fig_u_v_re_im_1d_10 = fig_u_v_re_im_1d(ax_10, settings, legend=False)
+        self.fig_u_v_re_im_1d_20 = fig_u_v_re_im_1d(ax_20, settings, legend=False)
+        self.fig_u_v_re_im_1d_30 = fig_u_v_re_im_1d(ax_30, settings, legend=False)
 
-        self.fig_psi_re_im_1d_01 = fig_psi_re_im_1d(ax_01, settings)
-        self.fig_psi_re_im_1d_11 = fig_psi_re_im_1d(ax_11, settings, legend=False)
-        self.fig_psi_re_im_1d_21 = fig_psi_re_im_1d(ax_21, settings, legend=False)
-        self.fig_psi_re_im_1d_31 = fig_psi_re_im_1d(ax_31, settings, legend=False)
+        self.fig_u_v_re_im_1d_01 = fig_u_v_re_im_1d(ax_01, settings)
+        self.fig_u_v_re_im_1d_11 = fig_u_v_re_im_1d(ax_11, settings, legend=False)
+        self.fig_u_v_re_im_1d_21 = fig_u_v_re_im_1d(ax_21, settings, legend=False)
+        self.fig_u_v_re_im_1d_31 = fig_u_v_re_im_1d(ax_31, settings, legend=False)
         # -----------------------------------------------------------------------------------------
 
         # -----------------------------------------------------------------------------------------
-        self.fig_psi_re_im_1d_00.update(eigenstates_lse[0, :], V)
-        self.fig_psi_re_im_1d_10.update(eigenstates_lse[1, :], V)
-        self.fig_psi_re_im_1d_20.update(eigenstates_lse[2, :], V)
-        self.fig_psi_re_im_1d_30.update(eigenstates_lse[3, :], V)
+        self.fig_u_v_re_im_1d_00.update(eigenvectors_u[0, :], eigenvectors_v[0, :], V)
+        self.fig_u_v_re_im_1d_10.update(eigenvectors_u[1, :], eigenvectors_v[1, :], V)
+        self.fig_u_v_re_im_1d_20.update(eigenvectors_u[2, :], eigenvectors_v[2, :], V)
+        self.fig_u_v_re_im_1d_30.update(eigenvectors_u[3, :], eigenvectors_v[3, :], V)
 
-        self.fig_psi_re_im_1d_01.update(eigenstates_lse[4, :], V)
-        self.fig_psi_re_im_1d_11.update(eigenstates_lse[5, :], V)
-        self.fig_psi_re_im_1d_21.update(eigenstates_lse[6, :], V)
-        self.fig_psi_re_im_1d_31.update(eigenstates_lse[-1, :], V)
+        self.fig_u_v_re_im_1d_01.update(eigenvectors_u[4, :], eigenvectors_v[4, :], V)
+        self.fig_u_v_re_im_1d_11.update(eigenvectors_u[5, :], eigenvectors_v[5, :], V)
+        self.fig_u_v_re_im_1d_21.update(eigenvectors_u[6, :], eigenvectors_v[6, :], V)
+        self.fig_u_v_re_im_1d_31.update(eigenvectors_u[-1, :], eigenvectors_v[-1, :], V)
         # -----------------------------------------------------------------------------------------
 
         plt.ion()
