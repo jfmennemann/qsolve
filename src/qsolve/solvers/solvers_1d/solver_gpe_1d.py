@@ -172,7 +172,7 @@ class SolverGPE1D(object):
 
     def compute_eigenstates_lse(self,
                                 *,
-                                n_eigenstates_max,
+                                n_eigenstates,
                                 n_iter_max,
                                 tau_0,
                                 propagation_method,
@@ -192,7 +192,7 @@ class SolverGPE1D(object):
             self._dx,
             self._hbar,
             self._m_atom,
-            n_eigenstates_max,
+            n_eigenstates,
             n_iter_max,
             _tau_0,
             propagation_method,

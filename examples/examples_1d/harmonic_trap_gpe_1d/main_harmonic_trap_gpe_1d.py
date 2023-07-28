@@ -90,8 +90,8 @@ parameters_figure_main = {'density_min': -20,
 
 parameters_figure_eigenstates_lse = {'density_min': 0,
                                      'density_max': 200,
-                                     'psi_re_min': -0.5,
-                                     'psi_re_max': +0.5,
+                                     'psi_re_min': -1.0,
+                                     'psi_re_max': +1.0,
                                      'V_min': 0.0,
                                      'V_max': 4.0,
                                      'x_ticks': np.array([-40, -20, 0, 20, 40])
@@ -315,17 +315,6 @@ figure_eigenstates_bdg = FigureEigenstatesBDG1D(eigenvectors_u,
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 # =================================================================================================
 # compute eigenstates of the linear Schrödinger equation
 # =================================================================================================
@@ -333,7 +322,7 @@ figure_eigenstates_bdg = FigureEigenstatesBDG1D(eigenvectors_u,
 time_1 = time.time()
 
 eigenstates_lse, energies_lse, matrix_res_batch, vec_iter = solver.compute_eigenstates_lse(
-    n_eigenstates_max=128,
+    n_eigenstates=128,
     n_iter_max=1000,
     tau_0=0.25e-3,
     # propagation_method='trotter',
