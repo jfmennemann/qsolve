@@ -1,7 +1,7 @@
 from qsolve.solvers import SolverGPE2D
 from qsolve.figures import FigureMain2D
 
-from potential_harmonic_x_gaussian_y import compute_external_potential
+from potential_harmonic_x_gaussian_y_2d import compute_external_potential
 
 import os
 os.environ['FOR_DISABLE_CONSOLE_CTRL_HANDLER'] = '1'

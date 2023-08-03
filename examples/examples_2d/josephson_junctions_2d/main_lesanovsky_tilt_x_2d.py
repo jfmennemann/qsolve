@@ -13,13 +13,10 @@ from scipy import constants
 import matplotlib.pyplot as plt
 
 from figures.figure_main.figure_main import FigureMain
-from figures.figure_tof.figure_tof import FigureTof
-from figures.figure_tof_extended.figure_tof_extended import FigureTofExtended
 
 from potential_lesanovsky_tilt_x import compute_external_potential
 
 from evaluation import eval_data
-from evaluation import eval_data_tof
 
 # -------------------------------------------------------------------------------------------------
 num_threads_cpu = 8
@@ -56,13 +53,10 @@ temperature = True
 quickstart = False
 
 visualization = True
-
-time_of_flight = False
 # -------------------------------------------------------------------------------------------------
 
 # -------------------------------------------------------------------------------------------------
 export_frames_figure_main = False
-export_frames_figure_tof = False
 
 export_hdf5 = False
 
@@ -142,55 +136,6 @@ params_figure_main = {
 }
 # =================================================================================================
 
-# =================================================================================================
-times_tof = 1e-3 * np.array([21.5, 24.5, 27.5, 28, 28.5, 29, 29.5, 30, 30.5, 31, 32.5, 33, 33.5, 34, 34.5, 35,
-                             40, 50, 60, 70, 80])
-
-# -------------------------------------------------------------------------------------------------
-T_tof_total = 20e-3
-T_tof_free_gpe = 1e-3
-# -------------------------------------------------------------------------------------------------
-
-# -------------------------------------------------------------------------------------------------
-Jx_tof_free_gpe = 300
-Jy_tof_free_gpe = 300
-Jz_tof_free_gpe = 300
-# -------------------------------------------------------------------------------------------------
-
-# -------------------------------------------------------------------------------------------------
-x_min_tof_final = -100e-6
-x_max_tof_final = +100e-6
-
-y_min_tof_final = -100e-6
-y_max_tof_final = +100e-6
-
-z_min_tof_final = -75e-6
-z_max_tof_final = +75e-6
-
-Jx_tof_final = 101
-Jy_tof_final = 101
-Jz_tof_final = 101
-# -------------------------------------------------------------------------------------------------
-
-params_tof = {
-    "Jx_tof_free_gpe": Jx_tof_free_gpe,
-    "Jy_tof_free_gpe": Jy_tof_free_gpe,
-    "Jz_tof_free_gpe": Jz_tof_free_gpe,
-    "x_min_tof_final": x_min_tof_final,
-    "y_min_tof_final": y_min_tof_final,
-    "z_min_tof_final": z_min_tof_final,
-    "x_max_tof_final": x_max_tof_final,
-    "y_max_tof_final": y_max_tof_final,
-    "z_max_tof_final": z_max_tof_final,
-    "Jx_tof_final": Jx_tof_final,
-    "Jy_tof_final": Jy_tof_final,
-    "Jz_tof_final": Jz_tof_final,
-    "T_tof_free_gpe": T_tof_free_gpe,
-    "T_tof_total": T_tof_total,
-    "dt_tof_free_gpe": dt
-}
-# =================================================================================================
-
 # -------------------------------------------------------------------------------------------------
 simulation_id = 'test'
 
@@ -219,12 +164,6 @@ if export_frames_figure_main:
     if not os.path.exists(path_frames_figure_main):
 
         os.makedirs(path_frames_figure_main)
-
-if export_frames_figure_tof:
-
-    if not os.path.exists(path_frames_figure_tof):
-
-        os.makedirs(path_frames_figure_tof)
 # -------------------------------------------------------------------------------------------------
 
 
@@ -516,25 +455,6 @@ stop = False
 
 n = 0
 
-if time_of_flight:
-
-    solver.init_time_of_flight(params_tof)
-
-    x_tof_gpe = solver.x_tof_free_gpe
-    y_tof_gpe = solver.y_tof_free_gpe
-    z_tof_gpe = solver.z_tof_free_gpe
-
-    x_tof_final = solver.x_tof_final
-    y_tof_final = solver.y_tof_final
-    z_tof_final = solver.z_tof_final
-
-    figure_tof = FigureTof(x_tof_gpe, y_tof_gpe, z_tof_gpe, x_tof_final, y_tof_final, z_tof_final)
-    # figure_tof = FigureTofExtended(x_tof_gpe, y_tof_gpe, z_tof_gpe, x_tof_final, y_tof_final, z_tof_final)
-
-else:
-
-    figure_tof = None
-
 while True:
 
     t = times[n]
@@ -577,24 +497,6 @@ while True:
 
             nr_frame_figure_main = nr_frame_figure_main + 1
         # -----------------------------------------------------------------------------------------
-
-    if time_of_flight:
-
-        if t in times_tof:
-
-            solver.compute_time_of_flight()
-
-            data_tof = eval_data_tof(solver)
-
-            figure_tof.update_data(data_tof)
-
-            if export_frames_figure_tof:
-
-                filepath = path_frames_figure_tof + 'frame_' + str(nr_frame_figure_tof).zfill(5) + '.png'
-
-                figure_tof.export(filepath)
-
-                nr_frame_figure_tof = nr_frame_figure_tof + 1
 
     nr_times_analysis = nr_times_analysis + 1
 
