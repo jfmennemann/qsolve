@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 
 from figures.figure_main.figure_main import FigureMain
 
-from potential_lesanovsky_tilt_x import compute_external_potential
+from potential_lesanovsky_tilt_x_2d import compute_external_potential
 
 from evaluation import eval_data
 
@@ -48,7 +48,7 @@ plt.close('all')
 # -------------------------------------------------------------------------------------------------
 
 # -------------------------------------------------------------------------------------------------
-temperature = True
+temperature = False
 
 quickstart = False
 
