@@ -1,4 +1,5 @@
 from qsolve.solvers import SolverGPE1D
+from qsolve.grids import Grid1D
 
 from qsolve.figures import FigureMain1D
 from qsolve.figures import FigureEigenstatesLSE1D
@@ -127,23 +128,24 @@ if export_frames_figure_main:
 
 
 # =================================================================================================
+# init spatial grid
+# =================================================================================================
+
+grid = Grid1D(x_min=x_min, x_max=x_max, Jx=Jx)
+
+
+# =================================================================================================
 # init solver
 # =================================================================================================
 
-solver = SolverGPE1D(m_atom=m_Rb_87,
+solver = SolverGPE1D(grid=grid,
+                     m_atom=m_Rb_87,
                      a_s=5.24e-9,
                      omega_perp=2*np.pi*1000,
                      seed=1,
                      device='cuda:0',
                      # device='cpu',
                      num_threads_cpu=num_threads_cpu)
-
-
-# =================================================================================================
-# init spatial grid
-# =================================================================================================
-
-solver.init_grid(x_min=x_min, x_max=x_max, Jx=Jx)
 
 
 # =================================================================================================
@@ -245,74 +247,6 @@ figure_eigenstates_bdg = FigureEigenstatesBDG1D(eigenvectors_u,
                                                 solver.V,
                                                 solver.x,
                                                 parameters_figure_eigenstates_bdg)
-
-# ================================================================================================
-# visualize u and v
-
-# import matplotlib.pyplot as plt
-#
-# # ----
-# fig_tmp = plt.figure("figure_tmp", figsize=(12, 12), facecolor="white")
-#
-# nrows = 10
-#
-# gridspec = fig_tmp.add_gridspec(ncols=2, nrows=nrows, left=0.1, bottom=0.065, right=0.9, top=0.965, wspace=0.25,
-#                                 hspace=0.65, width_ratios=[1, 1])
-#
-# plt.clf()
-#
-# for j in np.arange(nrows):
-#
-#     ax_re = fig_tmp.add_subplot(gridspec[j, 0])
-#     ax_im = fig_tmp.add_subplot(gridspec[j, 1])
-#
-#     # -------------------------------------------------------------------------------------------------------------
-#     # ----
-#     ax_re.plot(solver.x / 1e-6, np.real(eigenvectors_u[:, j]), linewidth=1.0, linestyle='-', color='k', label=r'$\Re(u)$')
-#     ax_re.plot(solver.x / 1e-6, np.real(eigenvectors_v[:, j]), linewidth=1.0, linestyle='--', color='r', label=r'$\Re(v)$')
-#
-#     ax_re.set_xlabel('z in um')
-#     ax_re.set_ylabel('a.u.')
-#
-#     # ax_re.set_ylim([-5000, 5000])
-#
-#     # ax_re.set_xticks(z_ticks)
-#
-#     ax_re.grid(visible=True, which='major', color='k', linestyle='-', linewidth=0.5)
-#     ax_re.grid(visible=True, which='minor', color='k', linestyle='-', linewidth=0.5, alpha=0.2)
-#
-#     ax_re.legend(loc='upper right', bbox_to_anchor=(1, 1), fancybox=False, framealpha=1.0, ncol=1)
-#     # ----
-#
-#     # ----
-#     ax_im.plot(solver.x / 1e-6, np.imag(eigenvectors_u[:, j]), linewidth=1.0, linestyle='-', color='k', label=r'$\Im(u)$')
-#     ax_im.plot(solver.x / 1e-6, np.imag(eigenvectors_v[:, j]), linewidth=1.0, linestyle='--', color='r', label=r'$\Im(v)$')
-#
-#     ax_im.set_xlabel('z in um')
-#     ax_im.set_ylabel('a.u.')
-#
-#     # ax_im.set_ylim([-5000, 5000])
-#
-#     # ax_im.set_xticks(z_ticks)
-#
-#     ax_im.grid(visible=True, which='major', color='k', linestyle='-', linewidth=0.5)
-#     ax_im.grid(visible=True, which='minor', color='k', linestyle='-', linewidth=0.5, alpha=0.2)
-#
-#     ax_im.legend(loc='upper right', bbox_to_anchor=(1, 1), fancybox=False, framealpha=1.0, ncol=1)
-#     # ----
-#     # ---------------------------------------------------------------------------------------------
-#
-# plt.draw()
-# fig_tmp.canvas.start_event_loop(0.001)
-#
-# plt.draw()
-# fig_tmp.canvas.start_event_loop(0.001)
-# # =================================================================================================
-#
-# print()
-
-# input("press any key ...")
-
 
 
 # =================================================================================================

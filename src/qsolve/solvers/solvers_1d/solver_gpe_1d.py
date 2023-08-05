@@ -2,8 +2,6 @@ import torch
 
 import scipy
 
-import numpy as np
-
 import sys
 
 import math
@@ -15,7 +13,7 @@ from qsolve.units import Units
 
 class SolverGPE1D(object):
 
-    def __init__(self, *, m_atom, a_s, omega_perp, seed=0, device='cpu', num_threads_cpu=1):
+    def __init__(self, *, grid, m_atom, a_s, omega_perp, seed=0, device='cpu', num_threads_cpu=1):
 
         # -----------------------------------------------------------------------------------------
         print("Python version:")
@@ -57,15 +55,18 @@ class SolverGPE1D(object):
         assert (self._m_atom == 1.0)
         # -----------------------------------------------------------------------------------------
 
-        self._x = None
+        self._x = torch.tensor(grid.x / self._units.unit_length, device=self._device)
 
-        self._x_min = None
-        self._x_max = None
+        self._x_min = grid.x_min / self._units.unit_length
+        self._x_max = grid.x_max / self._units.unit_length
 
-        self._Lx = None
+        self._Lx = grid.Lx / self._units.unit_length
 
-        self._Jx = None
-        self._dx = None
+        self._Jx = grid.Jx
+
+        self._dx = grid.dx / self._units.unit_length
+
+        self._index_center_x = grid.index_center_x
 
         self._compute_external_potential = None
         self._V = None
@@ -78,25 +79,6 @@ class SolverGPE1D(object):
             "k_B": self._k_B,
             "m_atom": self._m_atom
         }
-
-    def init_grid(self, **kwargs):
-
-        self._x_min = kwargs['x_min'] / self._units.unit_length
-        self._x_max = kwargs['x_max'] / self._units.unit_length
-
-        self._Jx = kwargs['Jx']
-
-        assert (np.max(qsolve_core.get_prime_factors(self._Jx)) < 11)
-
-        assert (self._Jx % 2 == 0)
-
-        _x = np.linspace(self._x_min, self._x_max, self._Jx, endpoint=False)
-
-        self._dx = _x[1] - _x[0]
-
-        self._Lx = self._Jx * self._dx
-
-        self._x = torch.tensor(_x, dtype=torch.float64, device=self._device)
 
     def init_external_potential(self, compute_external_potential, parameters_potential):
 

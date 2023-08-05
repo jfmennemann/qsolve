@@ -1,6 +1,7 @@
 from qsolve.solvers import SolverGPE1D
+from qsolve.grids import Grid1D
 
-from qsolve.figures import FigureMain1D
+# from qsolve.figures import FigureMain1D
 from qsolve.figures import FigureEigenstatesLSE1D
 
 from potential_harmonic_trap_1d import compute_external_potential
@@ -115,23 +116,24 @@ if export_frames_figure_main:
 
 
 # =================================================================================================
+# init spatial grid
+# =================================================================================================
+
+grid = Grid1D(x_min=x_min, x_max=x_max, Jx=Jx)
+
+
+# =================================================================================================
 # init solver
 # =================================================================================================
 
-solver = SolverGPE1D(m_atom=m_Rb_87,
+solver = SolverGPE1D(grid=grid,
+                     m_atom=m_Rb_87,
                      a_s=5.24e-9,
                      omega_perp=2*np.pi*1000,
                      seed=1,
                      device='cuda:0',
                      # device='cpu',
                      num_threads_cpu=num_threads_cpu)
-
-
-# =================================================================================================
-# init spatial grid
-# =================================================================================================
-
-solver.init_grid(x_min=x_min, x_max=x_max, Jx=Jx)
 
 
 # =================================================================================================
@@ -189,7 +191,7 @@ solver.set_external_potential(t=0.0, u=u_of_times[0])
 time_1 = time.time()
 
 eigenstates_lse, eigenvalues_lse, matrix_res_batch, vec_iter = solver.compute_eigenstates_lse(
-    n_eigenstates_max=128,
+    n_eigenstates=128,
     # n_eigenstates_max=Jx,
     n_iter_max=1000,
     # n_iter_max=20000,  # RK4
@@ -272,30 +274,6 @@ cbar.ax.tick_params(length=6, pad=4, which="major")
 fig_conv_lse.canvas.start_event_loop(0.001)
 
 plt.draw()
-
-
-# =================================================================================================
-# set wave function to ground state solution
-# =================================================================================================
-
-# solver.psi = psi_0
-#
-# N_0 = solver.compute_n_atoms()
-# mue_0 = solver.compute_chemical_potential()
-# E_total_0 = solver.compute_total_energy()
-# E_kinetic_0 = solver.compute_kinetic_energy()
-# E_potential_0 = solver.compute_potential_energy()
-# E_interaction_0 = solver.compute_interaction_energy()
-#
-# print('N_0 = {:1.16e}'.format(N_0))
-# print('mue_0 / h: {0:1.6} kHz'.format(mue_0 / (1e3 * (2 * pi * hbar))))
-# print('E_total_0 / (N_0*h): {0:1.6} kHz'.format(E_total_0 / (1e3 * (2 * pi * hbar * N_0))))
-# print('E_kinetic_0 / (N_0*h): {0:1.6} kHz'.format(E_kinetic_0 / (1e3 * (2 * pi * hbar * N_0))))
-# print('E_potential_0 / (N_0*h): {0:1.6} kHz'.format(E_potential_0 / (1e3 * (2 * pi * hbar * N_0))))
-# print('E_interaction_0 / (N_0*h): {0:1.6} kHz'.format(E_interaction_0 / (1e3 * (2 * pi * hbar * N_0))))
-# print()
-# -------------------------------------------------------------------------------------------------
-
 
 plt.ioff()
 plt.show()

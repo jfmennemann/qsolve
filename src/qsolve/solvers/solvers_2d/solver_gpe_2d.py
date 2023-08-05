@@ -2,8 +2,6 @@ import torch
 
 import scipy
 
-import numpy as np
-
 import sys
 
 import math
@@ -17,7 +15,7 @@ from qsolve.units import Units
 
 class SolverGPE2D(object):
 
-    def __init__(self, *, m_atom, a_s, omega_z, seed=0, device='cpu', num_threads_cpu=1):
+    def __init__(self, *, grid, m_atom, a_s, omega_z, seed=0, device='cpu', num_threads_cpu=1):
 
         # -----------------------------------------------------------------------------------------
         print("Python version:")
@@ -59,29 +57,29 @@ class SolverGPE2D(object):
         assert (self._m_atom == 1.0)
         # -----------------------------------------------------------------------------------------
 
-        self._x = None
-        self._y = None
+        self._x = torch.tensor(grid.x / self._units.unit_length, device=self._device)
+        self._y = torch.tensor(grid.y / self._units.unit_length, device=self._device)
 
-        self._x_min = None
-        self._x_max = None
+        self._x_min = grid.x_min / self._units.unit_length
+        self._x_max = grid.x_max / self._units.unit_length
 
-        self._y_min = None
-        self._y_max = None
+        self._y_min = grid.y_min / self._units.unit_length
+        self._y_max = grid.y_max / self._units.unit_length
 
-        self._Lx = None
-        self._Ly = None
+        self._Lx = grid.Lx / self._units.unit_length
+        self._Ly = grid.Ly / self._units.unit_length
 
-        self._Jx = None
-        self._Jy = None
+        self._Jx = grid.Jx
+        self._Jy = grid.Jy
 
-        self._dx = None
-        self._dy = None
+        self._dx = grid.dx / self._units.unit_length
+        self._dy = grid.dy / self._units.unit_length
 
-        self._index_center_x = None
-        self._index_center_y = None
+        self._index_center_x = grid.index_center_x
+        self._index_center_y = grid.index_center_y
 
-        self._x_2d = None
-        self._y_2d = None
+        self._x_2d = torch.tensor(grid.x_2d / self._units.unit_length, device=self._device)
+        self._y_2d = torch.tensor(grid.y_2d / self._units.unit_length, device=self._device)
 
         self._compute_external_potential = None
         self._V = None
@@ -94,47 +92,6 @@ class SolverGPE2D(object):
             "k_B": self._k_B,
             "m_atom": self._m_atom
         }
-
-    def init_grid(self, **kwargs):
-
-        self._x_min = kwargs['x_min'] / self._units.unit_length
-        self._x_max = kwargs['x_max'] / self._units.unit_length
-
-        self._y_min = kwargs['y_min'] / self._units.unit_length
-        self._y_max = kwargs['y_max'] / self._units.unit_length
-
-        self._Jx = kwargs['Jx']
-        self._Jy = kwargs['Jy']
-
-        prime_factors_Jx = qsolve_core.get_prime_factors(self._Jx)
-        prime_factors_Jy = qsolve_core.get_prime_factors(self._Jy)
-
-        assert (np.max(prime_factors_Jx) < 11)
-        assert (np.max(prime_factors_Jy) < 11)
-
-        assert (self._Jx % 2 == 0)
-        assert (self._Jy % 2 == 0)
-
-        _x = np.linspace(self._x_min, self._x_max, self._Jx, endpoint=False)
-        _y = np.linspace(self._y_min, self._y_max, self._Jy, endpoint=False)
-
-        self._index_center_x = np.argmin(np.abs(_x))
-        self._index_center_y = np.argmin(np.abs(_y))
-
-        assert (np.abs(_x[self._index_center_x]) < 1e-14)
-        assert (np.abs(_y[self._index_center_y]) < 1e-14)
-
-        self._dx = _x[1] - _x[0]
-        self._dy = _y[1] - _y[0]
-
-        self._Lx = self._Jx * self._dx
-        self._Ly = self._Jy * self._dy
-
-        self._x = torch.tensor(_x, dtype=torch.float64, device=self._device)
-        self._y = torch.tensor(_y, dtype=torch.float64, device=self._device)
-
-        self._x_2d = torch.reshape(self._x, (self._Jx, 1))
-        self._y_2d = torch.reshape(self._y, (1, self._Jy))
 
     def init_external_potential(self, compute_external_potential, parameters_potential):
 

@@ -1,4 +1,5 @@
 from qsolve.solvers import SolverGPE3D
+from qsolve.grids import Grid3D
 
 import mkl
 
@@ -57,7 +58,7 @@ quickstart = False
 
 visualization = True
 
-time_of_flight = False
+time_of_flight = True
 # -------------------------------------------------------------------------------------------------
 
 # -------------------------------------------------------------------------------------------------
@@ -229,29 +230,24 @@ if export_frames_figure_tof:
 
 
 # =================================================================================================
+# init spatial grid
+# =================================================================================================
+
+grid = Grid3D(x_min=x_min, x_max=x_max, y_min=y_min, y_max=y_max, z_min=z_min, z_max=z_max, Jx=Jx, Jy=Jy, Jz=Jz)
+
+
+# =================================================================================================
 # init solver
 # =================================================================================================
 
-solver = SolverGPE3D(m_atom=m_Rb_87,
-                     a_s=a_s,
-                     seed=1,
-                     device='cuda:0',
-                     # device='cpu',
-                     num_threads_cpu=num_threads_cpu)
-
-solver.init_grid(x_min=x_min,
-                 x_max=x_max,
-                 y_min=y_min,
-                 y_max=y_max,
-                 z_min=z_min,
-                 z_max=z_max,
-                 Jx=Jx,
-                 Jy=Jy,
-                 Jz=Jz)
-
-x = solver.x
-y = solver.y
-z = solver.z
+solver = SolverGPE3D(
+    grid=grid,
+    m_atom=m_Rb_87,
+    a_s=a_s,
+    seed=1,
+    device='cuda:0',
+    # device='cpu',
+    num_threads_cpu=num_threads_cpu)
 
 
 # =================================================================================================
@@ -378,7 +374,7 @@ print()
 if visualization:
 
     # ---------------------------------------------------------------------------------------------
-    figure_main = FigureMain(x, y, z, times, params_figure_main)
+    figure_main = FigureMain(grid.x, grid.y, grid.z, times, params_figure_main)
 
     figure_main.fig_control_inputs.update_u(u1_of_times, u2_of_times)
 
@@ -624,9 +620,9 @@ if export_hdf5:
 
     f_hdf5.create_dataset("N", data=N)
 
-    f_hdf5.create_dataset("x", data=x)
-    f_hdf5.create_dataset("y", data=y)
-    f_hdf5.create_dataset("z", data=z)
+    f_hdf5.create_dataset("x", data=grid.x)
+    f_hdf5.create_dataset("y", data=grid.y)
+    f_hdf5.create_dataset("z", data=grid.z)
 
     f_hdf5.create_dataset("Jz", data=Jz)
     # ---------------------------------------------------------------------------------------------

@@ -17,7 +17,7 @@ from qsolve.units import Units
 
 class SolverGPE3D(object):
 
-    def __init__(self, *, m_atom, a_s, seed=0, device='cpu', num_threads_cpu=1):
+    def __init__(self, *, grid, m_atom, a_s, seed=0, device='cpu', num_threads_cpu=1):
 
         # -----------------------------------------------------------------------------------------
         print("Python version:")
@@ -52,67 +52,46 @@ class SolverGPE3D(object):
         assert (self._m_atom == 1.0)
         # ---------------------------------------------------------------------------------------------
 
-        self._p = {
-            "hbar": self._hbar,
-            "mu_B": self._mu_B,
-            "k_B": self._k_B,
-            "m_atom": self._m_atom
-        }
+        self._x = torch.tensor(grid.x / self._units.unit_length, device=self._device)
+        self._y = torch.tensor(grid.y / self._units.unit_length, device=self._device)
+        self._z = torch.tensor(grid.z / self._units.unit_length, device=self._device)
 
-    def init_grid(self, **kwargs):
+        self._x_min = grid.x_min / self._units.unit_length
+        self._x_max = grid.x_max / self._units.unit_length
 
-        self._x_min = kwargs['x_min'] / self._units.unit_length
-        self._x_max = kwargs['x_max'] / self._units.unit_length
+        self._y_min = grid.y_min / self._units.unit_length
+        self._y_max = grid.y_max / self._units.unit_length
 
-        self._y_min = kwargs['y_min'] / self._units.unit_length
-        self._y_max = kwargs['y_max'] / self._units.unit_length
+        self._z_min = grid.z_min / self._units.unit_length
+        self._z_max = grid.z_max / self._units.unit_length
 
-        self._z_min = kwargs['z_min'] / self._units.unit_length
-        self._z_max = kwargs['z_max'] / self._units.unit_length
+        self._Lx = grid.Lx / self._units.unit_length
+        self._Ly = grid.Ly / self._units.unit_length
+        self._Lz = grid.Lz / self._units.unit_length
 
-        self._Jx = kwargs['Jx']
-        self._Jy = kwargs['Jy']
-        self._Jz = kwargs['Jz']
+        self._Jx = grid.Jx
+        self._Jy = grid.Jy
+        self._Jz = grid.Jz
 
-        assert (np.max(qsolve_core.get_prime_factors(self._Jx)) < 11)
-        assert (np.max(qsolve_core.get_prime_factors(self._Jy)) < 11)
-        assert (np.max(qsolve_core.get_prime_factors(self._Jz)) < 11)
+        self._dx = grid.dx / self._units.unit_length
+        self._dy = grid.dy / self._units.unit_length
+        self._dz = grid.dz / self._units.unit_length
 
-        assert (self._Jx % 2 == 0)
-        assert (self._Jy % 2 == 0)
-        assert (self._Jz % 2 == 0)
+        self._index_center_x = grid.index_center_x
+        self._index_center_y = grid.index_center_y
+        self._index_center_z = grid.index_center_z
 
-        _x = np.linspace(self._x_min, self._x_max, self._Jx, endpoint=False)
-        _y = np.linspace(self._y_min, self._y_max, self._Jy, endpoint=False)
-        _z = np.linspace(self._z_min, self._z_max, self._Jz, endpoint=False)
+        self._x_3d = torch.tensor(grid.x_3d / self._units.unit_length, device=self._device)
+        self._y_3d = torch.tensor(grid.y_3d / self._units.unit_length, device=self._device)
+        self._z_3d = torch.tensor(grid.z_3d / self._units.unit_length, device=self._device)
 
-        self._index_center_x = np.argmin(np.abs(_x))
-        self._index_center_y = np.argmin(np.abs(_y))
-        self._index_center_z = np.argmin(np.abs(_z))
-
-        assert (np.abs(_x[self._index_center_x]) < 1e-14)
-        assert (np.abs(_y[self._index_center_y]) < 1e-14)
-        assert (np.abs(_z[self._index_center_z]) < 1e-14)
-
-        self._dx = _x[1] - _x[0]
-        self._dy = _y[1] - _y[0]
-        self._dz = _z[1] - _z[0]
-
-        self._Lx = self._Jx * self._dx
-        self._Ly = self._Jy * self._dy
-        self._Lz = self._Jz * self._dz
-
-        self._x = torch.tensor(_x, dtype=torch.float64, device=self._device)
-        self._y = torch.tensor(_y, dtype=torch.float64, device=self._device)
-        self._z = torch.tensor(_z, dtype=torch.float64, device=self._device)
-
-        self._x_3d = torch.reshape(self._x, (self._Jx, 1, 1))
-        self._y_3d = torch.reshape(self._y, (1, self._Jy, 1))
-        self._z_3d = torch.reshape(self._z, (1, 1, self._Jz))
-
-        self._p['Lx'] = self._Lx
-        self._p['Ly'] = self._Ly
-        self._p['Lz'] = self._Lz
+        self._p = {'hbar': self._hbar,
+                   'mu_B': self._mu_B,
+                   'k_B': self._k_B,
+                   'm_atom': self._m_atom,
+                   'Lx': self._Lx,
+                   'Ly': self._Ly,
+                   'Lz': self._Lz}
 
     def init_external_potential(self, compute_external_potential, parameters_potential):
 

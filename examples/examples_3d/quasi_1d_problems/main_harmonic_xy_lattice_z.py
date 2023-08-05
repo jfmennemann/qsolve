@@ -1,4 +1,5 @@
 from qsolve.solvers import SolverGPE3D
+from qsolve.grids import Grid3D
 
 import mkl
 import os
@@ -124,29 +125,23 @@ if export_frames_figure_main:
 
 
 # =================================================================================================
+# init spatial grid
+# =================================================================================================
+
+grid = Grid3D(x_min=x_min, x_max=x_max, y_min=y_min, y_max=y_max, z_min=z_min, z_max=z_max, Jx=Jx, Jy=Jy, Jz=Jz)
+
+
+# =================================================================================================
 # init solver
 # =================================================================================================
 
-solver = SolverGPE3D(m_atom=m_Rb_87,
+solver = SolverGPE3D(grid=grid,
+                     m_atom=m_Rb_87,
                      a_s=a_s,
                      seed=1,
                      device='cuda:0',
                      # device='cpu',
                      num_threads_cpu=num_threads_cpu)
-
-solver.init_grid(x_min=x_min,
-                 x_max=x_max,
-                 y_min=y_min,
-                 y_max=y_max,
-                 z_min=z_min,
-                 z_max=z_max,
-                 Jx=Jx,
-                 Jy=Jy,
-                 Jz=Jz)
-
-x = solver.x
-y = solver.y
-z = solver.z
 
 
 # =================================================================================================
@@ -246,7 +241,7 @@ params_figure_main = {
 }
 
 # ---------------------------------------------------------------------------------------------
-figure_main = FigureMain(x, y, z, times, params_figure_main)
+figure_main = FigureMain(grid.x, grid.y, grid.z, times, params_figure_main)
 
 figure_main.fig_control_inputs.update_u(u_of_times)
 

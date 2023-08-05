@@ -1,9 +1,11 @@
 from qsolve.solvers import SolverGPE2D
 from qsolve.figures import FigureMain2D
+from qsolve.grids import Grid2D
 
 from potential_harmonic_x_gaussian_y_2d import compute_external_potential
 
 import os
+
 os.environ['FOR_DISABLE_CONSOLE_CTRL_HANDLER'] = '1'
 
 import mkl
@@ -108,28 +110,25 @@ if export_frames_figure_main:
 
 
 # =================================================================================================
-# init solver and its potential
-# =================================================================================================
-
-solver = SolverGPE2D(m_atom=m_Rb_87,
-                     a_s=5.24e-9,
-                     omega_z=2*np.pi*1e3,
-                     seed=1,
-                     # device='cuda:0',
-                     device='cpu',
-                     num_threads_cpu=num_threads_cpu)
-
-
-# =================================================================================================
 # init spatial grid
 # =================================================================================================
 
-solver.init_grid(x_min=x_min,
-                 x_max=x_max,
-                 y_min=y_min,
-                 y_max=y_max,
-                 Jx=Jx,
-                 Jy=Jy)
+grid = Grid2D(x_min=x_min, x_max=x_max, y_min=y_min, y_max=y_max, Jx=Jx, Jy=Jy)
+
+
+# =================================================================================================
+# init solver and its potential
+# =================================================================================================
+
+solver = SolverGPE2D(
+    grid=grid,
+    m_atom=m_Rb_87,
+    a_s=5.24e-9,
+    omega_z=2*np.pi*1e3,
+    seed=1,
+    device='cuda:0',
+    # device='cpu',
+    num_threads_cpu=num_threads_cpu)
 
 
 # =================================================================================================
@@ -220,7 +219,7 @@ params_figure_main = {
 }
 
 # ---------------------------------------------------------------------------------------------
-figure_main = FigureMain2D(solver.x, solver.y, times, params_figure_main)
+figure_main = FigureMain2D(grid.x, grid.y, times, params_figure_main)
 
 figure_main.fig_control_inputs.update_u(u_of_times)
 
