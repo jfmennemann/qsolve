@@ -1,10 +1,11 @@
 from qsolve.solvers import SolverGPE1D
 from qsolve.grids import Grid1D
+from qsolve.units import Units
 
 # from qsolve.figures import FigureMain1D
 from qsolve.figures import FigureEigenstatesLSE1D
 
-from potential_harmonic_trap_1d import compute_external_potential
+from potential_harmonic_trap_1d import PotentialHarmonicTrap1D
 
 import os
 os.environ['FOR_DISABLE_CONSOLE_CTRL_HANDLER'] = '1'
@@ -59,6 +60,8 @@ n_atoms = 3500
 
 m_Rb_87 = 87 * amu
 
+m_atom = m_Rb_87
+
 x_min = -60e-6
 x_max = +60e-6
 
@@ -71,10 +74,15 @@ dt = 0.0005e-3
 n_mod_times_analysis = 100
 
 n_control_inputs = 1
+
+device = 'cuda:0'
 # =================================================================================================
 
-parameters_potential = {'nu_start': (22.5, "Hz"),
-                        'nu_final': (22.5, "Hz")}
+parameters_potential = {
+    'm_atom': m_atom,
+    'nu_start': 22.5,
+    'nu_final': 22.5
+}
 
 parameters_figure_main = {'density_min': -20,
                           'density_max': +220,
@@ -115,25 +123,22 @@ if export_frames_figure_main:
 # -------------------------------------------------------------------------------------------------
 
 
-# =================================================================================================
-# init spatial grid
-# =================================================================================================
+units = Units.solver_units(m_atom, dim=1)
 
 grid = Grid1D(x_min=x_min, x_max=x_max, Jx=Jx)
 
+potential = PotentialHarmonicTrap1D(grid=grid, units=units, device=device, parameters=parameters_potential)
 
-# =================================================================================================
-# init solver
-# =================================================================================================
-
-solver = SolverGPE1D(grid=grid,
-                     m_atom=m_Rb_87,
-                     a_s=5.24e-9,
-                     omega_perp=2*np.pi*1000,
-                     seed=1,
-                     device='cuda:0',
-                     # device='cpu',
-                     num_threads_cpu=num_threads_cpu)
+solver = SolverGPE1D(
+    units=units,
+    grid=grid,
+    potential=potential,
+    device=device,
+    m_atom=m_Rb_87,
+    a_s=5.24e-9,
+    omega_perp=2*np.pi*1000,
+    seed=1,
+    num_threads_cpu=num_threads_cpu)
 
 
 # =================================================================================================
@@ -179,8 +184,6 @@ u_of_times[0, :] = u1_of_times
 # init external potential
 # =================================================================================================
 
-solver.init_external_potential(compute_external_potential, parameters_potential)
-
 solver.set_external_potential(t=0.0, u=u_of_times[0])
 
 
@@ -217,7 +220,7 @@ print('elapsed time: {0:f}'.format(time_2 - time_1))
 
 figure_eigenstates_lse = FigureEigenstatesLSE1D(eigenstates_lse,
                                                 solver.V,
-                                                solver.x,
+                                                grid.x,
                                                 parameters_figure_eigenstates_lse)
 print('eigenvalues_lse: ')
 print(eigenvalues_lse)
@@ -276,4 +279,5 @@ fig_conv_lse.canvas.start_event_loop(0.001)
 plt.draw()
 
 plt.ioff()
+
 plt.show()

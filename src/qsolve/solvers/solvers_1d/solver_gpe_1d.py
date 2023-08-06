@@ -2,27 +2,16 @@ import torch
 
 import scipy
 
-import sys
-
 import math
 
 from qsolve.core import qsolve_core
 
-from qsolve.units import Units
-
 
 class SolverGPE1D(object):
 
-    def __init__(self, *, grid, m_atom, a_s, omega_perp, seed=0, device='cpu', num_threads_cpu=1):
+    def __init__(self, *, units, grid, potential, device, m_atom, a_s, omega_perp, seed=0, num_threads_cpu=1):
 
-        # -----------------------------------------------------------------------------------------
-        print("Python version:")
-        print(sys.version)
-        print()
-        print("PyTorch version:")
-        print(torch.__version__)
-        print()
-        # -----------------------------------------------------------------------------------------
+        self._potential = potential
 
         torch.manual_seed(seed)
 
@@ -30,7 +19,7 @@ class SolverGPE1D(object):
 
         self._device = torch.device(device)
 
-        self._units = Units.solver_units(m_atom, dim=1)
+        self._units = units
 
         # -----------------------------------------------------------------------------------------
         self._hbar = scipy.constants.hbar / self._units.unit_hbar
@@ -73,48 +62,13 @@ class SolverGPE1D(object):
 
         self._psi = None
 
-        self._p = {
-            "hbar": self._hbar,
-            "mu_B": self._mu_B,
-            "k_B": self._k_B,
-            "m_atom": self._m_atom
-        }
-
-    def init_external_potential(self, compute_external_potential, parameters_potential):
-
-        self._compute_external_potential = compute_external_potential
-
-        for key, p in parameters_potential.items():
-
-            if type(p) is not tuple:
-
-                _value = p
-
-            else:
-
-                value = p[0]
-                unit = p[1]
-
-                if unit == 'm':
-                    _value = value / self._units.unit_length
-                elif unit == 's':
-                    _value = value / self._units.unit_time
-                elif unit == 'Hz':
-                    _value = value / self._units.unit_frequency
-                elif unit == 'J':
-                    _value = value / self._units.unit_energy
-                elif unit == 'J/m':
-                    _value = value * self._units.unit_length / self._units.unit_energy
-                else:
-                    raise Exception('unknown unit')
-
-            self._p[key] = _value
-
     def set_external_potential(self, *, t, u):
 
         _t = t / self._units.unit_time
 
-        self._V = self._compute_external_potential(self._x, t, u, self._p)
+        _u = u
+
+        self._V = self._potential.compute_external_potential(_t, _u)
 
     def compute_ground_state_solution(self, *, n_atoms, n_iter_max, tau_0, adaptive_tau=True, return_residuals=False):
 
@@ -288,7 +242,7 @@ class SolverGPE1D(object):
 
                 _u = 0.5 * (u_of_times[n] + u_of_times[n + 1])
 
-            self._V = self._compute_external_potential(self._x, _t, _u, self._p)
+            self._V = self._potential.compute_external_potential(_t, _u)
 
             self._psi = qsolve_core.propagate_gpe_1d(
                 self._psi,
@@ -301,14 +255,6 @@ class SolverGPE1D(object):
                 self._g)
 
             n_local = n_local + 1
-
-    @property
-    def x(self):
-        return self._units.unit_length * self._x.cpu().numpy()
-
-    @property
-    def dx(self):
-        return self._units.unit_length * self._dx
 
     @property
     def psi(self):
