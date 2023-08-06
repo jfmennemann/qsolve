@@ -1,11 +1,11 @@
 import numpy as np
 
 
-def eval_data(solver):
+def eval_data(solver, grid):
 
-    index_center_x = solver.index_center_x
-    index_center_y = solver.index_center_y
-    index_center_z = solver.index_center_z
+    index_center_x = grid.index_center_x
+    index_center_y = grid.index_center_y
+    index_center_z = grid.index_center_z
 
     data = type('', (), {})()
 
