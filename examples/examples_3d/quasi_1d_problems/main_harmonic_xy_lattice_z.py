@@ -1,5 +1,6 @@
 from qsolve.solvers import SolverGPE3D
 from qsolve.grids import Grid3D
+from qsolve.units import Units
 
 import mkl
 import os
@@ -16,7 +17,7 @@ import matplotlib.pyplot as plt
 
 from figures.figure_main.figure_main import FigureMain
 
-from potential_harmonic_xy_lattice_z import compute_external_potential
+from potential_harmonic_xy_lattice_z import PotentialHarmonicXYLatticeZ
 
 from evaluation import eval_data
 
@@ -67,8 +68,6 @@ m_atom = m_Rb_87
 
 a_s = 5.24e-9
 
-omega_1 = 2.0 * np.pi * 2e3
-
 Jx = 48
 Jy = 48
 Jz = 256
@@ -88,11 +87,15 @@ z_min = -20e-6
 z_max = +20e-6
 
 parameters_potential = {
-    'nu_x': (1e3, 'Hz'),
-    'nu_y': (1e3, 'Hz'),
-    'V_lattice_z_max': (omega_1 * hbar, 'J'),
+    'm_atom': m_atom,
+    'nu_x': 1e3,
+    'nu_y': 1e3,
+    'V_lattice_z_max': hbar * 2.0 * np.pi * 2e3,
     'V_lattice_z_m': 8
 }
+
+device = 'cuda:0'
+# device = 'cpu'
 # -------------------------------------------------------------------------------------------------
 
 # -------------------------------------------------------------------------------------------------
@@ -124,24 +127,21 @@ if export_frames_figure_main:
 # -------------------------------------------------------------------------------------------------
 
 
-# =================================================================================================
-# init spatial grid
-# =================================================================================================
+units = Units.solver_units(m_atom, dim=3)
 
 grid = Grid3D(x_min=x_min, x_max=x_max, y_min=y_min, y_max=y_max, z_min=z_min, z_max=z_max, Jx=Jx, Jy=Jy, Jz=Jz)
 
+potential = PotentialHarmonicXYLatticeZ(grid=grid, units=units, device=device, parameters=parameters_potential)
 
-# =================================================================================================
-# init solver
-# =================================================================================================
-
-solver = SolverGPE3D(grid=grid,
-                     m_atom=m_Rb_87,
-                     a_s=a_s,
-                     seed=1,
-                     device='cuda:0',
-                     # device='cpu',
-                     num_threads_cpu=num_threads_cpu)
+solver = SolverGPE3D(
+    units=units,
+    grid=grid,
+    potential=potential,
+    device=device,
+    m_atom=m_Rb_87,
+    a_s=a_s,
+    seed=1,
+    num_threads_cpu=num_threads_cpu)
 
 
 # =================================================================================================
@@ -197,8 +197,6 @@ u_of_times = f(times)
 # =================================================================================================
 # init external potential
 # =================================================================================================
-
-solver.init_external_potential(compute_external_potential, parameters_potential)
 
 solver.set_external_potential(t=0.0, u=u_of_times[0])
 
@@ -278,7 +276,7 @@ while True:
 
     t = times[n]
 
-    data = eval_data(solver)
+    data = eval_data(solver, grid)
 
     if export_psi_of_times_analysis:
 

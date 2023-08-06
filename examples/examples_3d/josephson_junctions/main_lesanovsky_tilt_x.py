@@ -86,6 +86,7 @@ export_psi_of_times_analysis = False
 
 # =================================================================================================
 device = 'cuda:0'
+# device='cpu'
 
 N = 3500
 
@@ -257,7 +258,6 @@ solver = SolverGPE3D(
     m_atom=m_Rb_87,
     a_s=a_s,
     seed=1,
-    # device='cpu',
     num_threads_cpu=num_threads_cpu)
 
 
