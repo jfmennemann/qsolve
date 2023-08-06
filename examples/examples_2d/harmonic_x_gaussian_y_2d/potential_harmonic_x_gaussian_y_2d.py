@@ -1,23 +1,39 @@
-import torch
 import math
 
+import torch
 
-def compute_external_potential(x_2d, y_2d, t, u, p):
+from scipy import constants
 
-    m_atom = p["m_atom"]
 
-    nu_x = p["nu_x"]
+hbar = constants.hbar
 
-    sigma_gaussian_y = p["sigma_gaussian_y"]
 
-    omega_x = 2 * math.pi * nu_x
+class PotentialHarmonicXGaussianY(object):
 
-    V_harmonic_x = 0.5 * m_atom * omega_x ** 2 * x_2d ** 2
+    def __init__(self, *, grid, units, device, parameters):
 
-    V_gaussian_y = torch.exp(-y_2d ** 2 / (2 * sigma_gaussian_y ** 2))
+        self._units = units
 
-    V_ref_gaussian_y = p["V_ref_gaussian_y"]
+        self._x_2d = torch.tensor(grid.x_2d / self._units.unit_length, device=device)
+        self._y_2d = torch.tensor(grid.y_2d / self._units.unit_length, device=device)
 
-    amplitude_gaussian_y = u * V_ref_gaussian_y
+        self._hbar = hbar / self._units.unit_hbar
 
-    return V_harmonic_x + amplitude_gaussian_y * V_gaussian_y
+        self._m_atom = parameters["m_atom"] / self._units.unit_mass
+
+        self._omega_x = 2.0 * math.pi * parameters["nu_x"] / self._units.unit_frequency
+
+        self._sigma_gaussian_y = parameters["sigma_gaussian_y"] / self._units.unit_length
+
+        self._V_ref_gaussian_y = parameters["V_ref_gaussian_y"] / self._units.unit_energy
+
+    def compute_external_potential(self, t, u):
+
+        V_harmonic_x = 0.5 * self._m_atom * self._omega_x ** 2 * self._x_2d ** 2
+
+        V_gaussian_y = torch.exp(-self._y_2d ** 2 / (2 * self._sigma_gaussian_y ** 2))
+
+        amplitude_gaussian_y = u * self._V_ref_gaussian_y
+
+        return V_harmonic_x + amplitude_gaussian_y * V_gaussian_y
+

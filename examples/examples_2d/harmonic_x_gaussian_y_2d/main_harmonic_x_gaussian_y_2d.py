@@ -1,8 +1,10 @@
 from qsolve.solvers import SolverGPE2D
-from qsolve.figures import FigureMain2D
 from qsolve.grids import Grid2D
+from qsolve.units import Units
 
-from potential_harmonic_x_gaussian_y_2d import compute_external_potential
+from potential_harmonic_x_gaussian_y_2d import PotentialHarmonicXGaussianY
+
+from qsolve.figures import FigureMain2D
 
 import os
 
@@ -66,6 +68,8 @@ dt = 0.0025e-3
 
 m_Rb_87 = 87 * amu
 
+m_atom = m_Rb_87
+
 Jx = 48
 Jy = 256
 
@@ -75,9 +79,14 @@ x_max = +1.5e-6
 y_min = -20e-6
 y_max = +20e-6
 
-parameters_potential = {'nu_x': (1e3, 'Hz'),
-                        'V_ref_gaussian_y': (2 * hbar * omega_perp, 'J'),
-                        'sigma_gaussian_y': (1e-6, 'm')}
+parameters_potential = {
+    'm_atom': m_atom,
+    'nu_x': 1e3,
+    'V_ref_gaussian_y': 2 * hbar * omega_perp,
+    'sigma_gaussian_y': 1e-6
+}
+
+device = 'cuda:0'
 # -------------------------------------------------------------------------------------------------
 
 # -------------------------------------------------------------------------------------------------
@@ -109,25 +118,21 @@ if export_frames_figure_main:
 # -------------------------------------------------------------------------------------------------
 
 
-# =================================================================================================
-# init spatial grid
-# =================================================================================================
+units = Units.solver_units(m_atom, dim=2)
 
 grid = Grid2D(x_min=x_min, x_max=x_max, y_min=y_min, y_max=y_max, Jx=Jx, Jy=Jy)
 
-
-# =================================================================================================
-# init solver and its potential
-# =================================================================================================
+potential = PotentialHarmonicXGaussianY(grid=grid, units=units, device=device, parameters=parameters_potential)
 
 solver = SolverGPE2D(
+    units=units,
     grid=grid,
+    potential=potential,
+    device=device,
     m_atom=m_Rb_87,
     a_s=5.24e-9,
     omega_z=2*np.pi*1e3,
     seed=1,
-    device='cuda:0',
-    # device='cpu',
     num_threads_cpu=num_threads_cpu)
 
 
@@ -171,8 +176,6 @@ u_of_times = pchip_interpolate(vec_t, vec_u, times)
 # =================================================================================================
 # init external potential
 # =================================================================================================
-
-solver.init_external_potential(compute_external_potential, parameters_potential)
 
 solver.set_external_potential(t=0.0, u=u_of_times[0])
 
@@ -250,7 +253,7 @@ while True:
 
     t = times[n]
 
-    data = eval_data(solver)
+    data = eval_data(solver, grid)
 
     if export_psi_of_times_analysis:
 
