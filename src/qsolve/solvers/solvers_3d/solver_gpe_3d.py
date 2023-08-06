@@ -4,8 +4,6 @@ import scipy
 
 import numpy as np
 
-import sys
-
 import math
 
 from qsolve.core import qsolve_core
@@ -17,16 +15,9 @@ from qsolve.units import Units
 
 class SolverGPE3D(object):
 
-    def __init__(self, *, grid, m_atom, a_s, seed=0, device='cpu', num_threads_cpu=1):
+    def __init__(self, *, units, grid, potential, device, m_atom, a_s, seed=0, num_threads_cpu=1):
 
-        # -----------------------------------------------------------------------------------------
-        print("Python version:")
-        print(sys.version)
-        print()
-        print("PyTorch version:")
-        print(torch.__version__)
-        print()
-        # -----------------------------------------------------------------------------------------
+        self._potential = potential
 
         torch.manual_seed(seed)
 
@@ -56,15 +47,6 @@ class SolverGPE3D(object):
         self._y = torch.tensor(grid.y / self._units.unit_length, device=self._device)
         self._z = torch.tensor(grid.z / self._units.unit_length, device=self._device)
 
-        self._x_min = grid.x_min / self._units.unit_length
-        self._x_max = grid.x_max / self._units.unit_length
-
-        self._y_min = grid.y_min / self._units.unit_length
-        self._y_max = grid.y_max / self._units.unit_length
-
-        self._z_min = grid.z_min / self._units.unit_length
-        self._z_max = grid.z_max / self._units.unit_length
-
         self._Lx = grid.Lx / self._units.unit_length
         self._Ly = grid.Ly / self._units.unit_length
         self._Lz = grid.Lz / self._units.unit_length
@@ -77,57 +59,55 @@ class SolverGPE3D(object):
         self._dy = grid.dy / self._units.unit_length
         self._dz = grid.dz / self._units.unit_length
 
-        self._index_center_x = grid.index_center_x
-        self._index_center_y = grid.index_center_y
-        self._index_center_z = grid.index_center_z
-
         self._x_3d = torch.tensor(grid.x_3d / self._units.unit_length, device=self._device)
         self._y_3d = torch.tensor(grid.y_3d / self._units.unit_length, device=self._device)
         self._z_3d = torch.tensor(grid.z_3d / self._units.unit_length, device=self._device)
 
-        self._p = {'hbar': self._hbar,
-                   'mu_B': self._mu_B,
-                   'k_B': self._k_B,
-                   'm_atom': self._m_atom,
-                   'Lx': self._Lx,
-                   'Ly': self._Ly,
-                   'Lz': self._Lz}
+        # self._p = {'hbar': self._hbar,
+        #            'mu_B': self._mu_B,
+        #            'k_B': self._k_B,
+        #            'm_atom': self._m_atom,
+        #            'Lx': self._Lx,
+        #            'Ly': self._Ly,
+        #            'Lz': self._Lz}
 
-    def init_external_potential(self, compute_external_potential, parameters_potential):
-
-        self._compute_external_potential = compute_external_potential
-
-        for key, p in parameters_potential.items():
-
-            if type(p) is not tuple:
-
-                _value = p
-
-            else:
-
-                value = p[0]
-                unit = p[1]
-
-                if unit == 'm':
-                    _value = value / self._units.unit_length
-                elif unit == 's':
-                    _value = value / self._units.unit_time
-                elif unit == 'Hz':
-                    _value = value / self._units.unit_frequency
-                elif unit == 'J':
-                    _value = value / self._units.unit_energy
-                elif unit == 'J/m':
-                    _value = value * self._units.unit_length / self._units.unit_energy
-                else:
-                    raise Exception('unknown unit')
-
-            self._p[key] = _value
+    # def init_external_potential(self, compute_external_potential, parameters_potential):
+    #
+    #     self._compute_external_potential = compute_external_potential
+    #
+    #     for key, p in parameters_potential.items():
+    #
+    #         if type(p) is not tuple:
+    #
+    #             _value = p
+    #
+    #         else:
+    #
+    #             value = p[0]
+    #             unit = p[1]
+    #
+    #             if unit == 'm':
+    #                 _value = value / self._units.unit_length
+    #             elif unit == 's':
+    #                 _value = value / self._units.unit_time
+    #             elif unit == 'Hz':
+    #                 _value = value / self._units.unit_frequency
+    #             elif unit == 'J':
+    #                 _value = value / self._units.unit_energy
+    #             elif unit == 'J/m':
+    #                 _value = value * self._units.unit_length / self._units.unit_energy
+    #             else:
+    #                 raise Exception('unknown unit')
+    #
+    #         self._p[key] = _value
 
     def set_external_potential(self, *, t, u):
 
         _t = t / self._units.unit_time
 
-        self._V = self._compute_external_potential(self._x_3d, self._y_3d, self._z_3d, t, u, self._p)
+        _u = u
+
+        self._V = self._potential.compute_external_potential(_t, _u)
 
     def compute_ground_state_solution(self, *, n_atoms, n_iter, tau, adaptive_tau=True, return_residuals=False):
 
@@ -210,7 +190,7 @@ class SolverGPE3D(object):
 
                 u = 0.5 * (u_of_times[n] + u_of_times[n + 1])
 
-            self._V = self._compute_external_potential(self._x_3d, self._y_3d, self._z_3d, _t, u, self._p)
+            self._V = self._potential.compute_external_potential(_t, u)
 
             self._psi = qsolve_core.propagate_gpe_3d(
                 self._psi,
@@ -472,53 +452,7 @@ class SolverGPE3D(object):
     def psi(self, value):
         self._psi = torch.tensor(value / self._units.unit_wave_function, device=self._device)
 
-    @property
-    def x(self):
-        return self._units.unit_length * self._x.cpu().numpy()
 
-    @property
-    def y(self):
-        return self._units.unit_length * self._y.cpu().numpy()
-
-    @property
-    def z(self):
-        return self._units.unit_length * self._z.cpu().numpy()
-
-    @property
-    def dx(self):
-        return self._units.unit_length * self._dx
-
-    @property
-    def dy(self):
-        return self._units.unit_length * self._dy
-
-    @property
-    def dz(self):
-        return self._units.unit_length * self._dz
-
-    @property
-    def Jx(self):
-        return self._Jx
-
-    @property
-    def Jy(self):
-        return self._Jy
-
-    @property
-    def Jz(self):
-        return self._Jz
-
-    @property
-    def index_center_x(self):
-        return self._index_center_x
-
-    @property
-    def index_center_y(self):
-        return self._index_center_y
-
-    @property
-    def index_center_z(self):
-        return self._index_center_z
 
     @property
     def x_tof_free_gpe(self):

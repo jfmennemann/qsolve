@@ -1,5 +1,6 @@
 from qsolve.solvers import SolverGPE3D
 from qsolve.grids import Grid3D
+from qsolve.units import Units
 
 import mkl
 
@@ -17,10 +18,22 @@ from figures.figure_main.figure_main import FigureMain
 from figures.figure_tof.figure_tof import FigureTof
 from figures.figure_tof_extended.figure_tof_extended import FigureTofExtended
 
-from potential_lesanovsky_tilt_x import compute_external_potential
+from potential_lesanovsky_tilt_x import PotentialLesanovskyTiltX
 
 from evaluation import eval_data
 from evaluation import eval_data_tof
+
+# -----------------------------------------------------------------------------------------
+import sys
+import torch
+
+print("Python version:")
+print(sys.version)
+print()
+print("PyTorch version:")
+print(torch.__version__)
+print()
+# -----------------------------------------------------------------------------------------
 
 # -------------------------------------------------------------------------------------------------
 num_threads_cpu = 8
@@ -72,6 +85,8 @@ export_psi_of_times_analysis = False
 
 
 # =================================================================================================
+device = 'cuda:0'
+
 N = 3500
 
 u1_final = 0.56
@@ -123,15 +138,14 @@ y_max = +1.2e-6
 z_min = -60e-6
 z_max = +60e-6
 
-parameters_potential = {'g_F': -1/2,
-                        'm_F': -1,
-                        'm_F_prime': -1,
-                        'nu_perp': (3e3, 'Hz'),
-                        'nu_para': (22.5, 'Hz'),
-                        'nu_delta_detuning': (-50e3, 'Hz'),
-                        'nu_trap_bottom': (1216e3, 'Hz'),
-                        'nu_rabi_ref': (575e3, 'Hz'),
-                        'gamma_tilt_ref': (gamma_tilt_ref, 'J/m')}
+parameters_potential = {
+    'm_atom': m_atom,
+    'nu_perp': 3e3,
+    'nu_para': 22.5,
+    'nu_delta_detuning': -50e3,
+    'nu_trap_bottom': 1216e3,
+    'nu_rabi_ref': 575e3,
+    'gamma_tilt_ref': gamma_tilt_ref}
 
 params_figure_main = {
     'm_atom': m_atom,
@@ -229,23 +243,20 @@ if export_frames_figure_tof:
 # -------------------------------------------------------------------------------------------------
 
 
-# =================================================================================================
-# init spatial grid
-# =================================================================================================
+units = Units.solver_units(m_atom, dim=3)
 
 grid = Grid3D(x_min=x_min, x_max=x_max, y_min=y_min, y_max=y_max, z_min=z_min, z_max=z_max, Jx=Jx, Jy=Jy, Jz=Jz)
 
-
-# =================================================================================================
-# init solver
-# =================================================================================================
+potential = PotentialLesanovskyTiltX(grid=grid, units=units, device=device, parameters=parameters_potential)
 
 solver = SolverGPE3D(
+    units=units,
     grid=grid,
+    potential=potential,
+    device=device,
     m_atom=m_Rb_87,
     a_s=a_s,
     seed=1,
-    device='cuda:0',
     # device='cpu',
     num_threads_cpu=num_threads_cpu)
 
@@ -343,7 +354,7 @@ u_of_times[1, :] = u2_of_times
 # init external potential
 # =================================================================================================
 
-solver.init_external_potential(compute_external_potential, parameters_potential)
+# solver.init_external_potential(PotentialLesanovskyTiltX.compute_external_potential, parameters_potential)
 
 solver.set_external_potential(t=0.0, u=u_of_times[0])
 
@@ -382,7 +393,7 @@ if visualization:
     # ---------------------------------------------------------------------------------------------
 
     # ---------------------------------------------------------------------------------------------
-    data = eval_data(solver)
+    data = eval_data(solver, grid)
 
     figure_main.update_data(data)
 
@@ -418,7 +429,7 @@ if T > 0:
 
     while n_sgpe < n_sgpe_max:
 
-        data = eval_data(solver)
+        data = eval_data(solver, grid)
 
         print('----------------------------------------------------------------------------------------')
         print('n_sgpe: {0:4d} / {1:4d}'.format(n_sgpe, n_sgpe_max))
@@ -535,7 +546,7 @@ while True:
 
     t = times[n]
 
-    data = eval_data(solver)
+    data = eval_data(solver, grid)
 
     if export_psi_of_times_analysis:
 

@@ -3,52 +3,72 @@ from qsolve.potentials.components_3d.box_z_3d import eval_potential_box_z_3d
 
 import math
 
+import torch
 
-def compute_external_potential(x_3d, y_3d, z_3d, t, u, p):
+from scipy import constants
 
-    hbar = p["hbar"]
-    mu_B = p["mu_B"]
-    m_atom = p["m_atom"]
 
-    g_F = p["g_F"]
-    m_F = p["m_F"]
-    m_F_prime = p["m_F_prime"]
+hbar = constants.hbar
 
-    omega_perp = 2.0 * math.pi * p["nu_perp"]
-    omega_para = 2.0 * math.pi * p["nu_para"]
-    omega_delta_detuning = 2.0 * math.pi * p["nu_delta_detuning"]
-    omega_trap_bottom = 2.0 * math.pi * p["nu_trap_bottom"]
-    omega_rabi_ref = 2.0 * math.pi * p["nu_rabi_ref"]
+mu_B = constants.physical_constants["Bohr magneton"][0]
 
-    gamma_tilt_ref = p["gamma_tilt_ref"]
 
-    V_box_z_max = p["V_box_z_max"]
-    w_box_z = p["w_box_z"]
-    s_box_z = p["s_box_z"]
+class PotentialLesanovskyXYTiltXBoxZ(object):
 
-    omega_rabi = u[0] * omega_rabi_ref
+    def __init__(self, *, grid, units, device, parameters):
 
-    V_lesanovsky = eval_potential_lesanovsky_xy_3d(
-        x_3d,
-        y_3d,
-        z_3d,
-        g_F,
-        m_F,
-        m_F_prime,
-        omega_perp,
-        omega_para,
-        omega_delta_detuning,
-        omega_trap_bottom,
-        omega_rabi,
-        hbar,
-        mu_B,
-        m_atom)
+        self._units = units
 
-    V_tilt_x = -1.0 * u[1] * gamma_tilt_ref * x_3d
+        self._x_3d = torch.tensor(grid.x_3d / self._units.unit_length, device=device)
+        self._y_3d = torch.tensor(grid.y_3d / self._units.unit_length, device=device)
+        self._z_3d = torch.tensor(grid.z_3d / self._units.unit_length, device=device)
 
-    z1 = w_box_z / 2.0
-    z2 = -w_box_z / 2.0
+        self._hbar = hbar / self._units.unit_hbar
+        self._mu_B = mu_B / self._units.unit_bohr_magneton
 
-    V_box_z = V_box_z_max * eval_potential_box_z_3d(z_3d, z1, z2, s_box_z)
+        self._g_F = -1/2
+        self._m_F = -1
+        self._m_F_prime = -1
 
-    return V_lesanovsky + V_tilt_x + V_box_z
+        self._m_atom = parameters["m_atom"] / self._units.unit_mass
+
+        self._omega_perp = 2.0 * math.pi * parameters["nu_perp"] / self._units.unit_frequency
+        self._omega_para = 2.0 * math.pi * parameters["nu_para"] / self._units.unit_frequency
+        self._omega_delta_detuning = 2.0 * math.pi * parameters["nu_delta_detuning"] / self._units.unit_frequency
+        self._omega_trap_bottom = 2.0 * math.pi * parameters["nu_trap_bottom"] / self._units.unit_frequency
+        self._omega_rabi_ref = 2.0 * math.pi * parameters["nu_rabi_ref"] / self._units.unit_frequency
+
+        self._gamma_tilt_ref = parameters["gamma_tilt_ref"] * self._units.unit_length / self._units.unit_energy
+
+        self._V_box_z_max = parameters["V_box_z_max"] / self._units.unit_energy
+        self._w_box_z = parameters["w_box_z"] / self._units.unit_length
+        self._s_box_z = parameters["s_box_z"]
+
+    def compute_external_potential(self, t, u):
+
+        _omega_rabi = u[0] * self._omega_rabi_ref
+
+        V_lesanovsky = eval_potential_lesanovsky_xy_3d(
+                    self._x_3d,
+                    self._y_3d,
+                    self._z_3d,
+                    self._g_F,
+                    self._m_F,
+                    self._m_F_prime,
+                    self._omega_perp,
+                    self._omega_para,
+                    self._omega_delta_detuning,
+                    self._omega_trap_bottom,
+                    _omega_rabi,
+                    self._hbar,
+                    self._mu_B,
+                    self._m_atom)
+
+        V_tilt_x = -1.0 * u[1] * self._gamma_tilt_ref * self._x_3d
+
+        z1 = self._w_box_z / 2.0
+        z2 = -self._w_box_z / 2.0
+
+        V_box_z = self._V_box_z_max * eval_potential_box_z_3d(self._z_3d, z1, z2, self._s_box_z)
+
+        return V_lesanovsky + V_tilt_x + V_box_z

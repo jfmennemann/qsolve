@@ -101,17 +101,17 @@ def compute_number_imbalance(psi, dx, dy, dz, index_center_x):
     return number_imbalance
 
 
-def eval_data(solver):
+def eval_data(solver, grid):
 
-    dx = solver.dx
-    dy = solver.dy
-    dz = solver.dz
+    dx = grid.dx
+    dy = grid.dy
+    dz = grid.dz
 
-    Jx = solver.Jx
+    Jx = grid.Jx
 
-    index_center_x = solver.index_center_x
-    index_center_y = solver.index_center_y
-    index_center_z = solver.index_center_z
+    index_center_x = grid.index_center_x
+    index_center_y = grid.index_center_y
+    index_center_z = grid.index_center_z
 
     data = type('', (), {})()
 
@@ -221,8 +221,6 @@ def eval_data(solver):
 def eval_data_tof(solver):
 
     data_tof = type('', (), {})()
-
-
 
     # time_1 = time()
     # psi_f_tof_free_schroedinger = solver.psi_f_tof_free_schroedinger

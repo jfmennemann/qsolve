@@ -1,5 +1,6 @@
 from qsolve.solvers import SolverGPE3D
 from qsolve.grids import Grid3D
+from qsolve.units import Units
 
 import mkl
 
@@ -15,7 +16,7 @@ import matplotlib.pyplot as plt
 
 from figures.figure_main.figure_main import FigureMain
 
-from potential_lesanovsky_xy_tilt_x import compute_external_potential
+from potential_lesanovsky_xy_tilt_x import PotentialLesanovskyXYTiltX
 
 from evaluation import eval_data
 
@@ -96,6 +97,8 @@ else:
 
 m_Rb_87 = 87 * amu
 
+m_atom = m_Rb_87
+
 Jx = 2*28
 Jy = 2*12
 Jz = 4*60
@@ -115,15 +118,15 @@ z_max = +60e-6
 
 a_s = 5.24e-9
 
-parameters_potential = {'g_F': -1/2,
-                        'm_F': -1,
-                        'm_F_prime': -1,
-                        'nu_perp': (3e3, 'Hz'),
-                        'nu_para': (22.5, 'Hz'),
-                        'nu_delta_detuning': (-50e3, 'Hz'),
-                        'nu_trap_bottom': (1216e3, 'Hz'),
-                        'nu_rabi_ref': (575e3, 'Hz'),
-                        'gamma_tilt_ref': (gamma_tilt_ref, 'J/m')}
+
+parameters_potential = {
+    'm_atom': m_atom,
+    'nu_perp': 3e3,
+    'nu_para': 22.5,
+    'nu_delta_detuning': -50e3,
+    'nu_trap_bottom': 1216e3,
+    'nu_rabi_ref': 575e3,
+    'gamma_tilt_ref': gamma_tilt_ref}
 
 params_figure_main = {
     'm_atom': m_Rb_87,
@@ -133,6 +136,8 @@ params_figure_main = {
     'V_max': 11.0,
     'abs_z_restr': 100e-6
 }
+
+device='cuda:0'
 # =================================================================================================
 
 # -------------------------------------------------------------------------------------------------
@@ -166,23 +171,22 @@ if export_frames_figure_main:
 # -------------------------------------------------------------------------------------------------
 
 
-# =================================================================================================
-# init spatial grid
-# =================================================================================================
+units = Units.solver_units(m_atom, dim=3)
 
 grid = Grid3D(x_min=x_min, x_max=x_max, y_min=y_min, y_max=y_max, z_min=z_min, z_max=z_max, Jx=Jx, Jy=Jy, Jz=Jz)
 
+potential = PotentialLesanovskyXYTiltX(grid=grid, units=units, device=device, parameters=parameters_potential)
 
-# =================================================================================================
-# init solver
-# =================================================================================================
-
-solver = SolverGPE3D(grid=grid,
-                     m_atom=m_Rb_87,
-                     a_s=a_s,
-                     seed=1,
-                     device='cuda:0',
-                     num_threads_cpu=num_threads_cpu)
+solver = SolverGPE3D(
+    units=units,
+    grid=grid,
+    potential=potential,
+    device=device,
+    m_atom=m_Rb_87,
+    a_s=a_s,
+    seed=1,
+    # device='cpu',
+    num_threads_cpu=num_threads_cpu)
 
 
 # =================================================================================================
@@ -278,8 +282,6 @@ u_of_times[1, :] = u2_of_times
 # init external potential
 # =================================================================================================
 
-solver.init_external_potential(compute_external_potential, parameters_potential)
-
 solver.set_external_potential(t=0.0, u=u_of_times[0])
 
 
@@ -316,7 +318,7 @@ if visualization:
     # ---------------------------------------------------------------------------------------------
 
     # ---------------------------------------------------------------------------------------------
-    data = eval_data(solver)
+    data = eval_data(solver, grid)
 
     figure_main.update_data(data)
 
@@ -352,7 +354,7 @@ if T > 0:
 
     while n_sgpe < n_sgpe_max:
 
-        data = eval_data(solver)
+        data = eval_data(solver, grid)
 
         print('----------------------------------------------------------------------------------------')
         print('n_sgpe: {0:4d} / {1:4d}'.format(n_sgpe, n_sgpe_max))
@@ -449,7 +451,7 @@ while True:
 
     t = times[n]
 
-    data = eval_data(solver)
+    data = eval_data(solver, grid)
 
     if export_psi_of_times_analysis:
 
