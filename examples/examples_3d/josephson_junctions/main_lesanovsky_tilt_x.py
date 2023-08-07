@@ -2,6 +2,8 @@ from qsolve.solvers import SolverGPE3D
 from qsolve.grids import Grid3D
 from qsolve.units import Units
 
+from potential_lesanovsky_tilt_x import PotentialLesanovskyTiltX
+
 import mkl
 
 import os
@@ -18,12 +20,10 @@ from figures.figure_main.figure_main import FigureMain
 from figures.figure_tof.figure_tof import FigureTof
 from figures.figure_tof_extended.figure_tof_extended import FigureTofExtended
 
-from potential_lesanovsky_tilt_x import PotentialLesanovskyTiltX
-
 from evaluation import eval_data
 from evaluation import eval_data_tof
 
-# -----------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------------------
 import sys
 import torch
 
@@ -33,7 +33,7 @@ print()
 print("PyTorch version:")
 print(torch.__version__)
 print()
-# -----------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------------------
 
 # -------------------------------------------------------------------------------------------------
 num_threads_cpu = 8
@@ -351,10 +351,8 @@ u_of_times[1, :] = u2_of_times
 
 
 # =================================================================================================
-# init external potential
+# set external potential
 # =================================================================================================
-
-# solver.init_external_potential(PotentialLesanovskyTiltX.compute_external_potential, parameters_potential)
 
 solver.set_external_potential(t=0.0, u=u_of_times[0])
 
