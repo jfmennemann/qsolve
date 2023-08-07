@@ -21,17 +21,17 @@ from qsolve.figures.style import colors
 
 class FigureMain2D(object):
 
-    def __init__(self, x, y, times, params):
+    def __init__(self, x, y, times, parameters):
 
         hbar = constants.hbar
 
-        m_atom = params['m_atom']
+        m_atom = parameters['m_atom']
 
-        density_min = -0.2 * params["density_max"]
-        density_max = +1.2 * params["density_max"]
+        density_min = -0.2 * parameters["density_max"]
+        density_max = +1.2 * parameters["density_max"]
 
-        V_min = params['V_min']
-        V_max = params['V_max']
+        V_min = parameters['V_min']
+        V_max = parameters['V_max']
 
         x = x / 1e-6
         y = y / 1e-6
@@ -59,10 +59,10 @@ class FigureMain2D(object):
         Lx = Jx * dx
         Ly = Jy * dy
 
-        x_ticks = params['x_ticks']
-        y_ticks = params['y_ticks']
+        x_ticks = parameters['x_ticks']
+        y_ticks = parameters['y_ticks']
 
-        t_ticks_major = params['t_ticks']
+        t_ticks_major = parameters['t_ticks']
 
         # -----------------------------------------------------------------------------------------
         t_ticks_minor = 0.5 * (t_ticks_major[0:-1] + t_ticks_major[1:])
@@ -225,9 +225,7 @@ class FigureMain2D(object):
         # drawing updated values
         self.fig.canvas.draw()
 
-        # This will run the GUI event
-        # loop until all UI events
-        # currently waiting have been processed
+        # This will run the GUI event loop until all UI events currently waiting have been processed
         self.fig.canvas.flush_events()
 
         # time.sleep(0.1)

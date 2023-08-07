@@ -10,8 +10,8 @@ class fig_control_inputs(object):
         self.line_u1_of_times, = ax.plot(settings.times, np.zeros_like(settings.times), linewidth=0.75,
                                          linestyle='-', color=colors.wet_asphalt, label=r'$u_1$')
 
-        # self.line_u2_of_times, = ax.plot(settings.times, np.zeros_like(settings.times), linewidth=1,
-        # linestyle='--', color=colors.wet_asphalt, label=r'$u_2$')
+        self.line_u2_of_times, = ax.plot(settings.times, np.zeros_like(settings.times), linewidth=1,
+                                         linestyle='--', color=colors.wet_asphalt, label=r'$u_2$')
 
         self.line_t_indicator, = ax.plot([0, 0], [-0.25, 1.25], linewidth=1, linestyle='--', color=colors.wet_asphalt)
 
@@ -33,10 +33,13 @@ class fig_control_inputs(object):
 
         ax.legend(loc='upper right', bbox_to_anchor=(1.0, 1.0), ncol=1, framealpha=1.0, fancybox=False)
 
-    def update_u(self, u1_of_times):
+    def update_u(self, u_of_times):
+
+        u1_of_times = u_of_times[0, :]
+        u2_of_times = u_of_times[1, :]
 
         self.line_u1_of_times.set_ydata(u1_of_times)
-        # self.line_u2_of_times.set_ydata(u2_of_times)
+        self.line_u2_of_times.set_ydata(u2_of_times)
 
     def update_t(self, t):
 

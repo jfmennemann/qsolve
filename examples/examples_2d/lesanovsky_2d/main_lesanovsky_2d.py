@@ -16,8 +16,6 @@ import numpy as np
 
 import scipy
 
-from scipy.interpolate import pchip_interpolate
-
 import matplotlib.pyplot as plt
 
 import h5py
@@ -108,10 +106,6 @@ m_atom = m_Rb_87
 
 a_s = 5.24e-9
 
-# Jx = 2 * 28
-# Jy = 2 * 12
-# Jz = 4 * 60
-
 Jx = 2 * 28
 Jy = 4 * 60
 
@@ -121,9 +115,6 @@ n_mod_times_analysis = 100
 
 x_min = -2.8e-6
 x_max = +2.8e-6
-
-# y_min = -1.2e-6
-# y_max = +1.2e-6
 
 y_min = -60e-6
 y_max = +60e-6
@@ -366,15 +357,15 @@ params_figure_main = {
     "m_atom": m_Rb_87,
     "x_ticks": [-2, -1, 0, 1, 2],
     "y_ticks": [-60, -40, -20, 0, 20, 40, 60],
-    "t_ticks": np.array([0, 4, 8, 12, 16])
+    "t_ticks": np.array([0, 10, 20, 30, 40, 50, 60, 70, 80])
 }
 
 # ---------------------------------------------------------------------------------------------
 figure_main = FigureMain2D(grid.x, grid.y, times, params_figure_main)
 
-# figure_main.fig_control_inputs.update_u(u_of_times)
+figure_main.fig_control_inputs.update_u(u_of_times)
 
-# figure_main.fig_control_inputs.update_t(0.0)
+figure_main.fig_control_inputs.update_t(0.0)
 # ---------------------------------------------------------------------------------------------
 
 
