@@ -181,7 +181,7 @@ solver = SolverGPE2D(
     device=device,
     m_atom=m_Rb_87,
     a_s=5.24e-9,
-    omega_z=2*np.pi*1e3,
+    omega_z=2*np.pi*parameters_potential['nu_perp'],
     seed=1,
     num_threads_cpu=num_threads_cpu)
 

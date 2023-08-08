@@ -14,8 +14,13 @@ class fig_density_y(object):
         self.m_atom = settings.m_atom
 
         # -----------------------------------------------------------------------------------------
-        self.line_density_y, = ax.plot(settings.y, zeros_like(settings.y), linewidth=1, linestyle='-',
-                                          color=colors.wet_asphalt, label=r'$\rho$')
+        self.line_density_y_x1, = ax.plot(
+            settings.y, zeros_like(settings.y), linewidth=1, linestyle='-',
+            color=colors.wet_asphalt, label=r'$\rho_1(y)$')
+
+        self.line_density_y_x2, = ax.plot(
+            settings.y, zeros_like(settings.y), linewidth=1, linestyle='--',
+            color=colors.wet_asphalt, label=r'$\rho_2(y)$')
 
         ax.set_xlim(settings.y_min, settings.y_max)
         
@@ -27,7 +32,8 @@ class fig_density_y(object):
         
         ax.grid(visible=True, which='major', color=settings.color_gridlines_major, linestyle='-', linewidth=0.5)
         
-        ax.set_ylabel(settings.label_density)
+        # ax.set_ylabel(settings.label_density)
+        ax.set_ylabel(r'$\mathrm{m}^{-2}$')
 
         ax.set_title(r'$x=0$', fontsize=settings.fontsize_titles)
         # -----------------------------------------------------------------------------------------
@@ -35,8 +41,13 @@ class fig_density_y(object):
         # -----------------------------------------------------------------------------------------
         ax2 = ax.twinx()
 
-        self.line_V_y, = ax2.plot(settings.y, zeros_like(settings.y), linewidth=settings.linewidth_V, linestyle='-',
-                                     color=settings.linecolor_V, label=r'$V$')
+        self.line_V_y_x1, = ax2.plot(
+            settings.y, zeros_like(settings.y), linewidth=settings.linewidth_V, linestyle='-',
+            color=settings.linecolor_V, label=r'$V_1(y)$')
+
+        # self.line_V_y_x2, = ax2.plot(
+        #     settings.y, zeros_like(settings.y), linewidth=settings.linewidth_V, linestyle='--',
+        #     color=settings.linecolor_V, label=r'$V_2(y)$')
 
         ax2.set_xlim(settings.y_min, settings.y_max)
         ax2.set_ylim(settings.V_min, settings.V_max)
@@ -51,12 +62,12 @@ class fig_density_y(object):
                    loc='upper right', bbox_to_anchor=(1.0, 1.25), fancybox=True, framealpha=1, ncol=1)
         # -----------------------------------------------------------------------------------------
 
-    def update(self, density_y, V_y):
+    def update(self, density_y_x1, density_y_x2, V_y_x1, V_y_x2):
 
         scaling_V = self.hbar * 2 * pi * 1000
 
-        V_y = V_y / scaling_V
+        self.line_density_y_x1.set_ydata(density_y_x1)
+        self.line_density_y_x2.set_ydata(density_y_x2)
 
-        self.line_density_y.set_ydata(density_y)
-
-        self.line_V_y.set_ydata(V_y)
+        self.line_V_y_x1.set_ydata(V_y_x1 / scaling_V)
+        # self.line_V2.set_ydata(V_y_x2 / scaling_V)

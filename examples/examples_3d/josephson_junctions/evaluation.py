@@ -194,11 +194,11 @@ def eval_data(solver, grid):
     # ---------------------------------------------------------------------------------------------
 
     # ---------------------------------------------------------------------------------------------
-    data.global_phase_difference = compute_global_phase_difference(psi, index_center_x)
+    data.number_imbalance = compute_number_imbalance(psi, dx, dy, dz, index_center_x)
     # ---------------------------------------------------------------------------------------------
 
     # ---------------------------------------------------------------------------------------------
-    data.number_imbalance = compute_number_imbalance(psi, dx, dy, dz, index_center_x)
+    data.global_phase_difference = compute_global_phase_difference(psi, index_center_x)
     # ---------------------------------------------------------------------------------------------
 
     # ---------------------------------------------------------------------------------------------

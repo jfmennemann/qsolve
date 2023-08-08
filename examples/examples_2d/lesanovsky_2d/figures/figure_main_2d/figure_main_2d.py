@@ -205,7 +205,9 @@ class FigureMain2D(object):
         self.fig_density.update(data.density)
 
         self.fig_density_x.update(data.density_x, data.V_x)
-        self.fig_density_y.update(data.density_y, data.V_y)
+
+        # self.fig_density_y.update(data.density_y, data.V_y)
+        self.fig_density_y.update(data.density_y_x1, data.density_y_x2, data.V_y_x1, data.V_y_x2)
 
         self.fig_real_part.update(data.psi)
 
