@@ -501,14 +501,14 @@ data_time_evolution = type('', (), {})()
 
 if export_psi_of_times_analysis:
 
-    data_time_evolution.psi_of_times_analysis = np.zeros((n_times_analysis, Jx, Jy, Jz), dtype=np.complex128)
+    data_time_evolution.psi_of_times_analysis = np.zeros(shape=(n_times_analysis, Jx, Jy, Jz), dtype=np.complex128)
 
 else:
 
     data_time_evolution.psi_of_times_analysis = None
 
-data_time_evolution.global_phase_difference_of_times_analysis = np.zeros((n_times_analysis,), dtype=np.float64)
-data_time_evolution.number_imbalance_of_times_analysis = np.zeros((n_times_analysis,), dtype=np.float64)
+data_time_evolution.global_phase_difference_of_times_analysis = np.zeros(shape=(n_times_analysis,), dtype=np.float64)
+data_time_evolution.number_imbalance_of_times_analysis = np.zeros(shape=(n_times_analysis,), dtype=np.float64)
 
 data_time_evolution.times_analysis = times_analysis
 # -------------------------------------------------------------------------------------------------

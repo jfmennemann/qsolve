@@ -16,6 +16,8 @@ from .fig_real_part_y import fig_real_part_y
 
 from .fig_control_inputs import fig_control_inputs
 
+from .fig_global_phase_difference import fig_global_phase_difference
+
 from qsolve.figures.style import colors
 
 
@@ -171,6 +173,7 @@ class FigureMain2D(object):
         ax_31 = self.fig.add_subplot(self.gridspec[3, 1])
 
         ax_02 = self.fig.add_subplot(self.gridspec[0, 2])
+        ax_12 = self.fig.add_subplot(self.gridspec[1, 2])
         # -----------------------------------------------------------------------------------------
 
         # -----------------------------------------------------------------------------------------
@@ -185,12 +188,10 @@ class FigureMain2D(object):
 
         self.fig_real_part_x = fig_real_part_x(ax_31, settings)
 
-
         self.fig_density_x = fig_density_x(ax_11, settings)
 
-
-
         self.fig_control_inputs = fig_control_inputs(ax_02, settings)
+        self.fig_global_phase_difference = fig_global_phase_difference(ax_12, settings)
         # -----------------------------------------------------------------------------------------
 
         # -----------------------------------------------------------------------------------------
@@ -214,6 +215,23 @@ class FigureMain2D(object):
         self.fig_real_part_x.update(data.real_part_x, data.imag_part_x, data.V_x)
 
         self.fig_real_part_y.update(data.real_part_y, data.imag_part_y, data.V_y)
+
+    def update_data_time_evolution(self, data_time_evolution):
+
+        global_phase_difference_of_times_analysis = data_time_evolution.global_phase_difference_of_times_analysis
+        number_imbalance_of_times_analysis = data_time_evolution.number_imbalance_of_times_analysis
+
+        times_analysis = data_time_evolution.times_analysis
+
+        nr_times_analysis = data_time_evolution.nr_times_analysis
+
+        self.fig_global_phase_difference.update(global_phase_difference_of_times_analysis,
+                                                times_analysis,
+                                                nr_times_analysis)
+
+        # self.fig_number_imbalance.update(number_imbalance_of_times_analysis,
+        #                                  times_analysis,
+        #                                  nr_times_analysis)
 
     def redraw(self):
 

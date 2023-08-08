@@ -74,7 +74,8 @@ device = 'cuda:0'
 
 n_atoms = 3500
 
-u1_final = 0.56
+# u1_final = 0.56
+u1_final = 0.54
 
 if quickstart:
 
@@ -373,9 +374,16 @@ figure_main.fig_control_inputs.update_t(0.0)
 # compute time evolution
 # =================================================================================================
 
+data_time_evolution = type('', (), {})()
+
+data_time_evolution.global_phase_difference_of_times_analysis = np.zeros(shape=(n_times_analysis,), dtype=np.float64)
+data_time_evolution.number_imbalance_of_times_analysis = np.zeros(shape=(n_times_analysis,), dtype=np.float64)
+
+data_time_evolution.times_analysis = times_analysis
+
 if export_psi_of_times_analysis:
 
-    psi_of_times_analysis = np.zeros((n_times_analysis, Jx, Jy), dtype=np.complex128)
+    psi_of_times_analysis = np.zeros(shape=(n_times_analysis, Jx, Jy), dtype=np.complex128)
 
 else:
 
@@ -394,6 +402,11 @@ while True:
 
     data = eval_data(solver, grid)
 
+    data_time_evolution.global_phase_difference_of_times_analysis[nr_times_analysis] = data.global_phase_difference
+    data_time_evolution.number_imbalance_of_times_analysis[nr_times_analysis] = data.number_imbalance
+
+    data_time_evolution.nr_times_analysis = nr_times_analysis
+
     if export_psi_of_times_analysis:
 
         psi_of_times_analysis[nr_times_analysis, :] = data.psi
@@ -404,6 +417,8 @@ while True:
     figure_main.update_data(data)
 
     figure_main.fig_control_inputs.update_t(t)
+
+    figure_main.update_data_time_evolution(data_time_evolution)
 
     figure_main.redraw()
 
