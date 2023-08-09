@@ -312,8 +312,8 @@ print()
 params_figure_main = {
     "density_max":  2e+14,
     "density_z_eff_max": 400,
-    "V_min": -0.5,
-    "V_max": +4.5,
+    "V_min": 0,
+    "V_max": 4,
     "sigma_z_min": 0.2,
     "sigma_z_max": 0.6,
     "m_atom": m_Rb_87,

@@ -1,7 +1,11 @@
+import matplotlib.pyplot as plt
+
 import numpy as np
 
+cmap_phase = plt.get_cmap('PRGn')
 
-class fig_phase_difference_xy(object):
+
+class FigPhaseDifference(object):
 
     def __init__(self, ax, settings):
 
@@ -14,7 +18,7 @@ class fig_phase_difference_xy(object):
         ax.set_xticks(settings.y_ticks)
         ax.set_yticks(settings.x_ticks)
 
-        phase_difference_xy = np.zeros((Jx, Jy))
+        phase_difference = np.zeros((Jx, Jy))
 
         left = settings.y_min
         right = settings.y_max
@@ -22,18 +26,18 @@ class fig_phase_difference_xy(object):
         bottom = settings.x_min
         top = settings.x_max
 
-        ax.set_anchor('W')
-
-        self.image_phase_difference_xy = ax.imshow(
-            phase_difference_xy,
+        self.image = ax.imshow(
+            phase_difference,
             extent=[left, right, bottom, top],
-            cmap=settings.cmap_phase,
-            aspect='equal',
+            cmap=cmap_phase,
+            aspect='auto',
             interpolation='bilinear',
             vmin=-1,
             vmax=1,
             origin='lower')
 
-    def update(self, phase_difference_xy):
+        ax.set_title(r'phase difference (weighted)', fontsize=settings.fontsize_titles)
 
-        self.image_phase_difference_xy.set_data(phase_difference_xy)
+    def update(self, phase_difference):
+
+        self.image.set_data(phase_difference)

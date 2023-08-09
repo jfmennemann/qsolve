@@ -5,14 +5,12 @@ from scipy import constants
 import numpy as np
 
 from .fig_density import fig_density
+from .fig_phase_difference import FigPhaseDifference
 
 from .fig_density_x import fig_density_x
 from .fig_density_y import fig_density_y
 
-from .fig_real_part import fig_real_part
-
-from .fig_real_part_x import fig_real_part_x
-from .fig_real_part_y import fig_real_part_y
+from .fig_phase_difference_y_x1_x2 import FigPhaseDifferenceYX1X2
 
 from .fig_control_inputs import fig_control_inputs
 
@@ -30,14 +28,16 @@ class FigureMain2D(object):
 
         m_atom = parameters['m_atom']
 
-        density_min = -0.2 * parameters["density_max"]
-        density_max = +1.2 * parameters["density_max"]
+        density_min = 0
+        density_max = parameters["density_max"]
 
         V_min = parameters['V_min']
         V_max = parameters['V_max']
 
         x = x / 1e-6
         y = y / 1e-6
+
+        indices_y_restr = np.abs(y) < 32.5
 
         times = times / 1e-3
 
@@ -86,7 +86,7 @@ class FigureMain2D(object):
         settings.V_min = V_min
         settings.V_max = V_max
 
-        # settings.indices_y_restr = indices_y_restr
+        settings.indices_y_restr = indices_y_restr
 
         settings.x = x
         settings.y = y
@@ -111,12 +111,10 @@ class FigureMain2D(object):
         settings.t_ticks_major = t_ticks_major
         settings.t_ticks_minor = t_ticks_minor
 
-        # settings.label_V = r'$V \;\, \mathrm{in} \;\, h \times \mathrm{kHz}$'
         settings.label_V = r'$h \times \mathrm{kHz}$'
         settings.linecolor_V = colors.alizarin
         settings.linewidth_V = 1.1
 
-        # settings.label_density = r'$\mathrm{density} \;\, \mathrm{in} \;\, \mathrm{m}^{-2}$'
         settings.label_density = r'$\mathrm{m}^{-2}$'
 
         settings.label_x = r'$x \;\, \mathrm{in} \;\, \mu \mathrm{m}$'
@@ -171,7 +169,7 @@ class FigureMain2D(object):
         ax_30 = self.fig.add_subplot(self.gridspec[3, 0])
 
         ax_11 = self.fig.add_subplot(self.gridspec[1, 1])
-        ax_31 = self.fig.add_subplot(self.gridspec[3, 1])
+        # ax_31 = self.fig.add_subplot(self.gridspec[3, 1])
 
         ax_02 = self.fig.add_subplot(self.gridspec[0, 2])
         ax_12 = self.fig.add_subplot(self.gridspec[1, 2])
@@ -180,15 +178,10 @@ class FigureMain2D(object):
 
         # -----------------------------------------------------------------------------------------
         self.fig_density = fig_density(ax_00, settings)
-
         self.fig_density_y = fig_density_y(ax_10, settings)
+        self.fig_phase_difference = FigPhaseDifference(ax_20, settings)
 
-        self.fig_real_part = fig_real_part(ax_20, settings)
-
-        self.fig_real_part_y = fig_real_part_y(ax_30, settings)
-
-
-        self.fig_real_part_x = fig_real_part_x(ax_31, settings)
+        self.fig_phase_difference_y_x1_x2 = FigPhaseDifferenceYX1X2(ax_30, settings)
 
         self.fig_density_x = fig_density_x(ax_11, settings)
 
@@ -210,14 +203,11 @@ class FigureMain2D(object):
 
         self.fig_density_x.update(data.density_x, data.V_x)
 
-        # self.fig_density_y.update(data.density_y, data.V_y)
         self.fig_density_y.update(data.density_y_x1, data.density_y_x2, data.V_y_x1, data.V_y_x2)
 
-        self.fig_real_part.update(data.psi)
+        self.fig_phase_difference.update(data.phase_difference)
 
-        self.fig_real_part_x.update(data.real_part_x, data.imag_part_x, data.V_x)
-
-        self.fig_real_part_y.update(data.real_part_y, data.imag_part_y, data.V_y)
+        self.fig_phase_difference_y_x1_x2.update(data.phase_difference_y_x1_x2)
 
     def update_data_time_evolution(self, data_time_evolution):
 

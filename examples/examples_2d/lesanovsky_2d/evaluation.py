@@ -190,8 +190,14 @@ def eval_data(solver, grid):
     data.global_phase_difference = compute_global_phase_difference(psi, index_center_x)
     # ---------------------------------------------------------------------------------------------
 
-    print('number_imbalance: {0:f}'.format(data.number_imbalance))
-    print('global_phase_difference: {0:f}'.format(data.global_phase_difference))
-    print()
+    # ---------------------------------------------------------------------------------------------
+    phase_difference = compute_phase_difference(psi)
+
+    data.phase_difference = (data.density / np.max(data.density)) * phase_difference
+    # ---------------------------------------------------------------------------------------------
+
+    # ---------------------------------------------------------------------------------------------
+    data.phase_difference_y_x1_x2 = compute_phase_difference_y_x1_x2(psi_y_x1, psi_y_x2)
+    # ---------------------------------------------------------------------------------------------
 
     return data

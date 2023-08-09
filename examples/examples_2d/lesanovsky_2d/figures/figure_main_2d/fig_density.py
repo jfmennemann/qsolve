@@ -32,7 +32,7 @@ class fig_density(object):
             vmax=1,
             origin='lower')
 
-        ax.set_title(r'$\rho$ (scaled)', fontsize=settings.fontsize_titles)
+        ax.set_title(r'density (scaled)', fontsize=settings.fontsize_titles)
 
     def update(self, density):
 
