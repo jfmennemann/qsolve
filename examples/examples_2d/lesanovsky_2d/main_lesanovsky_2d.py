@@ -74,8 +74,7 @@ device = 'cuda:0'
 
 n_atoms = 3500
 
-# u1_final = 0.56
-u1_final = 0.54
+u1_final = 0.56
 
 if quickstart:
 
@@ -187,43 +186,6 @@ solver = SolverGPE2D(
     num_threads_cpu=num_threads_cpu)
 
 
-# # =================================================================================================
-# # init time evolution
-# # =================================================================================================
-#
-# # -------------------------------------------------------------------------------------------------
-# n_time_steps = int(np.round(t_final / dt))
-#
-# n_times = n_time_steps + 1
-#
-# assert (np.abs(n_time_steps * dt - t_final)) < 1e-14
-#
-# times = dt * np.arange(n_times)
-#
-# assert (np.abs(times[-1] - t_final)) < 1e-14
-# # -------------------------------------------------------------------------------------------------
-#
-# # -------------------------------------------------------------------------------------------------
-# n_mod_times_analysis = 50
-#
-# times_analysis = times[0::n_mod_times_analysis]
-#
-# n_times_analysis = times_analysis.size
-#
-# assert (np.abs(times_analysis[-1] - t_final) / t_final < 1e-14)
-# # -------------------------------------------------------------------------------------------------
-#
-#
-# # =================================================================================================
-# # init control inputs
-# # =================================================================================================
-#
-# vec_t = np.array([0.0, 0.1, 0.2, 1.0]) * t_final
-# vec_u = np.array([1.0, 1.0, 0.0, 0.0])
-#
-# u_of_times = pchip_interpolate(vec_t, vec_u, times)
-
-
 # =================================================================================================
 # init time evolution
 # =================================================================================================
@@ -241,7 +203,6 @@ assert (np.abs(times[-1] - t_final)) < 1e-14
 # -------------------------------------------------------------------------------------------------
 
 # -------------------------------------------------------------------------------------------------
-
 times_analysis = times[0::n_mod_times_analysis]
 
 n_times_analysis = times_analysis.size
@@ -379,6 +340,11 @@ data_time_evolution = type('', (), {})()
 data_time_evolution.global_phase_difference_of_times_analysis = np.zeros(shape=(n_times_analysis,), dtype=np.float64)
 data_time_evolution.number_imbalance_of_times_analysis = np.zeros(shape=(n_times_analysis,), dtype=np.float64)
 
+# print(times_analysis)
+# print(n_times_analysis)
+# print(times_analysis.size)
+# input()
+
 data_time_evolution.times_analysis = times_analysis
 
 if export_psi_of_times_analysis:
@@ -442,8 +408,6 @@ while True:
     else:
 
         break
-
-    n = n + n_inc
 
 
 if export_hdf5:

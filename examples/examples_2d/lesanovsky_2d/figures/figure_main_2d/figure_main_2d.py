@@ -17,6 +17,7 @@ from .fig_real_part_y import fig_real_part_y
 from .fig_control_inputs import fig_control_inputs
 
 from .fig_global_phase_difference import fig_global_phase_difference
+from .fig_number_imbalance import fig_number_imbalance
 
 from qsolve.figures.style import colors
 
@@ -174,6 +175,7 @@ class FigureMain2D(object):
 
         ax_02 = self.fig.add_subplot(self.gridspec[0, 2])
         ax_12 = self.fig.add_subplot(self.gridspec[1, 2])
+        ax_22 = self.fig.add_subplot(self.gridspec[2, 2])
         # -----------------------------------------------------------------------------------------
 
         # -----------------------------------------------------------------------------------------
@@ -192,6 +194,7 @@ class FigureMain2D(object):
 
         self.fig_control_inputs = fig_control_inputs(ax_02, settings)
         self.fig_global_phase_difference = fig_global_phase_difference(ax_12, settings)
+        self.fig_number_imbalance = fig_number_imbalance(ax_22, settings)
         # -----------------------------------------------------------------------------------------
 
         # -----------------------------------------------------------------------------------------
@@ -229,9 +232,9 @@ class FigureMain2D(object):
                                                 times_analysis,
                                                 nr_times_analysis)
 
-        # self.fig_number_imbalance.update(number_imbalance_of_times_analysis,
-        #                                  times_analysis,
-        #                                  nr_times_analysis)
+        self.fig_number_imbalance.update(number_imbalance_of_times_analysis,
+                                         times_analysis,
+                                         nr_times_analysis)
 
     def redraw(self):
 

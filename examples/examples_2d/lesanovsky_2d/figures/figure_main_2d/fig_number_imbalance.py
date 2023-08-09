@@ -1,4 +1,6 @@
-from .. style import colors
+import numpy as np
+
+from qsolve.figures.style import colors
 
 
 class fig_number_imbalance(object):
