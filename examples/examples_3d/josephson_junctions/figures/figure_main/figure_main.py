@@ -1,7 +1,5 @@
 import matplotlib.pyplot as plt
 
-# from PyQt5 import QtWidgets
-
 from scipy import constants
 
 import numpy as np
@@ -35,8 +33,8 @@ class FigureMain(object):
 
         m_atom = params['m_atom']
 
-        density_min = -0.2 * params["density_max"]
-        density_max = +1.2 * params["density_max"]
+        density_min = params["density_min"]
+        density_max = params["density_max"]
 
         V_min = params['V_min']
         V_max = params['V_max']
@@ -74,7 +72,7 @@ class FigureMain(object):
         Jy = y.size
         Jz = z.size
 
-        x_ticks = np.array([-2, -1, 0, 1, 2])
+        x_ticks = np.array([-2, 0, 2])
 
         y_ticks = np.array([-1, 0, 1])
 
@@ -245,27 +243,6 @@ class FigureMain(object):
 
         # -----------------------------------------------------------------------------------------
         plt.rcParams.update({'font.size': 10})
-        # -----------------------------------------------------------------------------------------
-
-        # -----------------------------------------------------------------------------------------
-        # self.fig_name = "figure_main"
-        #
-        # self.fig = plt.figure(self.fig_name, facecolor="white")
-        #
-        # window = self.fig.canvas.window()
-        #
-        # window.findChild(QtWidgets.QToolBar).setVisible(False)
-        # window.statusBar().setVisible(False)
-        # -----------------------------------------------------------------------------------------
-
-        # -----------------------------------------------------------------------------------------
-        # n_pixels_x = 1600
-        # n_pixels_y = 800
-        #
-        # pos_x = 2560 - n_pixels_x
-        # pos_y = 0
-        #
-        # window.setGeometry(pos_x, pos_y, n_pixels_x, n_pixels_y)
         # -----------------------------------------------------------------------------------------
 
         # -----------------------------------------------------------------------------------------

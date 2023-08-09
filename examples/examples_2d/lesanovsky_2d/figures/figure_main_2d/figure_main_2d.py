@@ -112,7 +112,9 @@ class FigureMain2D(object):
         settings.t_ticks_minor = t_ticks_minor
 
         settings.label_V = r'$h \times \mathrm{kHz}$'
+
         settings.linecolor_V = colors.alizarin
+
         settings.linewidth_V = 1.1
 
         settings.label_density = r'$\mathrm{m}^{-2}$'

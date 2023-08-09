@@ -1,8 +1,6 @@
-from numpy import zeros_like
+import numpy as np
 
-from numpy import pi
-
-from .. style import colors
+from qsolve.figures.style import colors
 
 
 class fig_density_y(object):
@@ -12,13 +10,18 @@ class fig_density_y(object):
         self.hbar = settings.hbar
         self.m_atom = settings.m_atom
 
-        self.line_density_y, = ax.plot(settings.y, zeros_like(settings.y),
+        self.line_density_y, = ax.plot(settings.y, np.zeros_like(settings.y),
                                        linewidth=1, linestyle='-', color=colors.wet_asphalt)
 
         ax.set_xlim(settings.y_min, settings.y_max)
-        
-        ax.set_ylim(settings.density_min, settings.density_max)
-        
+
+        density_min = settings.density_min
+        density_max = settings.density_max
+
+        ax.set_ylim(density_min - 0.1 * (density_max - density_min), density_max + 0.1 * (density_max - density_min))
+
+        ax.set_yticks(np.linspace(density_min, density_max, num=3))
+
         ax.set_xlabel(settings.label_y)
         
         ax.set_xticks(settings.y_ticks)
@@ -30,20 +33,25 @@ class fig_density_y(object):
         ax.set_anchor('W')
 
         # -----------------------------------------------------------------------------------------
-        ax_V_y = ax.twinx()
+        ax2 = ax.twinx()
         
-        self.line_V_y, = ax_V_y.plot(settings.y, zeros_like(settings.y),
-                                     linewidth=1, linestyle='-', color=colors.sun_flower)
+        self.line_V_y, = ax2.plot(settings.y, np.zeros_like(settings.y), linewidth=1, linestyle='-', color=colors.alizarin)
 
-        ax_V_y.set_xlim(settings.y_min, settings.y_max)
-        ax_V_y.set_ylim(settings.V_min, settings.V_max)
-        
-        ax_V_y.set_ylabel(settings.label_V)
+        ax2.set_xlim(settings.y_min, settings.y_max)
+
+        V_min = settings.V_min
+        V_max = settings.V_max
+
+        ax2.set_ylim(V_min - 0.1 * (V_max - V_min), V_max + 0.1 * (V_max - V_min))
+
+        ax2.set_yticks(np.linspace(V_min, V_max, num=3))
+
+        ax2.set_ylabel(settings.label_V)
         # -----------------------------------------------------------------------------------------
 
     def update(self, density_y, V_y):
 
-        scaling_V = self.hbar * 2 * pi * 1000
+        scaling_V = self.hbar * 2 * np.pi * 1000
         
         V_y = V_y / scaling_V
 
