@@ -20,14 +20,14 @@ class FigPhaseDifferenceYX1X2(object):
 
         ax.set_xticks(settings.y_ticks)
 
-        ax.set_yticks([-0.5, 0, 0.5], minor=False)
+        ax.set_yticks([-0.8, -0.4, 0, 0.4, 0.8], minor=False)
 
-        ax.set_yticks([-0.75, -0.25, 0.25, 0.75], minor=True)
+        ax.set_yticks([-0.6, -0.2, 0.2, 0.6], minor=True)
 
         ax.set_xlim(settings.y_min, settings.y_max)
 
-        phase_difference_min = -0.75
-        phase_difference_max = +0.75
+        phase_difference_min = -0.8
+        phase_difference_max = +0.8
 
         ax.set_ylim(phase_difference_min - 0.1 * (phase_difference_max - phase_difference_min), phase_difference_max + 0.1 * (phase_difference_max - phase_difference_min))
 
