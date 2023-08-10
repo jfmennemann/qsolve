@@ -123,6 +123,8 @@ def eval_data(solver, grid):
     # ---------------------------------------------------------------------------------------------
     psi = solver.psi
 
+    print(psi.shape)
+
     psi_x = psi[:, index_center_y].squeeze()
     psi_y = psi[index_center_x, :].squeeze()
 

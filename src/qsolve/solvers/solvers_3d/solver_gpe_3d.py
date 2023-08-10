@@ -127,6 +127,26 @@ class SolverGPE3D(object):
 
         self.filter_z_sgpe = __compute_filter_z(self._z, z1, z2, s)
 
+    def propagate_sgpe_z_eff(self, *, n_inc):
+
+        self._psi = qsolve_core.propagate_sgpe_z_eff_3d(
+            self._psi,
+            self._V,
+            self._dx,
+            self._dy,
+            self._dz,
+            self._dt_sgpe,
+            n_inc,
+            self._T_des_sgpe,
+            self._mue_des_sgpe,
+            self._gamma_sgpe,
+            self._hbar,
+            self._k_B,
+            self._m_atom,
+            self._g)
+
+        self._psi = self.filter_z_sgpe * self._psi
+
     def propagate_gpe(self, *, times, u_of_times, n_start, n_inc, mue_shift=0.0):
 
         _times = times / self._units.unit_time
@@ -308,26 +328,6 @@ class SolverGPE3D(object):
         print('----------------------------------------------------------------------------------------')
 
         print()
-
-    def propagate_sgpe_z_eff(self, *, n_inc):
-
-        self._psi = qsolve_core.propagate_sgpe_z_eff_3d(
-            self._psi,
-            self._V,
-            self._dx,
-            self._dy,
-            self._dz,
-            self._dt_sgpe,
-            n_inc,
-            self._T_des_sgpe,
-            self._mue_des_sgpe,
-            self._gamma_sgpe,
-            self._hbar,
-            self._k_B,
-            self._m_atom,
-            self._g)
-
-        self._psi = self.filter_z_sgpe * self._psi
 
     def compute_n_atoms(self):
         return qsolve_core.n_atoms_3d(self._psi, self._dx, self._dy, self._dz)

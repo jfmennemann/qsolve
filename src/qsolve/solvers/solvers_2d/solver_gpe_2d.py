@@ -46,6 +46,9 @@ class SolverGPE2D(object):
         assert (self._m_atom == 1.0)
         # -----------------------------------------------------------------------------------------
 
+        self._x = torch.tensor(grid.x / self._units.unit_length, device=self._device)
+        self._y = torch.tensor(grid.y / self._units.unit_length, device=self._device)
+
         self._Lx = grid.Lx / self._units.unit_length
         self._Ly = grid.Ly / self._units.unit_length
 
@@ -100,6 +103,54 @@ class SolverGPE2D(object):
         else:
 
             return self._units.unit_wave_function * _psi_0.cpu().numpy()
+
+    def init_sgpe_z_eff(self, **kwargs):
+
+        def __compute_filter_z(y, y1, y2, s):
+
+            Jy = y.shape[0]
+
+            filter_y_1st = 1.0 / (1.0 + torch.exp(-(y - y1) / s))
+            filter_y_2nd = 1.0 / (1.0 + torch.exp((y - y2) / s))
+
+            filter_y = filter_y_1st + filter_y_2nd - 1.0
+
+            filter_y = torch.reshape(filter_y, shape=(1, Jy))
+
+            return filter_y
+
+        self._T_des_sgpe = kwargs["T_temp_des"] / self._units.unit_temperature
+        self._mue_des_sgpe = kwargs["mue_des"] / self._units.unit_energy
+        self._gamma_sgpe = kwargs["gamma"]
+        self._dt_sgpe = kwargs["dt"] / self._units.unit_time
+
+        y1 = kwargs["filter_y1"] / self._units.unit_length
+        y2 = kwargs["filter_y2"] / self._units.unit_length
+
+        s = kwargs["filter_y_s"] / self._units.unit_length
+
+        self.filter_y_sgpe = __compute_filter_z(self._y, y1, y2, s)
+
+
+
+    def propagate_sgpe_z_eff(self, *, n_inc):
+
+        self._psi = qsolve_core.propagate_sgpe_z_eff_2d(
+            self._psi,
+            self._V,
+            self._dx,
+            self._dy,
+            self._dt_sgpe,
+            n_inc,
+            self._T_des_sgpe,
+            self._mue_des_sgpe,
+            self._gamma_sgpe,
+            self._hbar,
+            self._k_B,
+            self._m_atom,
+            self._g)
+
+        self._psi = self.filter_y_sgpe * self._psi
 
     def propagate_gpe(self, *, times, u_of_times, n_start, n_inc, mue_shift=0.0):
 
