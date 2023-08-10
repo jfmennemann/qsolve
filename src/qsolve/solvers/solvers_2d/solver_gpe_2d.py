@@ -131,8 +131,6 @@ class SolverGPE2D(object):
 
         self.filter_y_sgpe = __compute_filter_z(self._y, y1, y2, s)
 
-
-
     def propagate_sgpe_z_eff(self, *, n_inc):
 
         self._psi = qsolve_core.propagate_sgpe_z_eff_2d(
