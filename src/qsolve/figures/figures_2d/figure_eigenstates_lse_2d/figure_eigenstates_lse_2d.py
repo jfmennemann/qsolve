@@ -16,13 +16,13 @@ class FigureEigenstatesLSE2D(object):
 
         hbar = constants.hbar
 
-        m_atom = parameters['m_atom']
+        # m_atom = parameters['m_atom']
 
-        density_min = 0
-        density_max = parameters["density_max"]
+        # density_min = 0
+        # density_max = parameters["density_max"]
 
-        V_min = parameters['V_min']
-        V_max = parameters['V_max']
+        # V_min = parameters['V_min']
+        # V_max = parameters['V_max']
 
         x = x / 1e-6
         y = y / 1e-6
@@ -57,17 +57,17 @@ class FigureEigenstatesLSE2D(object):
         # -----------------------------------------------------------------------------------------
         settings = type('', (), {})()
 
-        settings.hbar = hbar
-        settings.m_atom = m_atom
+        # settings.hbar = hbar
+        # settings.m_atom = m_atom
 
-        settings.density_min = density_min
-        settings.density_max = density_max
+        # settings.density_min = density_min
+        # settings.density_max = density_max
 
-        settings.real_part_min = -1.2 * np.sqrt(settings.density_max)
-        settings.real_part_max = +1.2 * np.sqrt(settings.density_max)
+        # settings.real_part_min = -1.2 * np.sqrt(settings.density_max)
+        # settings.real_part_max = +1.2 * np.sqrt(settings.density_max)
 
-        settings.V_min = V_min
-        settings.V_max = V_max
+        # settings.V_min = V_min
+        # settings.V_max = V_max
 
         settings.x = x
         settings.y = y

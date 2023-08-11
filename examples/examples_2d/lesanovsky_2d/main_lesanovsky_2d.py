@@ -8,6 +8,8 @@ from potential_lesanovsky_2d import PotentialLesanovsky2D
 from figures import FigureMain2D
 
 
+import time
+
 import os
 
 os.environ['FOR_DISABLE_CONSOLE_CTRL_HANDLER'] = '1'
@@ -42,6 +44,8 @@ pi = scipy.constants.pi
 hbar = scipy.constants.hbar
 
 amu = scipy.constants.physical_constants["atomic mass constant"][0]  # atomic mass unit
+
+k_B = scipy.constants.Boltzmann
 # -------------------------------------------------------------------------------------------------
 
 # -------------------------------------------------------------------------------------------------
@@ -334,17 +338,58 @@ figure_main.fig_control_inputs.update_t(0.0)
 
 
 # =================================================================================================
+# compute eigenstates of the linear Schrödinger equation
+# =================================================================================================
+
+time_1 = time.time()
+
+eigenstates_lse, energies_lse, matrix_res_batch, vec_iter = solver.compute_eigenstates_lse(
+    n_eigenstates=128,
+    n_iter_max=1000,
+    tau_0=0.25e-3,
+    propagation_method='trotter',
+    # propagation_method='strang',
+    # propagation_method='ite_4th',
+    # propagation_method='ite_6th',
+    # propagation_method='ite_8th',
+    # propagation_method='ite_10th',
+    # propagation_method='ite_12th',
+    # orthogonalization_method='gram_schmidt',
+    orthogonalization_method='qr',
+    return_residuals=True)
+
+time_2 = time.time()
+
+print('elapsed time: {0:f}'.format(time_2 - time_1))
+print()
+
+# -------------------------------------------------------------------------------------------------
+print('3 * k_B * T / mue_0:' )
+print(3 * k_B * T / mue_0)
+print()
+
+E_cutoff = mue_0 + 3 * k_B * T
+
+print('energies_lse / E_cutoff: ')
+print(energies_lse / E_cutoff)
+print()
+
+indices_lse_selected = (energies_lse / E_cutoff) <= 1
+
+eigenstates_lse = eigenstates_lse[indices_lse_selected, :]
+energies_lse = energies_lse[indices_lse_selected]
+
+print('energies_lse / E_cutoff: ')
+print(energies_lse / E_cutoff)
+print()
+# -------------------------------------------------------------------------------------------------
+
+
+# =================================================================================================
 # init figure_eigenstates_lse_2d
 # =================================================================================================
 
 params_figure_eigenstates_lse_2d = {
-    "density_max":  2e+14,
-    "density_z_eff_max": 400,
-    "V_min": 0,
-    "V_max": 4,
-    "sigma_z_min": 0.2,
-    "sigma_z_max": 0.6,
-    "m_atom": m_Rb_87,
     "x_ticks": [-2, -1, 0, 1, 2],
     "y_ticks": [-60, -40, -20, 0, 20, 40, 60],
     "t_ticks": np.array([0, 10, 20, 30, 40, 50, 60, 70, 80])

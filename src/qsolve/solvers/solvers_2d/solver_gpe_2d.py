@@ -104,6 +104,49 @@ class SolverGPE2D(object):
 
             return self._units.unit_wave_function * _psi_0.cpu().numpy()
 
+    def compute_eigenstates_lse(self,
+                                *,
+                                n_eigenstates,
+                                n_iter_max,
+                                tau_0,
+                                propagation_method,
+                                orthogonalization_method,
+                                return_residuals=False):
+
+        _tau_0 = tau_0 / self._units.unit_time
+
+        # if n_iter_max < 100:
+        #
+        #     message = 'compute_ground_state_solution(self, **kwargs): n_iter_max should not be smaller than 2500'
+        #
+        #     raise Exception(message)
+
+        _eigenstates_batch, _eigenvalues_batch, matrix_res_batch_of_vec_n_iter, vec_n_iter = qsolve_core.compute_eigenstates_lse_2d(
+            self._V,
+            self._dx,
+            self._hbar,
+            self._m_atom,
+            n_eigenstates,
+            n_iter_max,
+            _tau_0,
+            propagation_method,
+            orthogonalization_method
+        )
+
+        if return_residuals:
+
+            return \
+                self._units.unit_wave_function * _eigenstates_batch.cpu().numpy(), \
+                self._units.unit_energy * _eigenvalues_batch.cpu().numpy(), \
+                matrix_res_batch_of_vec_n_iter, \
+                vec_n_iter
+
+        else:
+
+            return \
+                    self._units.unit_wave_function * _eigenstates_batch.cpu().numpy(), \
+                    self._units.unit_energy * _eigenvalues_batch.cpu().numpy()
+
     def init_sgpe_z_eff(self, **kwargs):
 
         def __compute_filter_z(y, y1, y2, s):
