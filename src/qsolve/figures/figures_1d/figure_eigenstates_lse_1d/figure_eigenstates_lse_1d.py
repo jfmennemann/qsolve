@@ -146,7 +146,6 @@ class FigureEigenstatesLSE1D(object):
     #     # time.sleep(0.1)
     #     # -----------------------------------------------------------------------------------------
 
-
     def export(self, filepath):
 
         plt.figure(self.fig_name)

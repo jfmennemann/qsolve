@@ -1,6 +1,6 @@
 from qsolve.figures.figures_1d.figure_main_1d import FigureMain1D
-
 from qsolve.figures.figures_1d.figure_eigenstates_lse_1d import FigureEigenstatesLSE1D
 from qsolve.figures.figures_1d.figure_eigenstates_bdg_1d import FigureEigenstatesBDG1D
 
 from qsolve.figures.figures_2d.figure_main_2d import FigureMain2D
+from qsolve.figures.figures_2d.figure_eigenstates_lse_2d import FigureEigenstatesLSE2D

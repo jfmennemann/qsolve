@@ -58,6 +58,9 @@ black_rgb = hex2rgb(black.lstrip('#'))
 white_rgb = hex2rgb(white.lstrip('#'))
 
 clouds_rgb = hex2rgb(clouds.lstrip('#'))
+silver_rgb = hex2rgb(silver.lstrip('#'))
+concrete_rgb = hex2rgb(concrete.lstrip('#'))
+asbestos_rgb = hex2rgb(asbestos.lstrip('#'))
 
 wisteria_rgb = hex2rgb(wisteria.lstrip('#'))
 
@@ -69,6 +72,8 @@ radical_red_rgb = hex2rgb(radical_red.lstrip('#'))
 
 
 orange_rgb = hex2rgb(orange.lstrip('#'))
+alizarin_rgb = hex2rgb(alizarin.lstrip('#'))
+amethyst_rgb = hex2rgb(amethyst.lstrip('#'))
 
 # -------------------------------------------------------------------------------------------------
 # colormap density
@@ -84,23 +89,37 @@ cmap_density = make_cmap(colors, positions=positions)
 # -------------------------------------------------------------------------------------------------
 # colormap real part
 
-colors_tmp = [radical_red_rgb, black_rgb, peter_river_rgb]
-positions_tmp = [0.0, 0.5, 1.0]
-
-cmap_real_part = make_cmap(colors_tmp, positions=positions_tmp)
-
-color_1_tmp = cmap_real_part(0.25)
-color_2_tmp = cmap_real_part(0.75)
-
-colors_tmp = [radical_red_rgb, color_1_tmp, black_rgb, color_2_tmp, peter_river_rgb]
-positions_tmp = [0.0, 0.4, 0.5, 0.6, 1.0]
-
-cmap_real_part = make_cmap(colors_tmp, positions=positions_tmp)
+# colors_tmp = [radical_red_rgb, black_rgb, peter_river_rgb]
+# positions_tmp = [0.0, 0.5, 1.0]
+#
+# cmap_real_part = make_cmap(colors_tmp, positions=positions_tmp)
+#
+# color_1_tmp = cmap_real_part(0.25)
+# color_2_tmp = cmap_real_part(0.75)
+#
+# colors_tmp = [radical_red_rgb, color_1_tmp, black_rgb, color_2_tmp, peter_river_rgb]
+# positions_tmp = [0.0, 0.4, 0.5, 0.6, 1.0]
+#
+# cmap_real_part = make_cmap(colors_tmp, positions=positions_tmp)
 
 # cmap_real = matplotlib.cm.PRGn
 
 cmap_real_part = matplotlib.cm.RdBu
 # -------------------------------------------------------------------------------------------------
+
+
+# -------------------------------------------------------------------------------------------------
+# # colormap potential
+#
+# colors = [white_rgb, clouds_rgb, orange_rgb, alizarin_rgb, black_rgb]
+#
+# positions = [0.0, 0.01, 0.02, 0.5, 1.0]
+#
+# cmap_potential = make_cmap(colors, positions=positions)
+#
+# # cmap_potential = matplotlib.cm.viridis
+# -------------------------------------------------------------------------------------------------
+
 
 # cmap = matplotlib.cm.PiYG
 # cmap = matplotlib.cm.PRGn

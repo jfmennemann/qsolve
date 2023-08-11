@@ -1,2 +1,1 @@
-from .figure_main_2d import FigureMain2D
 from .figure_eigenstates_lse_2d import FigureEigenstatesLSE2D

@@ -1,10 +1,12 @@
 from qsolve.solvers import SolverGPE2D
 from qsolve.grids import Grid2D
 from qsolve.units import Units
+from qsolve.figures import FigureEigenstatesLSE2D
 
 from potential_lesanovsky_2d import PotentialLesanovsky2D
 
 from figures import FigureMain2D
+
 
 import os
 
@@ -322,13 +324,35 @@ params_figure_main = {
     "t_ticks": np.array([0, 10, 20, 30, 40, 50, 60, 70, 80])
 }
 
-# ---------------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------------------
 figure_main = FigureMain2D(grid.x, grid.y, times, params_figure_main)
 
 figure_main.fig_control_inputs.update_u(u_of_times)
 
 figure_main.fig_control_inputs.update_t(0.0)
-# ---------------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------------------
+
+
+# =================================================================================================
+# init figure_eigenstates_lse_2d
+# =================================================================================================
+
+params_figure_eigenstates_lse_2d = {
+    "density_max":  2e+14,
+    "density_z_eff_max": 400,
+    "V_min": 0,
+    "V_max": 4,
+    "sigma_z_min": 0.2,
+    "sigma_z_max": 0.6,
+    "m_atom": m_Rb_87,
+    "x_ticks": [-2, -1, 0, 1, 2],
+    "y_ticks": [-60, -40, -20, 0, 20, 40, 60],
+    "t_ticks": np.array([0, 10, 20, 30, 40, 50, 60, 70, 80])
+}
+
+# -------------------------------------------------------------------------------------------------
+figure_eigenstates_lse_2d = FigureEigenstatesLSE2D(psi_0, solver.V, grid.x, grid.y, params_figure_eigenstates_lse_2d)
+# -------------------------------------------------------------------------------------------------
 
 
 # =================================================================================================
