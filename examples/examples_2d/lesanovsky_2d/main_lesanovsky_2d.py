@@ -347,11 +347,11 @@ eigenstates_lse, energies_lse, matrix_res_batch, vec_iter = solver.compute_eigen
     n_eigenstates=128,
     n_iter_max=1000,
     tau_0=0.25e-3,
-    propagation_method='trotter',
+    # propagation_method='trotter',
     # propagation_method='strang',
     # propagation_method='ite_4th',
     # propagation_method='ite_6th',
-    # propagation_method='ite_8th',
+    propagation_method='ite_8th',
     # propagation_method='ite_10th',
     # propagation_method='ite_12th',
     # orthogonalization_method='gram_schmidt',
@@ -364,24 +364,24 @@ print('elapsed time: {0:f}'.format(time_2 - time_1))
 print()
 
 # -------------------------------------------------------------------------------------------------
-print('3 * k_B * T / mue_0:' )
-print(3 * k_B * T / mue_0)
-print()
-
-E_cutoff = mue_0 + 3 * k_B * T
-
-print('energies_lse / E_cutoff: ')
-print(energies_lse / E_cutoff)
-print()
-
-indices_lse_selected = (energies_lse / E_cutoff) <= 1
-
-eigenstates_lse = eigenstates_lse[indices_lse_selected, :]
-energies_lse = energies_lse[indices_lse_selected]
-
-print('energies_lse / E_cutoff: ')
-print(energies_lse / E_cutoff)
-print()
+# print('3 * k_B * T / mue_0:' )
+# print(3 * k_B * T / mue_0)
+# print()
+#
+# E_cutoff = mue_0 + 3 * k_B * T
+#
+# print('energies_lse / E_cutoff: ')
+# print(energies_lse / E_cutoff)
+# print()
+#
+# indices_lse_selected = (energies_lse / E_cutoff) <= 1
+#
+# eigenstates_lse = eigenstates_lse[indices_lse_selected, :]
+# energies_lse = energies_lse[indices_lse_selected]
+#
+# print('energies_lse / E_cutoff: ')
+# print(energies_lse / E_cutoff)
+# print()
 # -------------------------------------------------------------------------------------------------
 
 
@@ -396,7 +396,7 @@ params_figure_eigenstates_lse_2d = {
 }
 
 # -------------------------------------------------------------------------------------------------
-figure_eigenstates_lse_2d = FigureEigenstatesLSE2D(psi_0, solver.V, grid.x, grid.y, params_figure_eigenstates_lse_2d)
+figure_eigenstates_lse_2d = FigureEigenstatesLSE2D(eigenstates_lse[0, :, :], solver.V, grid.x, grid.y, params_figure_eigenstates_lse_2d)
 # -------------------------------------------------------------------------------------------------
 
 

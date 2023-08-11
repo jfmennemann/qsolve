@@ -124,6 +124,7 @@ class SolverGPE2D(object):
         _eigenstates_batch, _eigenvalues_batch, matrix_res_batch_of_vec_n_iter, vec_n_iter = qsolve_core.compute_eigenstates_lse_2d(
             self._V,
             self._dx,
+            self._dy,
             self._hbar,
             self._m_atom,
             n_eigenstates,
