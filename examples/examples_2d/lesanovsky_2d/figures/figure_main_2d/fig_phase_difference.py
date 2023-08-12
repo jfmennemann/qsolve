@@ -2,7 +2,8 @@ import matplotlib.pyplot as plt
 
 import numpy as np
 
-cmap_phase = plt.get_cmap('PRGn')
+# cmap_phase = plt.get_cmap('PRGn')
+cmap_phase = plt.get_cmap('RdBu')
 
 
 class FigPhaseDifference(object):

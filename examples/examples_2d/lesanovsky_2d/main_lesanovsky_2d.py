@@ -112,8 +112,11 @@ m_atom = m_Rb_87
 
 a_s = 5.24e-9
 
-Jx = 56
-Jy = 240
+# Jx = 56
+# Jy = 240
+
+Jx = 64
+Jy = 512
 
 dt = 0.0025e-3
 
@@ -344,14 +347,14 @@ figure_main.fig_control_inputs.update_t(0.0)
 time_1 = time.time()
 
 eigenstates_lse, energies_lse, matrix_res_batch, vec_iter = solver.compute_eigenstates_lse(
-    n_eigenstates=128,
-    n_iter_max=1000,
+    n_eigenstates=256,
+    n_iter_max=2000,
     tau_0=0.25e-3,
     # propagation_method='trotter',
     # propagation_method='strang',
     # propagation_method='ite_4th',
-    # propagation_method='ite_6th',
-    propagation_method='ite_8th',
+    propagation_method='ite_6th',
+    # propagation_method='ite_8th',
     # propagation_method='ite_10th',
     # propagation_method='ite_12th',
     # orthogonalization_method='gram_schmidt',
@@ -396,7 +399,7 @@ params_figure_eigenstates_lse_2d = {
 }
 
 # -------------------------------------------------------------------------------------------------
-figure_eigenstates_lse_2d = FigureEigenstatesLSE2D(eigenstates_lse[0, :, :], solver.V, grid.x, grid.y, params_figure_eigenstates_lse_2d)
+figure_eigenstates_lse_2d = FigureEigenstatesLSE2D(eigenstates_lse, solver.V, grid.x, grid.y, params_figure_eigenstates_lse_2d)
 # -------------------------------------------------------------------------------------------------
 
 
