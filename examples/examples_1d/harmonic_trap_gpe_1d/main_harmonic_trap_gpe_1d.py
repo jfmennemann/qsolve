@@ -261,15 +261,13 @@ eigenstates_lse, energies_lse, matrix_res_batch, vec_iter = solver.compute_eigen
     n_eigenstates=128,
     n_iter_max=1000,
     tau_0=0.25e-3,
-    # propagation_method='trotter',
-    # propagation_method='strang',
+    # propagation_method='ite_1st',
+    # propagation_method='ite_2nd',
     # propagation_method='ite_4th',
     # propagation_method='ite_6th',
     propagation_method='ite_8th',
     # propagation_method='ite_10th',
-    # propagation_method='ite_12th',
-    # orthogonalization_method='gram_schmidt',
-    orthogonalization_method='qr',
+    # propagation_method='ite_12th'
     return_residuals=True)
 
 time_2 = time.time()
@@ -304,13 +302,11 @@ figure_eigenstates_lse = FigureEigenstatesLSE1D(eigenstates_lse,
                                                 grid.x,
                                                 parameters_figure_eigenstates_lse)
 
-# input()
-
 # =================================================================================================
 # show convergence of linear eigenstate computation
 # =================================================================================================
 
-n_eigenstates_lse = matrix_res_batch.shape[1]
+n_eigenstates_lse = matrix_res_batch.shape[0]
 
 n_lines = n_eigenstates_lse
 
@@ -318,7 +314,7 @@ c = np.arange(0, n_lines)
 
 cmap_tmp = mpl.colormaps['Spectral']
 
-norm = mpl.colors.Normalize(0, vmax=n_lines-1)
+norm = mpl.colors.Normalize(vmin=0, vmax=n_lines-1)
 cmap = mpl.cm.ScalarMappable(norm=norm, cmap=cmap_tmp)
 cmap.set_array([])
 
@@ -339,7 +335,7 @@ plt.grid(visible=True, which='major', color=(0.5, 0.5, 0.5), linestyle='-', line
 # plt.grid(visible=False, which='minor', color='k', linestyle='-', linewidth=0.25)
 
 for nr in range(n_eigenstates_lse):
-    plt.plot(vec_iter, matrix_res_batch[:, nr], linewidth=1.5, linestyle='-', color=cmap.to_rgba(nr))
+    plt.plot(vec_iter, matrix_res_batch[nr, :], linewidth=1.5, linestyle='-', color=cmap.to_rgba(nr))
 
 ax.set_xlim(0, vec_iter[-1])
 ax.set_ylim(1e-14, 1e0)

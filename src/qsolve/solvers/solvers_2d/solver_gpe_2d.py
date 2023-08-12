@@ -110,16 +110,15 @@ class SolverGPE2D(object):
                                 n_iter_max,
                                 tau_0,
                                 propagation_method,
-                                orthogonalization_method,
                                 return_residuals=False):
 
         _tau_0 = tau_0 / self._units.unit_time
 
-        # if n_iter_max < 100:
-        #
-        #     message = 'compute_ground_state_solution(self, **kwargs): n_iter_max should not be smaller than 2500'
-        #
-        #     raise Exception(message)
+        if n_iter_max < 100:
+
+            message = 'compute_ground_state_solution(self, **kwargs): n_iter_max should not be smaller than 100'
+
+            raise Exception(message)
 
         _eigenstates_batch, _eigenvalues_batch, matrix_res_batch_of_vec_n_iter, vec_n_iter = qsolve_core.compute_eigenstates_lse_2d(
             self._V,
@@ -130,8 +129,7 @@ class SolverGPE2D(object):
             n_eigenstates,
             n_iter_max,
             _tau_0,
-            propagation_method,
-            orthogonalization_method
+            propagation_method
         )
 
         if return_residuals:
