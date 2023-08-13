@@ -104,13 +104,13 @@ class SolverGPE2D(object):
 
             return self._units.unit_wave_function * _psi_0.cpu().numpy()
 
-    def compute_eigenstates_lse(self,
-                                *,
-                                n_eigenstates,
-                                n_iter_max,
-                                tau_0,
-                                propagation_method,
-                                return_residuals=False):
+    def compute_eigenstates_lse_ite(self,
+                                    *,
+                                    n_eigenstates,
+                                    n_iter_max,
+                                    tau_0,
+                                    propagation_method,
+                                    return_residuals=False):
 
         _tau_0 = tau_0 / self._units.unit_time
 
@@ -120,7 +120,7 @@ class SolverGPE2D(object):
 
             raise Exception(message)
 
-        _eigenstates_batch, _eigenvalues_batch, matrix_res_batch_of_vec_n_iter, vec_n_iter = qsolve_core.compute_eigenstates_lse_2d(
+        _eigenstates_batch, _eigenvalues_batch, matrix_res_batch_of_vec_n_iter, vec_n_iter = qsolve_core.compute_eigenstates_lse_2d_ite(
             self._V,
             self._dx,
             self._dy,
@@ -145,6 +145,22 @@ class SolverGPE2D(object):
             return \
                     self._units.unit_wave_function * _eigenstates_batch.cpu().numpy(), \
                     self._units.unit_energy * _eigenvalues_batch.cpu().numpy()
+
+    def compute_eigenstates_lse(self, *, n_eigenstates, tol=1e-6):
+
+        _eigenstates_batch, _eigenvalues_batch = qsolve_core.compute_eigenstates_lse_2d(
+            self._V,
+            self._dx,
+            self._dy,
+            self._hbar,
+            self._m_atom,
+            n_eigenstates,
+            tol
+        )
+
+        return \
+                self._units.unit_wave_function * _eigenstates_batch, \
+                self._units.unit_energy * _eigenvalues_batch
 
     def init_sgpe_z_eff(self, **kwargs):
 

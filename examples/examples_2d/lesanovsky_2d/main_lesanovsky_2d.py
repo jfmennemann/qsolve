@@ -8,10 +8,11 @@ from potential_lesanovsky_2d import PotentialLesanovsky2D
 from figures import FigureMain2D
 
 
+# import matplotlib.pyplot as plt
+
+# import matplotlib as mpl
+
 import matplotlib.pyplot as plt
-
-import matplotlib as mpl
-
 
 
 import time
@@ -25,8 +26,6 @@ import mkl
 import numpy as np
 
 import scipy
-
-import matplotlib.pyplot as plt
 
 import h5py
 
@@ -121,18 +120,18 @@ a_s = 5.24e-9
 # Jx = 56
 # Jy = 240
 
-Jx = 64
-Jy = 512
+Jx = 60
+Jy = 1600
 
 dt = 0.0025e-3
 
 n_mod_times_analysis = 100
 
-x_min = -2.8e-6
-x_max = +2.8e-6
+x_min = -3e-6
+x_max = +3e-6
 
-y_min = -60e-6
-y_max = +60e-6
+y_min = -80e-6
+y_max = +80e-6
 
 parameters_potential = {
     'm_atom': m_atom,
@@ -332,8 +331,8 @@ params_figure_main = {
     "sigma_z_min": 0.2,
     "sigma_z_max": 0.6,
     "m_atom": m_Rb_87,
-    "x_ticks": [-2, -1, 0, 1, 2],
-    "y_ticks": [-60, -40, -20, 0, 20, 40, 60],
+    "x_ticks": [-3, 0, 3],
+    "y_ticks": [-80, -40, 0, 40, 80],
     "t_ticks": np.array([0, 10, 20, 30, 40, 50, 60, 70, 80])
 }
 
@@ -352,19 +351,9 @@ figure_main.fig_control_inputs.update_t(0.0)
 
 time_1 = time.time()
 
-eigenstates_lse, energies_lse, matrix_res_batch, vec_iter = solver.compute_eigenstates_lse(
-    n_eigenstates=128,
-    n_iter_max=5000,
-    tau_0=0.025e-3,
-    # tau_0=0.1e-3,
-    # propagation_method='trotter',
-    # propagation_method='strang',
-    # propagation_method='ite_4th',
-    propagation_method='ite_6th',
-    # propagation_method='ite_8th',
-    # propagation_method='ite_10th',
-    # propagation_method='ite_12th',
-    return_residuals=True)
+# eigenstates_lse, energies_lse = solver.compute_eigenstates_lse(n_eigenstates=200, tol=1e-10)
+eigenstates_lse, energies_lse = solver.compute_eigenstates_lse(n_eigenstates=140, tol=1e-10)
+
 
 time_2 = time.time()
 
@@ -372,24 +361,24 @@ print('elapsed time: {0:f}'.format(time_2 - time_1))
 print()
 
 # -------------------------------------------------------------------------------------------------
-# print('3 * k_B * T / mue_0:' )
-# print(3 * k_B * T / mue_0)
-# print()
-#
-# E_cutoff = mue_0 + 3 * k_B * T
-#
-# print('energies_lse / E_cutoff: ')
-# print(energies_lse / E_cutoff)
-# print()
-#
-# indices_lse_selected = (energies_lse / E_cutoff) <= 1
-#
-# eigenstates_lse = eigenstates_lse[indices_lse_selected, :]
-# energies_lse = energies_lse[indices_lse_selected]
-#
-# print('energies_lse / E_cutoff: ')
-# print(energies_lse / E_cutoff)
-# print()
+print('3 * k_B * T / mue_0:' )
+print(3 * k_B * T / mue_0)
+print()
+
+E_cutoff = mue_0 + 3 * k_B * T
+
+print('energies_lse / E_cutoff: ')
+print(energies_lse / E_cutoff)
+print()
+
+indices_lse_selected = (energies_lse / E_cutoff) <= 1
+
+eigenstates_lse = eigenstates_lse[indices_lse_selected, :]
+energies_lse = energies_lse[indices_lse_selected]
+
+print('energies_lse / E_cutoff: ')
+print(energies_lse / E_cutoff)
+print()
 # -------------------------------------------------------------------------------------------------
 
 
@@ -406,59 +395,6 @@ params_figure_eigenstates_lse_2d = {
 # -------------------------------------------------------------------------------------------------
 figure_eigenstates_lse_2d = FigureEigenstatesLSE2D(eigenstates_lse, solver.V, grid.x, grid.y, params_figure_eigenstates_lse_2d)
 # -------------------------------------------------------------------------------------------------
-
-
-# =================================================================================================
-# show convergence of linear eigenstate computation
-# =================================================================================================
-
-n_eigenstates_lse = matrix_res_batch.shape[0]
-
-n_lines = n_eigenstates_lse
-
-c = np.arange(0, n_lines)
-
-cmap_tmp = mpl.colormaps['Spectral']
-
-norm = mpl.colors.Normalize(vmin=0, vmax=n_lines-1)
-cmap = mpl.cm.ScalarMappable(norm=norm, cmap=cmap_tmp)
-cmap.set_array([])
-
-
-fig_conv_lse = plt.figure(num="figure_convergence_lse_1d", figsize=(1.5*6, 1.5*4))
-
-fig_conv_lse.subplots_adjust(left=0.1, right=1.0, bottom=0.125, top=0.925)
-
-ax = fig_conv_lse.add_subplot(111)
-
-ax.set_facecolor((0.15, 0.15, 0.15))
-
-ax.set_yscale('log')
-
-ax.set_title('linear eigenstate computation')
-
-plt.grid(visible=True, which='major', color=(0.5, 0.5, 0.5), linestyle='-', linewidth=0.5)
-# plt.grid(visible=False, which='minor', color='k', linestyle='-', linewidth=0.25)
-
-for nr in range(n_eigenstates_lse):
-    plt.plot(vec_iter, matrix_res_batch[nr, :], linewidth=1.5, linestyle='-', color=cmap.to_rgba(nr))
-
-ax.set_xlim(0, vec_iter[-1])
-ax.set_ylim(1e-14, 1e0)
-
-plt.xlabel(r'number of iterations', labelpad=12)
-plt.ylabel(r'residual error', labelpad=12)
-
-cbar = fig_conv_lse.colorbar(cmap, ax=ax, label=r'# eigenstate')
-
-ticks_true = np.linspace(0, n_eigenstates_lse+1, 4)
-
-cbar.ax.tick_params(length=6, pad=4, which="major")
-
-fig_conv_lse.canvas.start_event_loop(0.001)
-
-plt.draw()
-
 
 # =================================================================================================
 # thermal state sampling
