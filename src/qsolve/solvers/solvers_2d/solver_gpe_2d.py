@@ -146,7 +146,7 @@ class SolverGPE2D(object):
                     self._units.unit_wave_function * _eigenstates_batch.cpu().numpy(), \
                     self._units.unit_energy * _eigenvalues_batch.cpu().numpy()
 
-    def compute_eigenstates_lse(self, *, n_eigenstates, tol=1e-6):
+    def eigenstates_lse(self, *, n_eigenstates, tol=1e-6):
 
         _eigenstates_batch, _eigenvalues_batch = qsolve_core.compute_eigenstates_lse_2d(
             self._V,
@@ -161,6 +161,27 @@ class SolverGPE2D(object):
         return \
                 self._units.unit_wave_function * _eigenstates_batch, \
                 self._units.unit_energy * _eigenvalues_batch
+
+    def bdg(self, *, n_atoms, n, tol=1e-6):
+
+        _eigenvectors_u, _eigenvectors_v, _eigenvalues_omega, _psi_0, _mue_0 = qsolve_core.bdg_2d_sparse(
+            self._V,
+            self._dx,
+            self._dy,
+            self._hbar,
+            self._m_atom,
+            self._g,
+            n_atoms,
+            n,
+            tol
+        )
+
+        return \
+            self._units.unit_wave_function * _eigenvectors_u, \
+            self._units.unit_wave_function * _eigenvectors_v, \
+            self._units.unit_frequency * _eigenvalues_omega, \
+            self._units.unit_wave_function * _psi_0, \
+            self._units.unit_energy * _mue_0
 
     def init_sgpe_z_eff(self, **kwargs):
 

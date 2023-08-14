@@ -1,7 +1,9 @@
 from qsolve.solvers import SolverGPE2D
 from qsolve.grids import Grid2D
 from qsolve.units import Units
+
 from qsolve.figures import FigureEigenstatesLSE2D
+from qsolve.figures import FigureEigenstatesBDG2D
 
 from potential_lesanovsky_2d import PotentialLesanovsky2D
 
@@ -120,8 +122,11 @@ a_s = 5.24e-9
 # Jx = 56
 # Jy = 240
 
-Jx = 60
-Jy = 1600
+# Jx = 60
+# Jy = 1600
+
+Jx = 30
+Jy = 800
 
 dt = 0.0025e-3
 
@@ -345,20 +350,21 @@ figure_main.fig_control_inputs.update_t(0.0)
 # -------------------------------------------------------------------------------------------------
 
 
+"""
 # =================================================================================================
 # compute eigenstates of the linear Schrödinger equation
 # =================================================================================================
 
+# -------------------------------------------------------------------------------------------------
 time_1 = time.time()
 
-# eigenstates_lse, energies_lse = solver.compute_eigenstates_lse(n_eigenstates=200, tol=1e-10)
-eigenstates_lse, energies_lse = solver.compute_eigenstates_lse(n_eigenstates=140, tol=1e-10)
-
+eigenstates_lse, energies_lse = solver.eigenstates_lse(n_eigenstates=200, tol=1e-10)
 
 time_2 = time.time()
 
 print('elapsed time: {0:f}'.format(time_2 - time_1))
 print()
+# -------------------------------------------------------------------------------------------------
 
 # -------------------------------------------------------------------------------------------------
 print('3 * k_B * T / mue_0:' )
@@ -381,20 +387,30 @@ print(energies_lse / E_cutoff)
 print()
 # -------------------------------------------------------------------------------------------------
 
+# -------------------------------------------------------------------------------------------------
+figure_eigenstates_lse_2d = FigureEigenstatesLSE2D(eigenstates_lse=eigenstates_lse,
+                                                   V=solver.V,
+                                                   x=grid.x,
+                                                   y=grid.y,
+                                                   x_ticks=[-3, 0, 3],
+                                                   y_ticks=[-80, -40, 0, 40, 80])
+# -------------------------------------------------------------------------------------------------
+"""
 
 # =================================================================================================
-# init figure_eigenstates_lse_2d
+# compute quasiparticle amplitudes u and v
 # =================================================================================================
 
-params_figure_eigenstates_lse_2d = {
-    "x_ticks": [-2, -1, 0, 1, 2],
-    "y_ticks": [-60, -40, -20, 0, 20, 40, 60],
-    "t_ticks": np.array([0, 10, 20, 30, 40, 50, 60, 70, 80])
-}
+eigenvectors_u, eigenvectors_v, eigenvalues_omega_dummy, psi_0_dummy, mue_dummy = solver.bdg(n_atoms=n_atoms, n=16)
 
-# -------------------------------------------------------------------------------------------------
-figure_eigenstates_lse_2d = FigureEigenstatesLSE2D(eigenstates_lse, solver.V, grid.x, grid.y, params_figure_eigenstates_lse_2d)
-# -------------------------------------------------------------------------------------------------
+figure_eigenstates_bdg = FigureEigenstatesBDG2D(eigenvectors_u=eigenvectors_u,
+                                                eigenvectors_v=eigenvectors_v,
+                                                V=solver.V,
+                                                x=grid.x,
+                                                y=grid.y,
+                                                x_ticks=[-3, 0, 3],
+                                                y_ticks=[-80, -40, 0, 40, 80])
+
 
 # =================================================================================================
 # thermal state sampling

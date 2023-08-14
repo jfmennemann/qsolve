@@ -10,9 +10,9 @@ from .fig_real_part_2d import FigRealPart2D
 from qsolve.figures.style import colors
 
 
-class FigureEigenstatesLSE2D(object):
+class FigureEigenstatesBDG2D(object):
 
-    def __init__(self, *, eigenstates_lse, V, x, y, x_ticks, y_ticks):
+    def __init__(self, *, eigenvectors_u, eigenvectors_v, V, x, y, x_ticks, y_ticks):
 
         x = x / 1e-6
         y = y / 1e-6
@@ -78,7 +78,7 @@ class FigureEigenstatesLSE2D(object):
         # -----------------------------------------------------------------------------------------
 
         # -----------------------------------------------------------------------------------------
-        self.fig_name = "figure_eigenstates_lse_2d"
+        self.fig_name = "figure_eigenstates_bdg_2d"
 
         self.fig = plt.figure(self.fig_name, figsize=(8, 10), facecolor="white")
         # -----------------------------------------------------------------------------------------
@@ -121,16 +121,16 @@ class FigureEigenstatesLSE2D(object):
         # -----------------------------------------------------------------------------------------
         FigPotential2D(ax_00, V, settings)
 
-        FigRealPart2D(ax_10, eigenstates_lse[0, :, :], settings)
-        FigRealPart2D(ax_20, eigenstates_lse[1, :, :], settings)
-        FigRealPart2D(ax_30, eigenstates_lse[2, :, :], settings)
-        FigRealPart2D(ax_40, eigenstates_lse[3, :, :], settings)
+        FigRealPart2D(ax_10, eigenvectors_u[0, :, :], settings)
+        FigRealPart2D(ax_20, eigenvectors_u[1, :, :], settings)
+        FigRealPart2D(ax_30, eigenvectors_u[2, :, :], settings)
+        FigRealPart2D(ax_40, eigenvectors_u[3, :, :], settings)
 
-        FigRealPart2D(ax_01, eigenstates_lse[-5, :, :], settings)
-        FigRealPart2D(ax_11, eigenstates_lse[-4, :, :], settings)
-        FigRealPart2D(ax_21, eigenstates_lse[-3, :, :], settings)
-        FigRealPart2D(ax_31, eigenstates_lse[-2, :, :], settings)
-        FigRealPart2D(ax_41, eigenstates_lse[-1, :, :], settings)
+        FigRealPart2D(ax_01, eigenvectors_v[0, :, :], settings)
+        FigRealPart2D(ax_11, eigenvectors_v[1, :, :], settings)
+        FigRealPart2D(ax_21, eigenvectors_v[2, :, :], settings)
+        FigRealPart2D(ax_31, eigenvectors_v[3, :, :], settings)
+        FigRealPart2D(ax_41, eigenvectors_v[4, :, :], settings)
         # -----------------------------------------------------------------------------------------
 
         # -----------------------------------------------------------------------------------------
