@@ -12,7 +12,7 @@ from qsolve.figures.style import colors
 
 class FigureEigenstatesBDG2D(object):
 
-    def __init__(self, *, eigenvectors_u, eigenvectors_v, V, x, y, x_ticks, y_ticks):
+    def __init__(self, *, eigenvectors_u, eigenvectors_v, V, psi_0, x, y, x_ticks, y_ticks):
 
         x = x / 1e-6
         y = y / 1e-6
@@ -119,14 +119,13 @@ class FigureEigenstatesBDG2D(object):
         # -----------------------------------------------------------------------------------------
 
         # -----------------------------------------------------------------------------------------
-        FigPotential2D(ax_00, V, settings)
-
+        FigRealPart2D(ax_00, psi_0, settings)
         FigRealPart2D(ax_10, eigenvectors_u[0, :, :], settings)
         FigRealPart2D(ax_20, eigenvectors_u[1, :, :], settings)
         FigRealPart2D(ax_30, eigenvectors_u[2, :, :], settings)
         FigRealPart2D(ax_40, eigenvectors_u[3, :, :], settings)
 
-        FigRealPart2D(ax_01, eigenvectors_v[0, :, :], settings)
+        FigPotential2D(ax_01, V, settings)
         FigRealPart2D(ax_11, eigenvectors_v[1, :, :], settings)
         FigRealPart2D(ax_21, eigenvectors_v[2, :, :], settings)
         FigRealPart2D(ax_31, eigenvectors_v[3, :, :], settings)

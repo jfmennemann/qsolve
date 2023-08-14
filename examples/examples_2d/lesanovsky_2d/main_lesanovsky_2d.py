@@ -401,15 +401,22 @@ figure_eigenstates_lse_2d = FigureEigenstatesLSE2D(eigenstates_lse=eigenstates_l
 # compute quasiparticle amplitudes u and v
 # =================================================================================================
 
-eigenvectors_u, eigenvectors_v, eigenvalues_omega_dummy, psi_0_dummy, mue_dummy = solver.bdg(n_atoms=n_atoms, n=16)
+eigenvectors_u, eigenvectors_v, eigenvalues_omega_dummy, psi_0_bdg, mue_0_bdg = solver.bdg(n_atoms=n_atoms, n=16)
 
 figure_eigenstates_bdg = FigureEigenstatesBDG2D(eigenvectors_u=eigenvectors_u,
                                                 eigenvectors_v=eigenvectors_v,
                                                 V=solver.V,
+                                                psi_0=psi_0_bdg,
                                                 x=grid.x,
                                                 y=grid.y,
                                                 x_ticks=[-3, 0, 3],
                                                 y_ticks=[-80, -40, 0, 40, 80])
+
+mue_0 = solver.compute_chemical_potential()
+
+# print(mue_0)
+# print(mue_0_bdg)
+# input()
 
 
 # =================================================================================================
