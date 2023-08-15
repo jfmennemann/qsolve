@@ -5,7 +5,7 @@ import numpy as np
 
 class FigRealPart2D(object):
 
-    def __init__(self, ax, psi, settings):
+    def __init__(self, ax, psi, settings, title):
 
         ax.set_xlabel(settings.label_y)
         ax.set_ylabel(settings.label_x)
@@ -30,4 +30,4 @@ class FigRealPart2D(object):
             vmax=+1,
             origin='lower')
 
-        ax.set_title(r'$\Re \psi$ (scaled)', fontsize=settings.fontsize_titles)
+        ax.set_title(title, fontsize=settings.fontsize_titles)
