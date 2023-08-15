@@ -126,10 +126,10 @@ class FigureEigenstatesBDG2D(object):
         FigRealPart2D(ax_40, eigenvectors_u[3, :, :], settings)
 
         FigPotential2D(ax_01, V, settings)
-        FigRealPart2D(ax_11, eigenvectors_v[1, :, :], settings)
-        FigRealPart2D(ax_21, eigenvectors_v[2, :, :], settings)
-        FigRealPart2D(ax_31, eigenvectors_v[3, :, :], settings)
-        FigRealPart2D(ax_41, eigenvectors_v[4, :, :], settings)
+        FigRealPart2D(ax_11, eigenvectors_v[-4, :, :], settings)
+        FigRealPart2D(ax_21, eigenvectors_v[-3, :, :], settings)
+        FigRealPart2D(ax_31, eigenvectors_v[-2, :, :], settings)
+        FigRealPart2D(ax_41, eigenvectors_v[-1, :, :], settings)
         # -----------------------------------------------------------------------------------------
 
         # -----------------------------------------------------------------------------------------
