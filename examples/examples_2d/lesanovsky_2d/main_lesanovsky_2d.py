@@ -35,7 +35,7 @@ from evaluation import eval_data
 
 
 # -------------------------------------------------------------------------------------------------
-num_threads_cpu = 18
+num_threads_cpu = 8
 
 os.environ["OMP_NUM_THREADS"] = str(num_threads_cpu)
 os.environ["MKL_NUM_THREADS"] = str(num_threads_cpu)
@@ -404,7 +404,7 @@ figure_eigenstates_lse_2d = FigureEigenstatesLSE2D(eigenstates_lse=eigenstates_l
 # compute quasiparticle amplitudes u and v
 # =================================================================================================
 
-eigenvectors_u, eigenvectors_v, eigenvalues_omega_dummy, psi_0_bdg, mue_0_bdg = solver.bdg(n_atoms=n_atoms, n=256)
+eigenvectors_u, eigenvectors_v, eigenvalues_omega_dummy, psi_0_bdg, mue_0_bdg = solver.bdg(n_atoms=n_atoms, n=16)
 
 figure_eigenstates_bdg = FigureEigenstatesBDG2D(eigenvectors_u=eigenvectors_u,
                                                 eigenvectors_v=eigenvectors_v,
