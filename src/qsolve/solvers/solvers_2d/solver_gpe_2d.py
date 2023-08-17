@@ -164,7 +164,7 @@ class SolverGPE2D(object):
 
     def bdg(self, *, n_atoms, n, tol=1e-6):
 
-        _eigenvectors_u, _eigenvectors_v, _eigenvalues_omega, _psi_0, _mue_0 = qsolve_core.bdg_2d_sparse(
+        _eigenvectors_u, _eigenvectors_v, _eigenvalues_omega, _psi_0, _mue_0 = qsolve_core.bdg_2d(
             self._V,
             self._dx,
             self._dy,

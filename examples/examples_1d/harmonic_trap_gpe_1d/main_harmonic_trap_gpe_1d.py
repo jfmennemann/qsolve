@@ -242,7 +242,7 @@ solver.set_external_potential(t=0.0, u=u_of_times[0])
 # compute quasiparticle amplitudes u and v
 # =================================================================================================
 
-eigenvectors_u, eigenvectors_v, eigenvalues_omega, psi_0, mue_0 = solver.bdg(n_atoms=n_atoms, n=16)
+eigenvectors_u, eigenvectors_v, eigenvalues_omega, psi_0, mue_0 = solver.bdg(n_atoms=n_atoms, n=128)
 
 figure_eigenstates_bdg = FigureEigenstatesBDG1D(eigenvectors_u,
                                                 eigenvectors_v,
