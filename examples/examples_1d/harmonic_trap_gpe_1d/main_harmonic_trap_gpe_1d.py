@@ -202,40 +202,37 @@ solver.set_external_potential(t=0.0, u=u_of_times[0])
 # compute ground state solution
 # =================================================================================================
 
-# psi_0, mue_0, vec_res, vec_iter = solver.compute_ground_state_solution(
-#     n_atoms=n_atoms,
-#     n_iter_max=20000,
-#     tau_0=0.001e-3,
-#     adaptive_tau=True,
-#     return_residuals=True)
+psi_0, mue_0, vec_res, vec_iter = solver.compute_ground_state_solution(
+    n_atoms=n_atoms,
+    n_iter_max=20000,
+    tau_0=0.001e-3,
+    adaptive_tau=True,
+    return_residuals=True)
 
+# -------------------------------------------------------------------------------------------------
+fig_conv_ground_state = plt.figure("figure_convergence_ground_state", figsize=(6, 4))
 
-# =================================================================================================
-# show convergence of ground state computation
-# =================================================================================================
+fig_conv_ground_state.subplots_adjust(left=0.175, right=0.95, bottom=0.2, top=0.9)
 
-# fig_conv_ground_state = plt.figure("figure_convergence_ground_state", figsize=(6, 4))
-#
-# fig_conv_ground_state.subplots_adjust(left=0.175, right=0.95, bottom=0.2, top=0.9)
-#
-# ax = fig_conv_ground_state.add_subplot(111)
-#
-# ax.set_yscale('log')
-#
-# ax.set_title('ground state computation')
-#
-# plt.plot(vec_iter, vec_res, linewidth=1, linestyle='-', color='k')
-#
-# ax.set_xlim(0, vec_iter[-1])
-# ax.set_ylim(1e-8, 1)
-#
-# plt.xlabel(r'number of iterations', labelpad=12)
-# plt.ylabel(r'relative residual error', labelpad=12)
-#
-# plt.grid(visible=True, which='major', color='k', linestyle='-', linewidth=0.5)
-# plt.grid(visible=True, which='minor', color='k', linestyle='-', linewidth=0.25)
-#
-# plt.draw()
+ax = fig_conv_ground_state.add_subplot(111)
+
+ax.set_yscale('log')
+
+ax.set_title('ground state computation')
+
+plt.plot(vec_iter, vec_res, linewidth=1, linestyle='-', color='k')
+
+ax.set_xlim(0, vec_iter[-1])
+ax.set_ylim(1e-8, 1)
+
+plt.xlabel(r'number of iterations', labelpad=12)
+plt.ylabel(r'relative residual error', labelpad=12)
+
+plt.grid(visible=True, which='major', color='k', linestyle='-', linewidth=0.5)
+plt.grid(visible=True, which='minor', color='k', linestyle='-', linewidth=0.25)
+
+plt.draw()
+# -------------------------------------------------------------------------------------------------
 
 
 # =================================================================================================
@@ -319,11 +316,11 @@ cmap = mpl.cm.ScalarMappable(norm=norm, cmap=cmap_tmp)
 cmap.set_array([])
 
 
-fig_conv_lse = plt.figure(num="figure_convergence_lse_1d", figsize=(1.5*6, 1.5*4))
+figure_convergence_lse_1d = plt.figure(num="figure_convergence_lse_1d", figsize=(1.5*6, 1.5*4))
 
-fig_conv_lse.subplots_adjust(left=0.1, right=1.0, bottom=0.125, top=0.925)
+figure_convergence_lse_1d.subplots_adjust(left=0.1, right=1.0, bottom=0.125, top=0.925)
 
-ax = fig_conv_lse.add_subplot(111)
+ax = figure_convergence_lse_1d.add_subplot(111)
 
 ax.set_facecolor((0.15, 0.15, 0.15))
 
@@ -343,13 +340,13 @@ ax.set_ylim(1e-14, 1e0)
 plt.xlabel(r'number of iterations', labelpad=12)
 plt.ylabel(r'residual error', labelpad=12)
 
-cbar = fig_conv_lse.colorbar(cmap, ax=ax, label=r'# eigenstate')
+cbar = figure_convergence_lse_1d.colorbar(cmap, ax=ax, label=r'# eigenstate')
 
 ticks_true = np.linspace(0, n_eigenstates_lse+1, 4)
 
 cbar.ax.tick_params(length=6, pad=4, which="major")
 
-fig_conv_lse.canvas.start_event_loop(0.001)
+figure_convergence_lse_1d.canvas.start_event_loop(0.001)
 
 plt.draw()
 
