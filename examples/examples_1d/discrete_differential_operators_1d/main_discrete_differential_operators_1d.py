@@ -11,7 +11,7 @@ pi = np.pi
 x_min = 0
 x_max = 1
 
-Jx = 2 ** 12
+Jx = 2 ** 9
 
 x = np.linspace(x_min, x_max, Jx, endpoint=False)
 
@@ -104,17 +104,17 @@ u_dd_fd = (
 ) / (5040 * dx ** 2)
 # ---------------------------------------------------------------------------------------------
 
-rel_error_u_d_matrix = np.linalg.norm(u_d_matrix - u_d_ref) / np.linalg.norm(u_d_ref)
-rel_error_u_d_fft = np.linalg.norm(u_d_fft - u_d_ref) / np.linalg.norm(u_d_ref)
+rel_error_u_d_matrix = np.linalg.norm(u_d_matrix - u_d_ref, ord=np.inf) / np.linalg.norm(u_d_ref, ord=np.inf)
+rel_error_u_d_fft = np.linalg.norm(u_d_fft - u_d_ref, ord=np.inf) / np.linalg.norm(u_d_ref, ord=np.inf)
 
-rel_error_u_dd_matrix = np.linalg.norm(u_dd_matrix - u_dd_ref) / np.linalg.norm(u_dd_ref)
-rel_error_u_dd_fft = np.linalg.norm(u_dd_fft - u_dd_ref) / np.linalg.norm(u_dd_ref)
+rel_error_u_dd_matrix = np.linalg.norm(u_dd_matrix - u_dd_ref, ord=np.inf) / np.linalg.norm(u_dd_ref, ord=np.inf)
+rel_error_u_dd_fft = np.linalg.norm(u_dd_fft - u_dd_ref, ord=np.inf) / np.linalg.norm(u_dd_ref, ord=np.inf)
 
-rel_error_u_d_fd = np.linalg.norm(u_d_fd - u_d_ref) / np.linalg.norm(u_d_ref)
-rel_error_u_dd_fd = np.linalg.norm(u_dd_fd - u_dd_ref) / np.linalg.norm(u_dd_ref)
+rel_error_u_d_fd = np.linalg.norm(u_d_fd - u_d_ref, ord=np.inf) / np.linalg.norm(u_d_ref, ord=np.inf)
+rel_error_u_dd_fd = np.linalg.norm(u_dd_fd - u_dd_ref, ord=np.inf) / np.linalg.norm(u_dd_ref, ord=np.inf)
 
-rel_difference_u_d_matrix_vs_fft = np.linalg.norm(u_d_matrix - u_d_fft) / np.linalg.norm(u_d_fft)
-rel_difference_u_dd_matrix_vs_fft = np.linalg.norm(u_dd_matrix - u_dd_fft) / np.linalg.norm(u_dd_fft)
+rel_difference_u_d_matrix_vs_fft = np.linalg.norm(u_d_matrix - u_d_fft, ord=np.inf) / np.linalg.norm(u_d_fft, ord=np.inf)
+rel_difference_u_dd_matrix_vs_fft = np.linalg.norm(u_dd_matrix - u_dd_fft, ord=np.inf) / np.linalg.norm(u_dd_fft, ord=np.inf)
 
 print('Jx: {0:d}'.format(Jx))
 print()
@@ -132,9 +132,13 @@ print('rel_difference_u_dd_matrix_vs_fft: {0:1.2e}'.format(rel_difference_u_dd_m
 print()
 
 
+# =================================================================================================
+
 # -------------------------------------------------------------------------------------------------
 fig_1 = plt.figure(num="fig_1", figsize=(8, 8))
+# -------------------------------------------------------------------------------------------------
 
+# -------------------------------------------------------------------------------------------------
 gridspec = fig_1.add_gridspec(nrows=2, ncols=1,
                               left=0.125, right=0.9,
                               bottom=0.08, top=0.95,
@@ -143,10 +147,37 @@ gridspec = fig_1.add_gridspec(nrows=2, ncols=1,
                               # width_ratios=[1, 1],
                               # height_ratios=[1, 1]
                               )
+# -------------------------------------------------------------------------------------------------
 
+# -------------------------------------------------------------------------------------------------
 ax_00 = fig_1.add_subplot(gridspec[0, 0])
 ax_10 = fig_1.add_subplot(gridspec[1, 0])
+# -------------------------------------------------------------------------------------------------
 
+# -------------------------------------------------------------------------------------------------
+ax_00.plot(x, u, color='k', linestyle='-', linewidth=1)
+# ax_00.plot(x, u_d_ref, color='r', linestyle='--', linewidth=1)
+# ax_00.plot(x, u_dd_ref, color='b', linestyle='-.', linewidth=1)
+
+y_min = 0.0
+y_max = 2.5
+
+ax_00.set_xlim(x_min-0.1*Lx, x_max+0.1*Lx)
+ax_00.set_ylim(y_min-0.1*(y_max-y_min), y_max+0.1*(y_max-y_min))
+
+y_ticks_major = np.linspace(y_min, y_max, num=5)
+y_ticks_minor = 0.5 * (y_ticks_major[0:-1] + y_ticks_major[1:])
+
+ax_00.set_yticks(y_ticks_major, minor=False)
+# ax_00.set_yticks(y_ticks_minor, minor=True)
+
+ax_00.set_xlabel(r'$x$', labelpad=12)
+
+ax_00.grid(visible=True, which='major', color='k', linestyle='-', linewidth=0.5)
+ax_00.grid(visible=True, which='minor', color='k', linestyle='--', linewidth=0.25)
+# -------------------------------------------------------------------------------------------------
+
+# -------------------------------------------------------------------------------------------------
 # ax_2.set_yscale('log')
 
 # ax_2.set_title('ground state computation')
@@ -158,17 +189,10 @@ ax_10 = fig_1.add_subplot(gridspec[1, 0])
 
 # plt.xlabel(r'number of iterations', labelpad=12)
 # plt.ylabel(r'relative residual error', labelpad=12)
-
-# plt.grid(visible=True, which='major', color='k', linestyle='-', linewidth=0.5)
-# plt.grid(visible=True, which='minor', color='k', linestyle='-', linewidth=0.25)
-
-ax_00.plot(x, u, color='k', linestyle='-', linewidth=0.65)
-
-ax_00.set_xlim(x_min-0.1*Lx, x_max+0.1*Lx)
-
-ax_00.set_xlabel(r'$x$', labelpad=12)
+# -------------------------------------------------------------------------------------------------
 
 plt.draw()
 
 plt.show()
-# -------------------------------------------------------------------------------------------------
+# =================================================================================================
+
