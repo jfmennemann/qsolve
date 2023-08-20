@@ -105,13 +105,6 @@ parameters_figure_eigenstates_lse = {'density_min': 0,
                                      'V_max': 4.0,
                                      'x_ticks': np.array([-40, -20, 0, 20, 40])
                                      }
-
-parameters_figure_eigenstates_bdg = {'u_v_re_im_min': -1.0,
-                                     'u_v_re_im_max': +1.0,
-                                     'V_min': 0.0,
-                                     'V_max': 4.0,
-                                     'x_ticks': np.array([-40, -20, 0, 20, 40])
-                                     }
 # =================================================================================================
 
 # -------------------------------------------------------------------------------------------------
@@ -204,7 +197,7 @@ solver.set_external_potential(t=0.0, u=u_of_times[0])
 
 psi_0, mue_0, vec_res, vec_iter = solver.compute_ground_state_solution(
     n_atoms=n_atoms,
-    n_iter_max=20000,
+    n_iter_max=10000,
     tau_0=0.001e-3,
     adaptive_tau=True,
     return_residuals=True)
@@ -241,12 +234,18 @@ plt.draw()
 
 eigenvectors_u, eigenvectors_v, eigenvalues_omega, psi_0, mue_0 = solver.bdg(n_atoms=n_atoms, n=128)
 
+parameters_figure_eigenstates_bdg = {'u_v_re_im_min': -1.0,
+                                     'u_v_re_im_max': +1.0,
+                                     'V_min': 0.0,
+                                     'V_max': 4.0,
+                                     'x_ticks': np.array([-40, -20, 0, 20, 40])
+                                     }
+
 figure_eigenstates_bdg = FigureEigenstatesBDG1D(eigenvectors_u,
                                                 eigenvectors_v,
                                                 solver.V,
                                                 grid.x,
                                                 parameters_figure_eigenstates_bdg)
-
 
 # =================================================================================================
 # compute eigenstates of the linear Schrödinger equation
