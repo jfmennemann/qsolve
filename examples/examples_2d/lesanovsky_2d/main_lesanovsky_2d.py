@@ -86,6 +86,7 @@ device = 'cuda:0'
 # device='cpu'
 
 n_atoms = 3500
+# n_atoms = 1
 
 u1_final = 0.56
 
@@ -352,7 +353,6 @@ figure_main.fig_control_inputs.update_u(u_of_times)
 figure_main.fig_control_inputs.update_t(0.0)
 # -------------------------------------------------------------------------------------------------
 
-
 """
 # =================================================================================================
 # compute eigenstates of the linear Schrödinger equation
@@ -400,11 +400,13 @@ figure_eigenstates_lse_2d = FigureEigenstatesLSE2D(eigenstates_lse=eigenstates_l
 # -------------------------------------------------------------------------------------------------
 """
 
+
 # =================================================================================================
 # compute quasiparticle amplitudes u and v
 # =================================================================================================
 
-eigenvectors_u, eigenvectors_v, eigenvalues_omega_dummy, psi_0_bdg, mue_0_bdg = solver.bdg(n_atoms=n_atoms, n=12)
+eigenvectors_u, eigenvectors_v, eigenvalues_omega_dummy, psi_0_bdg, mue_0_bdg = solver.bdg(
+    psi_0=psi_0, n_atoms=n_atoms, n=12)
 
 figure_eigenstates_bdg = FigureEigenstatesBDG2D(eigenvectors_u=eigenvectors_u,
                                                 eigenvectors_v=eigenvectors_v,

@@ -5,3 +5,5 @@ from qsolve.figures.figures_1d.figure_eigenstates_bdg_1d import FigureEigenstate
 from qsolve.figures.figures_2d.figure_main_2d import FigureMain2D
 from qsolve.figures.figures_2d.figure_eigenstates_lse_2d import FigureEigenstatesLSE2D
 from qsolve.figures.figures_2d.figure_eigenstates_bdg_2d import FigureEigenstatesBDG2D
+
+from qsolve.figures.figures_3d.figure_eigenstates_bdg_3d import FigureEigenstatesBDG3D

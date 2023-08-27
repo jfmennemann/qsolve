@@ -60,6 +60,7 @@ export_frames_figure_main = False
 
 # =================================================================================================
 n_atoms = 3500
+# n_atoms = 1
 
 m_Rb_87 = 87 * amu
 
@@ -202,6 +203,7 @@ psi_0, mue_0, vec_res, vec_iter = solver.compute_ground_state_solution(
     adaptive_tau=True,
     return_residuals=True)
 
+
 # -------------------------------------------------------------------------------------------------
 fig_conv_ground_state = plt.figure("figure_convergence_ground_state", figsize=(6, 4))
 
@@ -232,7 +234,8 @@ plt.draw()
 # compute quasiparticle amplitudes u and v
 # =================================================================================================
 
-eigenvectors_u, eigenvectors_v, eigenvalues_omega, psi_0, mue_0 = solver.bdg(n_atoms=n_atoms, n=128)
+eigenvectors_u, eigenvectors_v, eigenvalues_omega, psi_0_bdg, mue_0_bdg = solver.bdg(
+    psi_0=psi_0, n_atoms=n_atoms, n=128)
 
 parameters_figure_eigenstates_bdg = {'u_v_re_im_min': -1.0,
                                      'u_v_re_im_max': +1.0,

@@ -20,6 +20,8 @@ from figures.figure_main.figure_main import FigureMain
 from figures.figure_tof.figure_tof import FigureTof
 from figures.figure_tof_extended.figure_tof_extended import FigureTofExtended
 
+from qsolve.figures import FigureEigenstatesBDG3D
+
 from evaluation import eval_data
 from evaluation import eval_data_tof
 
@@ -36,7 +38,7 @@ print()
 # -------------------------------------------------------------------------------------------------
 
 # -------------------------------------------------------------------------------------------------
-num_threads_cpu = 8
+num_threads_cpu = 18
 
 os.environ["OMP_NUM_THREADS"] = str(num_threads_cpu)
 os.environ["MKL_NUM_THREADS"] = str(num_threads_cpu)
@@ -88,7 +90,7 @@ export_psi_of_times_analysis = False
 device = 'cuda:0'
 # device='cpu'
 
-N = 3500
+n_atoms = 3500
 
 u1_final = 0.56
 
@@ -122,9 +124,13 @@ m_atom = m_Rb_87
 
 a_s = 5.24e-9
 
-Jx = 2 * 28
-Jy = 2 * 12
-Jz = 4 * 60
+# Jx = 2 * 28
+# Jy = 2 * 12
+# Jz = 4 * 60
+
+Jx = 2*28
+Jy = 2*12
+Jz = 60
 
 dt = 0.0025e-3
 
@@ -362,7 +368,7 @@ solver.set_external_potential(t=0.0, u=u_of_times[0])
 # =================================================================================================
 
 # -------------------------------------------------------------------------------------------------
-psi_0 = solver.compute_ground_state_solution(n_atoms=N, n_iter=5000, tau=0.005e-3, adaptive_tau=True)
+psi_0 = solver.compute_ground_state_solution(n_atoms=n_atoms, n_iter=5000, tau=0.005e-3, adaptive_tau=True)
 
 solver.psi = psi_0
 
@@ -404,6 +410,33 @@ else:
 
 
 # =================================================================================================
+# compute quasiparticle amplitudes u and v
+# =================================================================================================
+
+eigenvectors_u, eigenvectors_v, eigenvalues_omega_dummy, psi_0_bdg, mue_0_bdg = (
+    solver.bdg(psi_0=psi_0, n_atoms=n_atoms, n=12))
+
+figure_eigenstates_bdg = FigureEigenstatesBDG3D(eigenvectors_u=eigenvectors_u,
+                                                eigenvectors_v=eigenvectors_v,
+                                                V=solver.V,
+                                                psi_0=psi_0_bdg,
+                                                x=grid.x,
+                                                y=grid.y,
+                                                x_ticks=[-3, 0, 3],
+                                                y_ticks=[-80, -40, 0, 40, 80])
+
+mue_0 = solver.compute_chemical_potential()
+
+# print(mue_0)
+# print(mue_0_bdg)
+# input()
+
+
+
+
+
+
+# =================================================================================================
 # thermal state sampling
 # =================================================================================================
 
@@ -432,7 +465,7 @@ if T > 0:
         print('----------------------------------------------------------------------------------------')
         print('n_sgpe: {0:4d} / {1:4d}'.format(n_sgpe, n_sgpe_max))
         print()
-        print('N:      {0:1.4f}'.format(data.N))
+        print('n_atoms:      {0:1.4f}'.format(data.n_atoms))
         print('----------------------------------------------------------------------------------------')
         print()
 
@@ -559,7 +592,7 @@ while True:
     print('t: {0:1.2f} / {1:1.2f}'.format(t / 1e-3, times[-1] / 1e-3))
     print('n: {0:4d} / {1:4d}'.format(n, n_times))
     print()
-    print('N: {0:1.4f}'.format(data.N))
+    print('n_atoms: {0:1.4f}'.format(data.n_atoms))
     print('----------------------------------------------------------------------------------------')
     print()
 
@@ -627,7 +660,7 @@ if export_hdf5:
     # ---------------------------------------------------------------------------------------------
     f_hdf5.create_dataset("hbar", data=hbar)
 
-    f_hdf5.create_dataset("N", data=N)
+    f_hdf5.create_dataset("n_atoms", data=n_atoms)
 
     f_hdf5.create_dataset("x", data=grid.x)
     f_hdf5.create_dataset("y", data=grid.y)
