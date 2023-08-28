@@ -130,28 +130,30 @@ class FigureEigenstatesBDG2D(object):
         # -----------------------------------------------------------------------------------------
 
         # -----------------------------------------------------------------------------------------
-        FigRealPart2D(ax_00, psi_0, settings, title=r'$\psi_0$ (scaled)')
+        FigRealPart2D(ax_00, V, psi_0, settings, title=r'$\psi_0$ (scaled)')
         FigPotential2D(ax_01, V, settings)
 
-        FigRealPart2D(ax_10, eigenvectors_u[0, :, :], settings, title=r'$u$ (scaled)')
-        FigRealPart2D(ax_20, eigenvectors_u[1, :, :], settings, title=r'$u$ (scaled)')
-        FigRealPart2D(ax_30, eigenvectors_u[2, :, :], settings, title=r'$u$ (scaled)')
-        FigRealPart2D(ax_40, eigenvectors_u[3, :, :], settings, title=r'$u$ (scaled)')
+        n = eigenvectors_u.shape[0]
 
-        FigRealPart2D(ax_11, eigenvectors_v[0, :, :], settings, title=r'$v$ (scaled)')
-        FigRealPart2D(ax_21, eigenvectors_v[1, :, :], settings, title=r'$v$ (scaled)')
-        FigRealPart2D(ax_31, eigenvectors_v[2, :, :], settings, title=r'$v$ (scaled)')
-        FigRealPart2D(ax_41, eigenvectors_v[3, :, :], settings, title=r'$v$ (scaled)')
+        FigRealPart2D(ax_10, V, eigenvectors_u[0, :, :], settings, title=r'$u_0$ (scaled)')
+        FigRealPart2D(ax_20, V, eigenvectors_u[1, :, :], settings, title=r'$u_1$ (scaled)')
+        FigRealPart2D(ax_30, V, eigenvectors_u[2, :, :], settings, title=r'$u_2$ (scaled)')
+        FigRealPart2D(ax_40, V, eigenvectors_u[3, :, :], settings, title=r'$u_3$ (scaled)')
 
-        FigRealPart2D(ax_12, eigenvectors_u[-4, :, :], settings, title=r'$u$ (scaled)')
-        FigRealPart2D(ax_22, eigenvectors_u[-3, :, :], settings, title=r'$u$ (scaled)')
-        FigRealPart2D(ax_32, eigenvectors_u[-2, :, :], settings, title=r'$u$ (scaled)')
-        FigRealPart2D(ax_42, eigenvectors_u[-1, :, :], settings, title=r'$u$ (scaled)')
+        FigRealPart2D(ax_11, V, eigenvectors_v[0, :, :], settings, title=r'$v_0$ (scaled)')
+        FigRealPart2D(ax_21, V, eigenvectors_v[1, :, :], settings, title=r'$v_1$ (scaled)')
+        FigRealPart2D(ax_31, V, eigenvectors_v[2, :, :], settings, title=r'$v_2$ (scaled)')
+        FigRealPart2D(ax_41, V, eigenvectors_v[3, :, :], settings, title=r'$v_3$ (scaled)')
 
-        FigRealPart2D(ax_13, eigenvectors_v[-4, :, :], settings, title=r'$v$ (scaled)')
-        FigRealPart2D(ax_23, eigenvectors_v[-3, :, :], settings, title=r'$v$ (scaled)')
-        FigRealPart2D(ax_33, eigenvectors_v[-2, :, :], settings, title=r'$v$ (scaled)')
-        FigRealPart2D(ax_43, eigenvectors_v[-1, :, :], settings, title=r'$v$ (scaled)')
+        FigRealPart2D(ax_12, V, eigenvectors_u[-4, :, :], settings, title=r'$u_{-4}$ (scaled)')
+        FigRealPart2D(ax_22, V, eigenvectors_u[-3, :, :], settings, title=r'$u_{-3}$ (scaled)')
+        FigRealPart2D(ax_32, V, eigenvectors_u[-2, :, :], settings, title=r'$u_{-2}$ (scaled)')
+        FigRealPart2D(ax_42, V, eigenvectors_u[-1, :, :], settings, title=r'$u_{-1}$ (scaled)')
+
+        FigRealPart2D(ax_13, V, eigenvectors_v[-4, :, :], settings, title=r'$v_{-4}$ (scaled)')
+        FigRealPart2D(ax_23, V, eigenvectors_v[-3, :, :], settings, title=r'$v_{-3}$ (scaled)')
+        FigRealPart2D(ax_33, V, eigenvectors_v[-2, :, :], settings, title=r'$v_{-2}$ (scaled)')
+        FigRealPart2D(ax_43, V, eigenvectors_v[-1, :, :], settings, title=r'$v_{-1}$ (scaled)')
         # -----------------------------------------------------------------------------------------
 
         # -----------------------------------------------------------------------------------------

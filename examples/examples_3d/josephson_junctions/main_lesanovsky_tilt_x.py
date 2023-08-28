@@ -38,7 +38,7 @@ print()
 # -------------------------------------------------------------------------------------------------
 
 # -------------------------------------------------------------------------------------------------
-num_threads_cpu = 18
+num_threads_cpu = 8
 
 os.environ["OMP_NUM_THREADS"] = str(num_threads_cpu)
 os.environ["MKL_NUM_THREADS"] = str(num_threads_cpu)

@@ -35,7 +35,7 @@ from evaluation import eval_data
 
 
 # -------------------------------------------------------------------------------------------------
-num_threads_cpu = 16
+num_threads_cpu = 8
 
 os.environ["OMP_NUM_THREADS"] = str(num_threads_cpu)
 os.environ["MKL_NUM_THREADS"] = str(num_threads_cpu)
@@ -126,11 +126,11 @@ a_s = 5.24e-9
 # Jx = 60
 # Jy = 1600
 
-Jx = 30
-Jy = 800
+# Jx = 30
+# Jy = 800
 
-# Jx = 64
-# Jy = 512
+Jx = 64
+Jy = 512
 
 dt = 0.0025e-3
 
