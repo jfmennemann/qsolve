@@ -415,13 +415,18 @@ excitations_u, excitations_v, eigenvalues_omega_dummy, psi_0_bdg, mue_0_bdg = (
 figure_eigenstates_bdg = FigureEigenstatesBDG3D(excitations_u=excitations_u,
                                                 excitations_v=excitations_v,
                                                 V=solver.V,
-                                                psi_0=psi_0_bdg,
                                                 x=grid.x,
                                                 y=grid.y,
                                                 z=grid.z,
                                                 x_ticks=[-3, 0, 3],
                                                 y_ticks=[-1.5, 0, 1.5],
-                                                z_ticks=[-80, -40, 0, 40, 80])
+                                                z_ticks=[-80, -40, 0, 40, 80],
+                                                figsize=(12, 10),
+                                                left=0.075, right=0.95,
+                                                bottom=0.075, top=0.9,
+                                                wspace=0.35, hspace=0.7,
+                                                width_ratios=[1, 0.25, 1, 0.25],
+                                                height_ratios=[1, 1, 1, 1, 1])
 
 mue_0 = solver.compute_chemical_potential()
 
