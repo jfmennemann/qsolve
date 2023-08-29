@@ -124,26 +124,22 @@ m_atom = m_Rb_87
 
 a_s = 5.24e-9
 
-# Jx = 2 * 28
-# Jy = 2 * 12
-# Jz = 4 * 60
-
-Jx = 2*28
-Jy = 2*12
-Jz = 60
+Jx = 2 * 30
+Jy = 2 * 15
+Jz = 2 * 80
 
 dt = 0.0025e-3
 
 n_mod_times_analysis = 100
 
-x_min = -2.8e-6
-x_max = +2.8e-6
+x_min = -3.0e-6
+x_max = +3.0e-6
 
-y_min = -1.2e-6
-y_max = +1.2e-6
+y_min = -1.5e-6
+y_max = +1.5e-6
 
-z_min = -60e-6
-z_max = +60e-6
+z_min = -80e-6
+z_max = +80e-6
 
 parameters_potential = {
     'm_atom': m_atom,
@@ -413,17 +409,19 @@ else:
 # compute quasiparticle amplitudes u and v
 # =================================================================================================
 
-eigenvectors_u, eigenvectors_v, eigenvalues_omega_dummy, psi_0_bdg, mue_0_bdg = (
+excitations_u, excitations_v, eigenvalues_omega_dummy, psi_0_bdg, mue_0_bdg = (
     solver.bdg(psi_0=psi_0, n_atoms=n_atoms, n=12))
 
-figure_eigenstates_bdg = FigureEigenstatesBDG3D(eigenvectors_u=eigenvectors_u,
-                                                eigenvectors_v=eigenvectors_v,
+figure_eigenstates_bdg = FigureEigenstatesBDG3D(excitations_u=excitations_u,
+                                                excitations_v=excitations_v,
                                                 V=solver.V,
                                                 psi_0=psi_0_bdg,
                                                 x=grid.x,
                                                 y=grid.y,
+                                                z=grid.z,
                                                 x_ticks=[-3, 0, 3],
-                                                y_ticks=[-80, -40, 0, 40, 80])
+                                                y_ticks=[-1.5, 0, 1.5],
+                                                z_ticks=[-80, -40, 0, 40, 80])
 
 mue_0 = solver.compute_chemical_potential()
 
@@ -465,7 +463,7 @@ if T > 0:
         print('----------------------------------------------------------------------------------------')
         print('n_sgpe: {0:4d} / {1:4d}'.format(n_sgpe, n_sgpe_max))
         print()
-        print('n_atoms:      {0:1.4f}'.format(data.n_atoms))
+        print('n_atoms:      {0:1.4f}'.format(data.N))
         print('----------------------------------------------------------------------------------------')
         print()
 
@@ -592,7 +590,7 @@ while True:
     print('t: {0:1.2f} / {1:1.2f}'.format(t / 1e-3, times[-1] / 1e-3))
     print('n: {0:4d} / {1:4d}'.format(n, n_times))
     print()
-    print('n_atoms: {0:1.4f}'.format(data.n_atoms))
+    print('n_atoms: {0:1.4f}'.format(data.N))
     print('----------------------------------------------------------------------------------------')
     print()
 

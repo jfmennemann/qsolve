@@ -234,7 +234,7 @@ plt.draw()
 # compute quasiparticle amplitudes u and v
 # =================================================================================================
 
-eigenvectors_u, eigenvectors_v, eigenvalues_omega, psi_0_bdg, mue_0_bdg = solver.bdg(
+excitations_u, excitations_v, eigenvalues_omega, psi_0_bdg, mue_0_bdg = solver.bdg(
     psi_0=psi_0, n_atoms=n_atoms, n=128)
 
 parameters_figure_eigenstates_bdg = {'u_v_re_im_min': -1.0,
@@ -244,8 +244,8 @@ parameters_figure_eigenstates_bdg = {'u_v_re_im_min': -1.0,
                                      'x_ticks': np.array([-40, -20, 0, 20, 40])
                                      }
 
-figure_eigenstates_bdg = FigureEigenstatesBDG1D(eigenvectors_u,
-                                                eigenvectors_v,
+figure_eigenstates_bdg = FigureEigenstatesBDG1D(excitations_u,
+                                                excitations_v,
                                                 solver.V,
                                                 grid.x,
                                                 parameters_figure_eigenstates_bdg)

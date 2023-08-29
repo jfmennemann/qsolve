@@ -1,104 +1,30 @@
 import matplotlib.pyplot as plt
 
-from scipy import constants
-
-import numpy as np
-
-from .fig_potential_2d import FigPotential2D
-from .fig_real_part_2d import FigRealPart2D
-
-from qsolve.figures.style import colors
-
+from .fig_excitation_u_xz import FigExcitationUXZ
+from .fig_excitation_v_xz import FigExcitationVXZ
 
 class FigureEigenstatesBDG3D(object):
 
-    def __init__(self, *, eigenvectors_u, eigenvectors_v, V, psi_0, x, y, x_ticks, y_ticks):
+    def __init__(self, *, excitations_u, excitations_v, V, psi_0, x, y, z, x_ticks, y_ticks, z_ticks):
 
-        x = x / 1e-6
-        y = y / 1e-6
+        label_x = r'$x \;\, \mathrm{in} \;\, \mu \mathrm{m}$'
+        label_y = r'$y \;\, \mathrm{in} \;\, \mu \mathrm{m}$'
+        label_z = r'$z \;\, \mathrm{in} \;\, \mu \mathrm{m}$'
 
-        Jx = x.shape[0]
-        Jy = y.shape[0]
-
-        dx = x[1] - x[0]
-        dy = y[1] - y[0]
-
-        x_min = x[0]
-        y_min = y[0]
-
-        x_max = x_min + Jx * dx
-        y_max = y_min + Jy * dy
-
-        Jx = x.size
-        Jy = y.size
-
-        # -----------------------------------------------------------------------------------------
-        settings = type('', (), {})()
-
-        settings.x = x
-        settings.y = y
-
-        settings.Jx = Jx
-        settings.Jy = Jy
-
-        settings.x_ticks = x_ticks
-        settings.y_ticks = y_ticks
-
-        settings.x_min = x_min
-        settings.x_max = x_max
-
-        settings.y_min = y_min
-        settings.y_max = y_max
-
-        settings.label_V = r'$h \times \mathrm{kHz}$'
-
-        settings.linecolor_V = colors.alizarin
-
-        settings.linewidth_V = 1.1
-
-        settings.label_density = r'$\mathrm{m}^{-2}$'
-
-        settings.label_x = r'$x \;\, \mathrm{in} \;\, \mu \mathrm{m}$'
-        settings.label_y = r'$y \;\, \mathrm{in} \;\, \mu \mathrm{m}$'
-
-        settings.label_t = r'$t \;\, \mathrm{in} \;\, \mathrm{ms}$'
-
-        settings.cmap_density = colors.cmap_density
-
-        settings.cmap_real_part = colors.cmap_real_part
-
-        settings.color_gridlines_major = colors.color_gridlines_major
-        settings.color_gridlines_minor = colors.color_gridlines_minor
-
-        settings.fontsize_titles = 10
-        # -----------------------------------------------------------------------------------------
-
-        # -----------------------------------------------------------------------------------------
         plt.rcParams.update({'font.size': 10})
-        # -----------------------------------------------------------------------------------------
 
         # -----------------------------------------------------------------------------------------
-        self.fig_name = "figure_eigenstates_bdg_2d"
+        self.fig_name = "figure_eigenstates_bdg_3d"
 
         self.fig = plt.figure(self.fig_name, figsize=(12, 10), facecolor="white")
+
+        self.fig.suptitle('quasi-excitations (rescaled)', fontsize=14)
         # -----------------------------------------------------------------------------------------
 
         # -----------------------------------------------------------------------------------------
-        # if Ly > Lx:
-        #
-        #     width_ratios = [1.25, 1, 2]
-        #
-        # elif Ly < Lx:
-        #
-        #     width_ratios = [1, 1.25, 2]
-        #
-        # else:
-        #
-        #     width_ratios = [1, 1, 2]
-
         self.gridspec = self.fig.add_gridspec(nrows=5, ncols=4,
                                               left=0.1, right=0.95,
-                                              bottom=0.08, top=0.95,
+                                              bottom=0.08, top=0.9,
                                               wspace=0.35,
                                               hspace=0.7,
                                               width_ratios=[1, 1, 1, 1],
@@ -116,13 +42,13 @@ class FigureEigenstatesBDG3D(object):
         ax_31 = self.fig.add_subplot(self.gridspec[3, 1])
         ax_41 = self.fig.add_subplot(self.gridspec[4, 1])
 
-        # ax_02 = self.fig.add_subplot(self.gridspec[0, 2])
+        ax_02 = self.fig.add_subplot(self.gridspec[0, 2])
         ax_12 = self.fig.add_subplot(self.gridspec[1, 2])
         ax_22 = self.fig.add_subplot(self.gridspec[2, 2])
         ax_32 = self.fig.add_subplot(self.gridspec[3, 2])
         ax_42 = self.fig.add_subplot(self.gridspec[4, 2])
 
-        # ax_03 = self.fig.add_subplot(self.gridspec[0, 3])
+        ax_03 = self.fig.add_subplot(self.gridspec[0, 3])
         ax_13 = self.fig.add_subplot(self.gridspec[1, 3])
         ax_23 = self.fig.add_subplot(self.gridspec[2, 3])
         ax_33 = self.fig.add_subplot(self.gridspec[3, 3])
@@ -130,28 +56,45 @@ class FigureEigenstatesBDG3D(object):
         # -----------------------------------------------------------------------------------------
 
         # -----------------------------------------------------------------------------------------
-        FigRealPart2D(ax_00, psi_0, settings, title=r'$\psi_0$ (scaled)')
-        FigPotential2D(ax_01, V, settings)
+        # FigGroundStateGPE2D(ax_00, V, psi_0, x, y, label_x, label_y, x_ticks, y_ticks, title=r'$\psi_0$ (scaled)')
 
-        FigRealPart2D(ax_10, eigenvectors_u[0, :, :], settings, title=r'$u$ (scaled)')
-        FigRealPart2D(ax_20, eigenvectors_u[1, :, :], settings, title=r'$u$ (scaled)')
-        FigRealPart2D(ax_30, eigenvectors_u[2, :, :], settings, title=r'$u$ (scaled)')
-        FigRealPart2D(ax_40, eigenvectors_u[3, :, :], settings, title=r'$u$ (scaled)')
+        # FigPotential2D(ax_01, V, x, y, label_x, label_y, x_ticks, y_ticks, r'$V$ (scaled)')
 
-        FigRealPart2D(ax_11, eigenvectors_v[0, :, :], settings, title=r'$v$ (scaled)')
-        FigRealPart2D(ax_21, eigenvectors_v[1, :, :], settings, title=r'$v$ (scaled)')
-        FigRealPart2D(ax_31, eigenvectors_v[2, :, :], settings, title=r'$v$ (scaled)')
-        FigRealPart2D(ax_41, eigenvectors_v[3, :, :], settings, title=r'$v$ (scaled)')
+        # n = excitations_u.shape[0]
 
-        FigRealPart2D(ax_12, eigenvectors_u[-4, :, :], settings, title=r'$u$ (scaled)')
-        FigRealPart2D(ax_22, eigenvectors_u[-3, :, :], settings, title=r'$u$ (scaled)')
-        FigRealPart2D(ax_32, eigenvectors_u[-2, :, :], settings, title=r'$u$ (scaled)')
-        FigRealPart2D(ax_42, eigenvectors_u[-1, :, :], settings, title=r'$u$ (scaled)')
+        import numpy as np
 
-        FigRealPart2D(ax_13, eigenvectors_v[-4, :, :], settings, title=r'$v$ (scaled)')
-        FigRealPart2D(ax_23, eigenvectors_v[-3, :, :], settings, title=r'$v$ (scaled)')
-        FigRealPart2D(ax_33, eigenvectors_v[-2, :, :], settings, title=r'$v$ (scaled)')
-        FigRealPart2D(ax_43, eigenvectors_v[-1, :, :], settings, title=r'$v$ (scaled)')
+        for nr in np.arange(excitations_u.shape[0]):
+
+            print(nr)
+            print(np.max(np.abs(excitations_u[nr, :, :, :])))
+            print(np.max(np.abs(excitations_v[nr, :, :, :])))
+            print()
+            print()
+
+        # input()
+
+        FigExcitationUXZ(ax_00, V, excitations_u, 0, x, y, z, label_x, label_z, x_ticks, z_ticks)
+        FigExcitationUXZ(ax_10, V, excitations_u, 1, x, y, z, label_x, label_z, x_ticks, z_ticks)
+        FigExcitationUXZ(ax_20, V, excitations_u, 2, x, y, z, label_x, label_z, x_ticks, z_ticks)
+        FigExcitationUXZ(ax_30, V, excitations_u, 3, x, y, z, label_x, label_z, x_ticks, z_ticks)
+        FigExcitationUXZ(ax_40, V, excitations_u, 4, x, y, z, label_x, label_z, x_ticks, z_ticks)
+
+        FigExcitationVXZ(ax_02, V, excitations_v, 0, x, y, z, label_x, label_z, x_ticks, z_ticks)
+        FigExcitationVXZ(ax_12, V, excitations_v, 1, x, y, z, label_x, label_z, x_ticks, z_ticks)
+        FigExcitationVXZ(ax_22, V, excitations_v, 2, x, y, z, label_x, label_z, x_ticks, z_ticks)
+        FigExcitationVXZ(ax_32, V, excitations_v, 3, x, y, z, label_x, label_z, x_ticks, z_ticks)
+        FigExcitationVXZ(ax_42, V, excitations_v, 4, x, y, z, label_x, label_z, x_ticks, z_ticks)
+
+        # FigEigenstateBDGXY(ax_12, V, excitations_u, n-4, x, y, z, label_x, label_y, x_ticks, z_ticks, r'$u_{-4}$ (scaled)')
+        # FigEigenstateBDGXY(ax_22, V, excitations_u, n-3, x, y, z, label_x, label_y, x_ticks, z_ticks, r'$u_{-3}$ (scaled)')
+        # FigEigenstateBDGXY(ax_32, V, excitations_u, n-2, x, y, z, label_x, label_y, x_ticks, z_ticks, r'$u_{-2}$ (scaled)')
+        # FigEigenstateBDGXY(ax_42, V, excitations_u, n-1, x, y, z, label_x, label_y, x_ticks, z_ticks, r'$u_{-1}$ (scaled)')
+
+        # FigEigenstateBDGXY(ax_13, V, excitations_v, n-4, x, y, z, label_x, label_y, x_ticks, z_ticks, r'$v_{-4}$ (scaled)')
+        # FigEigenstateBDGXY(ax_23, V, excitations_v, n-3, x, y, z, label_x, label_y, x_ticks, z_ticks, r'$v_{-3}$ (scaled)')
+        # FigEigenstateBDGXY(ax_33, V, excitations_v, n-2, x, y, z, label_x, label_y, x_ticks, z_ticks, r'$v_{-2}$ (scaled)')
+        # FigEigenstateBDGXY(ax_43, V, excitations_v, n-1, x, y, z, label_x, label_y, x_ticks, z_ticks, r'$v_{-1}$ (scaled)')
         # -----------------------------------------------------------------------------------------
 
         # -----------------------------------------------------------------------------------------
