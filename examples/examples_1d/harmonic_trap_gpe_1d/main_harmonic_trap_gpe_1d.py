@@ -229,27 +229,7 @@ plt.grid(visible=True, which='minor', color='k', linestyle='-', linewidth=0.25)
 plt.draw()
 # -------------------------------------------------------------------------------------------------
 
-
-# =================================================================================================
-# compute quasiparticle amplitudes u and v
-# =================================================================================================
-
-excitations_u, excitations_v, eigenvalues_omega, psi_0_bdg, mue_0_bdg = solver.bdg(
-    psi_0=psi_0, n_atoms=n_atoms, n=128)
-
-parameters_figure_eigenstates_bdg = {'u_v_re_im_min': -1.0,
-                                     'u_v_re_im_max': +1.0,
-                                     'V_min': 0.0,
-                                     'V_max': 4.0,
-                                     'x_ticks': np.array([-40, -20, 0, 20, 40])
-                                     }
-
-figure_eigenstates_bdg = FigureEigenstatesBDG1D(excitations_u,
-                                                excitations_v,
-                                                solver.V,
-                                                grid.x,
-                                                parameters_figure_eigenstates_bdg)
-
+"""
 # =================================================================================================
 # compute eigenstates of the linear Schrödinger equation
 # =================================================================================================
@@ -351,6 +331,33 @@ cbar.ax.tick_params(length=6, pad=4, which="major")
 figure_convergence_lse_1d.canvas.start_event_loop(0.001)
 
 plt.draw()
+"""
+
+# =================================================================================================
+# compute quasiparticle amplitudes u and v
+# =================================================================================================
+
+# excitations_u, excitations_v, eigenvalues_omega, psi_0_bdg, mue_0_bdg = solver.bdg(
+#     psi_0=psi_0, n_atoms=n_atoms, n=128)
+
+excitations_u, excitations_v, eigenvalues_omega, psi_0_bdg, mue_0_bdg = solver.bdg_experimental(
+    psi_0=psi_0,
+    n_atoms=n_atoms,
+    n=16)
+
+parameters_figure_eigenstates_bdg = {'u_v_re_im_min': -1.0,
+                                     'u_v_re_im_max': +1.0,
+                                     'V_min': 0.0,
+                                     'V_max': 4.0,
+                                     'x_ticks': np.array([-40, -20, 0, 20, 40])
+                                     }
+
+figure_eigenstates_bdg = FigureEigenstatesBDG1D(excitations_u,
+                                                excitations_v,
+                                                solver.V,
+                                                grid.x,
+                                                parameters_figure_eigenstates_bdg)
+
 
 
 # =================================================================================================
@@ -443,7 +450,7 @@ if T > 0:
 # =================================================================================================
 # projection
 
-solver.psi = grid.dx * eigenstates_lse.T @ (eigenstates_lse @ solver.psi)
+# solver.psi = grid.dx * eigenstates_lse.T @ (eigenstates_lse @ solver.psi)
 # =================================================================================================
 
 
