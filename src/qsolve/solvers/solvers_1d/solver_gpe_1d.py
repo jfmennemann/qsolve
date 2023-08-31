@@ -191,16 +191,9 @@ class SolverGPE1D(object):
             self._units.unit_wave_function * _psi_0, \
             self._units.unit_energy * _mue_0
 
-    def bdg_experimental(self, *, psi_0, n_atoms, n):
-
-        _psi_0 = torch.tensor(psi_0 / self._units.unit_wave_function, device=self._device)
-
-        _mue_0 = qsolve_core.chemical_potential_gpe_1d(
-            _psi_0, self._V, self._dx, self._hbar, self._m_atom, self._g)
+    def bdg_experimental(self, *, n_atoms, n):
 
         _eigenvectors_u, _eigenvectors_v, _eigenvalues_omega, _psi_0, _mue_0 = qsolve_core.bdg_1d_experimental(
-            _psi_0,
-            _mue_0,
             self._V,
             self._dx,
             self._hbar,

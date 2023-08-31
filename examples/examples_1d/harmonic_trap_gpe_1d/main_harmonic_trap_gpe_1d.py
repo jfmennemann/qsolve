@@ -229,6 +229,7 @@ plt.grid(visible=True, which='minor', color='k', linestyle='-', linewidth=0.25)
 plt.draw()
 # -------------------------------------------------------------------------------------------------
 
+
 """
 # =================================================================================================
 # compute eigenstates of the linear Schrödinger equation
@@ -340,10 +341,7 @@ plt.draw()
 # excitations_u, excitations_v, eigenvalues_omega, psi_0_bdg, mue_0_bdg = solver.bdg(
 #     psi_0=psi_0, n_atoms=n_atoms, n=128)
 
-excitations_u, excitations_v, eigenvalues_omega, psi_0_bdg, mue_0_bdg = solver.bdg_experimental(
-    psi_0=psi_0,
-    n_atoms=n_atoms,
-    n=16)
+excitations_u, excitations_v, eigenvalues_omega, psi_0_bdg, mue_0_bdg = solver.bdg_experimental(n_atoms=n_atoms, n=12)
 
 parameters_figure_eigenstates_bdg = {'u_v_re_im_min': -1.0,
                                      'u_v_re_im_max': +1.0,
