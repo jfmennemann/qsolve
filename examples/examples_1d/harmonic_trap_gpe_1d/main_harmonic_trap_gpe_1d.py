@@ -357,7 +357,6 @@ figure_eigenstates_bdg = FigureEigenstatesBDG1D(excitations_u,
                                                 parameters_figure_eigenstates_bdg)
 
 
-
 # =================================================================================================
 # set wave function to ground state solution
 # =================================================================================================
