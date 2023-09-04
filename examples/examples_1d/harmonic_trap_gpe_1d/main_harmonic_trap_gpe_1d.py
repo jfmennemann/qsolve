@@ -341,7 +341,7 @@ plt.draw()
 # excitations_u, excitations_v, eigenvalues_omega, psi_0_bdg, mue_0_bdg = solver.bdg(
 #     psi_0=psi_0, n_atoms=n_atoms, n=128)
 
-excitations_u, excitations_v, eigenvalues_omega, psi_0_bdg, mue_0_bdg = solver.bdg_experimental(n_atoms=n_atoms, n=12)
+excitations_u, excitations_v, eigenvalues_omega, psi_0_bdg, mue_0_bdg = solver.bdg_experimental(n_atoms=n_atoms, n=256)
 
 parameters_figure_eigenstates_bdg = {'u_v_re_im_min': -1.0,
                                      'u_v_re_im_max': +1.0,

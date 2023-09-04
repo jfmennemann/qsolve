@@ -3,6 +3,14 @@ import numpy as np
 from qsolve_core import D1_fourier_1d
 from qsolve_core import D2_fourier_1d
 
+from qsolve_core import lambda_D1_fourier_1d
+from qsolve_core import lambda_D2_fourier_1d
+
+from qsolve_core import D2_circulant_fd_1d
+
+
+from problem_1 import f, f_x, f_xx
+
 import matplotlib.pyplot as plt
 
 
@@ -11,7 +19,7 @@ pi = np.pi
 x_min = 0
 x_max = 1
 
-Jx = 2 ** 9
+Jx = 2 ** 11
 
 x = np.linspace(x_min, x_max, Jx, endpoint=False)
 
@@ -24,11 +32,9 @@ Lx = x_max - x_min
 
 assert (Lx == Jx * dx)
 
-u = np.exp(np.sin(2 * pi * x / Lx))
-
-u_d_ref = (2 * pi / Lx) * np.cos(2 * pi * x / Lx) * u
-
-u_dd_ref = (-(2 * pi / Lx) ** 2 * np.sin(2 * pi * x / Lx) * u + (2 * pi / Lx) * np.cos(2 * pi * x / Lx) * u_d_ref)
+u = f(x, Lx)
+u_d_ref = f_x(x, Lx)
+u_dd_ref = f_xx(x, Lx)
 # ---------------------------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------------------------
@@ -37,21 +43,18 @@ u_dd_ref = (-(2 * pi / Lx) ** 2 * np.sin(2 * pi * x / Lx) * u + (2 * pi / Lx) * 
 Lx = Jx * dx
 
 # ----
-xi = 2 * np.pi * np.arange(start=-Jx // 2, stop=Jx // 2) / Lx
-xi[0] = 0.0
-xi = np.fft.fftshift(xi)
-lambda_d_x = 1j * xi
+lambda_d_x = lambda_D1_fourier_1d(Jx, dx)
 
 u_d_fft = np.fft.ifft(lambda_d_x * np.fft.fft(u))
+
 u_d_fft = np.real(u_d_fft)
 # ----
 
 # ----
-xi = 2 * np.pi * np.arange(start=-Jx // 2, stop=Jx // 2) / Lx
-xi = np.fft.fftshift(xi)
-lambda_d_xx = -1.0 * xi * xi
+lambda_d_xx = lambda_D2_fourier_1d(Jx, dx)
 
 u_dd_fft = np.fft.ifft(lambda_d_xx * np.fft.fft(u))
+
 u_dd_fft = np.real(u_dd_fft)
 # ----
 # ---------------------------------------------------------------------------------------------
@@ -91,17 +94,25 @@ u_d_fd = (np.roll(u, shift=-1) - np.roll(u, shift=+1)) / (2.0 * dx)
 
 # -9, 128, -1008, 8064, -14350, 8064, -1008, 128, -9
 
-u_dd_fd = (
-    - 9 * np.roll(u, shift=-4)
-    + 128 * np.roll(u, shift=-3)
-    - 1008 * np.roll(u, shift=-2)
-    + 8064 * np.roll(u, shift=-1)
-    - 14350 * u
-    + 8064 * np.roll(u, shift=+1)
-    - 1008 * np.roll(u, shift=+2)
-    + 128 * np.roll(u, shift=+3)
-    - 9 * np.roll(u, shift=+4)
-) / (5040 * dx ** 2)
+# u_dd_fd = (
+#     - 9 * np.roll(u, shift=-4)
+#     + 128 * np.roll(u, shift=-3)
+#     - 1008 * np.roll(u, shift=-2)
+#     + 8064 * np.roll(u, shift=-1)
+#     - 14350 * u
+#     + 8064 * np.roll(u, shift=+1)
+#     - 1008 * np.roll(u, shift=+2)
+#     + 128 * np.roll(u, shift=+3)
+#     - 9 * np.roll(u, shift=+4)
+# ) / (5040 * dx ** 2)
+
+D2_circulant_fd = D2_circulant_fd_1d(Jx, dx, order=4)
+
+c = D2_circulant_fd[:, 0]
+
+# u_dd_fd = D2_circulant_fd @ u
+
+u_dd_fd = np.fft.ifft(np.fft.fft(c) * np.fft.fft(u))
 # ---------------------------------------------------------------------------------------------
 
 rel_error_u_d_matrix = np.linalg.norm(u_d_matrix - u_d_ref, ord=np.inf) / np.linalg.norm(u_d_ref, ord=np.inf)
@@ -139,11 +150,11 @@ fig_1 = plt.figure(num="fig_1", figsize=(8, 8))
 # -------------------------------------------------------------------------------------------------
 
 # -------------------------------------------------------------------------------------------------
-gridspec = fig_1.add_gridspec(nrows=2, ncols=1,
-                              left=0.125, right=0.9,
+gridspec = fig_1.add_gridspec(nrows=3, ncols=1,
+                              left=0.1, right=0.95,
                               bottom=0.08, top=0.95,
                               wspace=0.0,
-                              hspace=0.2
+                              hspace=0.4
                               # width_ratios=[1, 1],
                               # height_ratios=[1, 1]
                               )
@@ -152,43 +163,80 @@ gridspec = fig_1.add_gridspec(nrows=2, ncols=1,
 # -------------------------------------------------------------------------------------------------
 ax_00 = fig_1.add_subplot(gridspec[0, 0])
 ax_10 = fig_1.add_subplot(gridspec[1, 0])
+ax_20 = fig_1.add_subplot(gridspec[2, 0])
 # -------------------------------------------------------------------------------------------------
 
 # -------------------------------------------------------------------------------------------------
 ax_00.plot(x, u, color='k', linestyle='-', linewidth=1)
-# ax_00.plot(x, u_d_ref, color='r', linestyle='--', linewidth=1)
-# ax_00.plot(x, u_dd_ref, color='b', linestyle='-.', linewidth=1)
 
 y_min = 0.0
-y_max = 2.5
+y_max = 1.5
 
 ax_00.set_xlim(x_min-0.1*Lx, x_max+0.1*Lx)
 ax_00.set_ylim(y_min-0.1*(y_max-y_min), y_max+0.1*(y_max-y_min))
 
-y_ticks_major = np.linspace(y_min, y_max, num=5)
-y_ticks_minor = 0.5 * (y_ticks_major[0:-1] + y_ticks_major[1:])
+x_ticks_major = np.linspace(x_min, x_max, num=11)
+y_ticks_major = np.linspace(y_min, y_max, num=6)
+# y_ticks_minor = 0.5 * (y_ticks_major[0:-1] + y_ticks_major[1:])
 
+ax_00.set_xticks(x_ticks_major, minor=False)
 ax_00.set_yticks(y_ticks_major, minor=False)
 # ax_00.set_yticks(y_ticks_minor, minor=True)
 
-ax_00.set_xlabel(r'$x$', labelpad=12)
-
 ax_00.grid(visible=True, which='major', color='k', linestyle='-', linewidth=0.5)
 ax_00.grid(visible=True, which='minor', color='k', linestyle='--', linewidth=0.25)
+
+# ax_00.set_xlabel(r'$x$', labelpad=12)
+
+ax_00.set_title(r'$f^{(0)}(x)$')
 # -------------------------------------------------------------------------------------------------
 
 # -------------------------------------------------------------------------------------------------
-# ax_2.set_yscale('log')
+ax_10.plot(x, u_d_ref, color='k', linestyle='-', linewidth=1)
 
-# ax_2.set_title('ground state computation')
+y_min = -10.0
+y_max = +10.0
 
-# plt.plot(vec_iter, vec_res, linewidth=1, linestyle='-', color='k')
+ax_10.set_xlim(x_min-0.1*Lx, x_max+0.1*Lx)
+ax_10.set_ylim(y_min-0.1*(y_max-y_min), y_max+0.1*(y_max-y_min))
 
-# ax_2.set_xlim(0, vec_iter[-1])
-# ax_2.set_ylim(1e-8, 1)
+y_ticks_major = np.linspace(y_min, y_max, num=5)
+# y_ticks_minor = 0.5 * (y_ticks_major[0:-1] + y_ticks_major[1:])
 
-# plt.xlabel(r'number of iterations', labelpad=12)
-# plt.ylabel(r'relative residual error', labelpad=12)
+ax_10.set_xticks(x_ticks_major, minor=False)
+ax_10.set_yticks(y_ticks_major, minor=False)
+# ax_00.set_yticks(y_ticks_minor, minor=True)
+
+ax_10.grid(visible=True, which='major', color='k', linestyle='-', linewidth=0.5)
+ax_10.grid(visible=True, which='minor', color='k', linestyle='--', linewidth=0.25)
+
+# ax_10.set_xlabel(r'$x$', labelpad=12)
+
+ax_10.set_title(r'$f^{(1)}(x)$')
+# -------------------------------------------------------------------------------------------------
+
+# -------------------------------------------------------------------------------------------------
+ax_20.plot(x, u_dd_ref, color='k', linestyle='-', linewidth=1)
+
+y_min = -100.0
+y_max = +100.0
+
+ax_20.set_xlim(x_min-0.1*Lx, x_max+0.1*Lx)
+ax_20.set_ylim(y_min-0.1*(y_max-y_min), y_max+0.1*(y_max-y_min))
+
+y_ticks_major = np.linspace(y_min, y_max, num=5)
+# y_ticks_minor = 0.5 * (y_ticks_major[0:-1] + y_ticks_major[1:])
+
+ax_20.set_xticks(x_ticks_major, minor=False)
+ax_20.set_yticks(y_ticks_major, minor=False)
+# ax_00.set_yticks(y_ticks_minor, minor=True)
+
+ax_20.grid(visible=True, which='major', color='k', linestyle='-', linewidth=0.5)
+ax_20.grid(visible=True, which='minor', color='k', linestyle='--', linewidth=0.25)
+
+ax_20.set_title(r'$f^{(2)}(x)$')
+
+ax_20.set_xlabel(r'$x$', labelpad=12)
 # -------------------------------------------------------------------------------------------------
 
 plt.draw()
