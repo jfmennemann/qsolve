@@ -110,6 +110,7 @@ else:
 
 t_final = 80e-3
 
+
 if temperature:
 
     T = 20e-9
@@ -126,7 +127,7 @@ a_s = 5.24e-9
 
 Jx = 2 * 30
 Jy = 2 * 15
-Jz = 2 * 2 * 80
+Jz = 2 * 2 * 2 * 80
 
 dt = 0.0025e-3
 
@@ -410,7 +411,7 @@ else:
 # =================================================================================================
 
 excitations_u, excitations_v, eigenvalues_omega_dummy, psi_0_bdg, mue_0_bdg = (
-    solver.bdg(psi_0=psi_0, n_atoms=n_atoms, n=24))
+    solver.bdg(psi_0=psi_0, n_atoms=n_atoms, n=2*24))
 
 figure_eigenstates_bdg = FigureEigenstatesBDG3D(excitations_u=excitations_u,
                                                 excitations_v=excitations_v,

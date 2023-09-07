@@ -13,8 +13,8 @@ from qsolve_core import D2_circulant_fd_1d
 from qsolve.visualization.colors import flat_ui_1 as colors
 
 
-from problem_1 import f, f_x, f_xx
-# from problem_2 import f, f_x, f_xx
+# from problem_1 import f, f_x, f_xx
+from problem_2 import f, f_x, f_xx
 
 
 x_min = -4
