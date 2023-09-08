@@ -125,14 +125,6 @@ m_atom = m_Rb_87
 
 a_s = 5.24e-9
 
-Jx = 2 * 30
-Jy = 2 * 15
-Jz = 2 * 2 * 2 * 80
-
-dt = 0.0025e-3
-
-n_mod_times_analysis = 100
-
 x_min = -3.0e-6
 x_max = +3.0e-6
 
@@ -141,6 +133,14 @@ y_max = +1.5e-6
 
 z_min = -80e-6
 z_max = +80e-6
+
+Jx = 2 * 30
+Jy = 2 * 15
+Jz = 2 * 80
+
+dt = 0.0025e-3
+
+n_mod_times_analysis = 100
 
 parameters_potential = {
     'm_atom': m_atom,
@@ -410,8 +410,11 @@ else:
 # compute quasiparticle amplitudes u and v
 # =================================================================================================
 
+# excitations_u, excitations_v, eigenvalues_omega_dummy, psi_0_bdg, mue_0_bdg = (
+#     solver.bdg(psi_0=psi_0, n_atoms=n_atoms, n=2*24))
+
 excitations_u, excitations_v, eigenvalues_omega_dummy, psi_0_bdg, mue_0_bdg = (
-    solver.bdg(psi_0=psi_0, n_atoms=n_atoms, n=2*24))
+    solver.bdg_experimental(psi_0=psi_0, n_atoms=n_atoms, n=12))
 
 figure_eigenstates_bdg = FigureEigenstatesBDG3D(excitations_u=excitations_u,
                                                 excitations_v=excitations_v,
