@@ -38,7 +38,7 @@ print()
 # -------------------------------------------------------------------------------------------------
 
 # -------------------------------------------------------------------------------------------------
-num_threads_cpu = 8
+num_threads_cpu = 16
 
 os.environ["OMP_NUM_THREADS"] = str(num_threads_cpu)
 os.environ["MKL_NUM_THREADS"] = str(num_threads_cpu)
@@ -136,7 +136,8 @@ z_max = +80e-6
 
 Jx = 2 * 30
 Jy = 2 * 15
-Jz = 2 * 80
+# Jz = 2 * 2 * 2 * 80  # works
+Jz = 10 * 2 * 80
 
 dt = 0.0025e-3
 
@@ -414,7 +415,7 @@ else:
 #     solver.bdg(psi_0=psi_0, n_atoms=n_atoms, n=2*24))
 
 excitations_u, excitations_v, eigenvalues_omega_dummy, psi_0_bdg, mue_0_bdg = (
-    solver.bdg_experimental(psi_0=psi_0, n_atoms=n_atoms, n=12))
+    solver.bdg_experimental(psi_0=psi_0, n_atoms=n_atoms, n=64))
 
 figure_eigenstates_bdg = FigureEigenstatesBDG3D(excitations_u=excitations_u,
                                                 excitations_v=excitations_v,
