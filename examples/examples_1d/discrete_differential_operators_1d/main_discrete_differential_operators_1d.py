@@ -10,6 +10,8 @@ from qsolve_core import lambda_D2_fourier_1d
 
 from qsolve_core import D2_circulant_fd_1d
 
+from qsolve_core import lambda_D2_circulant_fd_1d
+
 from qsolve.visualization.colors import flat_ui_1 as colors
 
 
@@ -20,7 +22,7 @@ from problem_2 import f, f_x, f_xx
 x_min = -4
 x_max = +11
 
-Jx = 2 ** 11
+Jx = 2 ** 10
 
 x = np.linspace(x_min, x_max, Jx, endpoint=False)
 
@@ -52,9 +54,9 @@ u_dd_ref = f_xx(x)
 # ----
 
 # ----
-lambda_d_xx = lambda_D2_fourier_1d(Jx, dx)
+lambda_d_xx_fourier = lambda_D2_fourier_1d(Jx, dx)
 
-u_dd_fourier_fft = np.fft.ifft(lambda_d_xx * np.fft.fft(u))
+u_dd_fourier_fft = np.fft.ifft(lambda_d_xx_fourier * np.fft.fft(u))
 
 u_dd_fourier_fft = np.real(u_dd_fourier_fft)
 # ----
@@ -66,6 +68,10 @@ u_dd_fourier_fft = np.real(u_dd_fourier_fft)
 D2_fourier = D2_fourier_1d(Jx, dx)
 
 u_dd_fourier_matrix = D2_fourier @ u
+
+print('||fft(D2_fourier[:, 0])-lambda_d_xx_fourier)||: ')
+print(np.linalg.norm(np.fft.fft(D2_fourier[:, 0])-lambda_d_xx_fourier))
+print()
 # ---------------------------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------------------------
@@ -112,17 +118,15 @@ D2_circulant_fd_4th = D2_circulant_fd_1d(Jx, dx, order=4)
 D2_circulant_fd_6th = D2_circulant_fd_1d(Jx, dx, order=6)
 D2_circulant_fd_8th = D2_circulant_fd_1d(Jx, dx, order=8)
 
-c_D2_circulant_fd_2nd = D2_circulant_fd_2nd[:, 0]
-c_D2_circulant_fd_4th = D2_circulant_fd_4th[:, 0]
-c_D2_circulant_fd_6th = D2_circulant_fd_6th[:, 0]
-c_D2_circulant_fd_8th = D2_circulant_fd_8th[:, 0]
+lambda_d_xx_circulant_fd_2nd = lambda_D2_circulant_fd_1d(Jx, dx, order=2)
+lambda_d_xx_circulant_fd_4th = lambda_D2_circulant_fd_1d(Jx, dx, order=4)
+lambda_d_xx_circulant_fd_6th = lambda_D2_circulant_fd_1d(Jx, dx, order=6)
+lambda_d_xx_circulant_fd_8th = lambda_D2_circulant_fd_1d(Jx, dx, order=8)
 
-c_D2_fourier = D2_fourier[:, 0]
-
-u_dd_circulant_fd_2nd_fft = np.fft.ifft(np.fft.fft(c_D2_circulant_fd_2nd) * np.fft.fft(u))
-u_dd_circulant_fd_4th_fft = np.fft.ifft(np.fft.fft(c_D2_circulant_fd_4th) * np.fft.fft(u))
-u_dd_circulant_fd_6th_fft = np.fft.ifft(np.fft.fft(c_D2_circulant_fd_6th) * np.fft.fft(u))
-u_dd_circulant_fd_8th_fft = np.fft.ifft(np.fft.fft(c_D2_circulant_fd_8th) * np.fft.fft(u))
+u_dd_circulant_fd_2nd_fft = np.fft.ifft(lambda_d_xx_circulant_fd_2nd * np.fft.fft(u))
+u_dd_circulant_fd_4th_fft = np.fft.ifft(lambda_d_xx_circulant_fd_4th * np.fft.fft(u))
+u_dd_circulant_fd_6th_fft = np.fft.ifft(lambda_d_xx_circulant_fd_6th * np.fft.fft(u))
+u_dd_circulant_fd_8th_fft = np.fft.ifft(lambda_d_xx_circulant_fd_8th * np.fft.fft(u))
 
 u_dd_circulant_fd_2nd_matrix = D2_circulant_fd_2nd @ u
 u_dd_circulant_fd_4th_matrix = D2_circulant_fd_4th @ u
@@ -260,11 +264,12 @@ ax_20.set_xlabel(r'$x$', labelpad=12)
 # -------------------------------------------------------------------------------------------------
 linewidth = 1.75
 
-ax_01.plot(np.arange(0, Jx), np.abs(np.fft.fft(c_D2_circulant_fd_2nd)), color=colors.green_sea, linestyle='-', linewidth=linewidth)
-ax_01.plot(np.arange(0, Jx), np.abs(np.fft.fft(c_D2_circulant_fd_4th)), color=colors.peter_river, linestyle='-', linewidth=linewidth)
-ax_01.plot(np.arange(0, Jx), np.abs(np.fft.fft(c_D2_circulant_fd_6th)), color=colors.orange, linestyle='-', linewidth=linewidth)
-ax_01.plot(np.arange(0, Jx), np.abs(np.fft.fft(c_D2_circulant_fd_8th)), color=colors.alizarin, linestyle='-', linewidth=linewidth)
-ax_01.plot(np.arange(0, Jx), np.abs(np.fft.fft(c_D2_fourier)), color=colors.black, linestyle='-', linewidth=linewidth)
+ax_01.plot(np.arange(0, Jx), np.abs(lambda_d_xx_circulant_fd_2nd), color=colors.green_sea, linestyle='-', linewidth=linewidth)
+ax_01.plot(np.arange(0, Jx), np.abs(lambda_d_xx_circulant_fd_4th), color=colors.peter_river, linestyle='-', linewidth=linewidth)
+ax_01.plot(np.arange(0, Jx), np.abs(lambda_d_xx_circulant_fd_6th), color=colors.orange, linestyle='-', linewidth=linewidth)
+ax_01.plot(np.arange(0, Jx), np.abs(lambda_d_xx_circulant_fd_8th), color=colors.alizarin, linestyle='-', linewidth=linewidth)
+
+ax_01.plot(np.arange(0, Jx), np.abs(lambda_d_xx_fourier), color=colors.black, linestyle='-', linewidth=linewidth)
 
 # y_min = 0.0
 # y_max = 1.5

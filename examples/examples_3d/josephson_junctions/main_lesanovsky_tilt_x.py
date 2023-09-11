@@ -38,7 +38,7 @@ print()
 # -------------------------------------------------------------------------------------------------
 
 # -------------------------------------------------------------------------------------------------
-num_threads_cpu = 16
+num_threads_cpu = 8
 
 os.environ["OMP_NUM_THREADS"] = str(num_threads_cpu)
 os.environ["MKL_NUM_THREADS"] = str(num_threads_cpu)
@@ -137,7 +137,7 @@ z_max = +80e-6
 Jx = 2 * 30
 Jy = 2 * 15
 # Jz = 2 * 2 * 2 * 80  # works
-Jz = 10 * 2 * 80
+Jz = 4 * 2 * 80
 
 dt = 0.0025e-3
 
@@ -366,12 +366,12 @@ solver.set_external_potential(t=0.0, u=u_of_times[0])
 # =================================================================================================
 
 # -------------------------------------------------------------------------------------------------
-psi_0 = solver.compute_ground_state_solution(n_atoms=n_atoms, n_iter=5000, tau=0.005e-3, adaptive_tau=True)
+psi_0, mue_0 = solver.compute_ground_state_solution(n_atoms=n_atoms, n_iter=5000, tau=0.005e-3, adaptive_tau=True)
 
 solver.psi = psi_0
 
 N_0 = solver.compute_n_atoms()
-mue_0 = solver.compute_chemical_potential()
+# mue_0 = solver.compute_chemical_potential()
 E_0 = solver.compute_total_energy()
 
 print('N_0 = {:1.16e}'.format(N_0))
@@ -415,7 +415,7 @@ else:
 #     solver.bdg(psi_0=psi_0, n_atoms=n_atoms, n=2*24))
 
 excitations_u, excitations_v, eigenvalues_omega_dummy, psi_0_bdg, mue_0_bdg = (
-    solver.bdg_experimental(psi_0=psi_0, n_atoms=n_atoms, n=16))
+    solver.bdg_experimental(psi_0=psi_0, n_atoms=n_atoms, n=64))
 
 figure_eigenstates_bdg = FigureEigenstatesBDG3D(excitations_u=excitations_u,
                                                 excitations_v=excitations_v,

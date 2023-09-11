@@ -79,7 +79,7 @@ class SolverGPE3D(object):
 
             raise Exception(message)
 
-        _psi_0, vec_res, vec_iter = qsolve_core.ground_state_gpe_3d(
+        _psi_0, _mue_0, vec_res, vec_iter = qsolve_core.ground_state_gpe_3d(
             self._V,
             self._dx,
             self._dy,
@@ -94,11 +94,11 @@ class SolverGPE3D(object):
 
         if return_residuals:
 
-            return self._units.unit_wave_function * _psi_0.cpu().numpy(), vec_res, vec_iter
+            return self._units.unit_wave_function * _psi_0.cpu().numpy(), self._units.unit_energy * _mue_0, vec_res, vec_iter
 
         else:
 
-            return self._units.unit_wave_function * _psi_0.cpu().numpy()
+            return self._units.unit_wave_function * _psi_0.cpu().numpy(), self._units.unit_energy * _mue_0
 
     def bdg(self, *, psi_0, n_atoms, n, tol=1e-6):
 
@@ -390,12 +390,12 @@ class SolverGPE3D(object):
     def compute_n_atoms(self):
         return qsolve_core.n_atoms_3d(self._psi, self._dx, self._dy, self._dz)
 
-    def compute_chemical_potential(self):
-
-        _mue = qsolve_core.chemical_potential_gpe_3d(
-            self._psi, self._V, self._dx, self._dy, self._dz, self._hbar, self._m_atom, self._g)
-
-        return self._units.unit_energy * _mue
+    # def compute_chemical_potential(self):
+    #
+    #     _mue = qsolve_core.chemical_potential_gpe_3d(
+    #         self._psi, self._V, self._dx, self._dy, self._dz, self._hbar, self._m_atom, self._g)
+    #
+    #     return self._units.unit_energy * _mue
 
     def compute_total_energy(self):
 
