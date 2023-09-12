@@ -191,7 +191,7 @@ class SolverGPE1D(object):
     #         self._units.unit_wave_function * _psi_0, \
     #         self._units.unit_energy * _mue_0
 
-    def bdg_experimental(self, *, n_atoms, n):
+    def bdg_experimental(self, *, n_atoms, n_excitations):
 
         _excitations_u, _excitations_v, _frequencies_omega, _psi_0, _mue_0 = qsolve_core.bdg_1d_experimental(
             self._V,
@@ -200,7 +200,7 @@ class SolverGPE1D(object):
             self._m_atom,
             self._g,
             n_atoms,
-            n
+            n_excitations
         )
 
         return \

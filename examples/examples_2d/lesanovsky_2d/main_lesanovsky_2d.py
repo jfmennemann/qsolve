@@ -29,6 +29,8 @@ import numpy as np
 
 import scipy
 
+import pathlib
+
 import h5py
 
 from evaluation import eval_data
@@ -405,26 +407,59 @@ figure_eigenstates_lse_2d = FigureEigenstatesLSE2D(eigenstates_lse=eigenstates_l
 # compute quasiparticle amplitudes u and v
 # =================================================================================================
 
-# eigenvectors_u, eigenvectors_v, eigenvalues_omega_dummy, psi_0_bdg, mue_0_bdg = solver.bdg(
-#     psi_0=psi_0, n_atoms=n_atoms, n=12)
+path = "./data/bdg.hdf5"
 
-eigenvectors_u, eigenvectors_v, eigenvalues_omega_dummy, psi_0_bdg, mue_0_bdg = solver.bdg_experimental(
-    psi_0=psi_0, n_atoms=n_atoms, n=16)
+if not os.path.exists(path):
 
-figure_eigenstates_bdg = FigureEigenstatesBDG2D(eigenvectors_u=eigenvectors_u,
-                                                eigenvectors_v=eigenvectors_v,
+    excitations_u, excitations_v, frequencies_omega, psi_0, mue_0 = solver.bdg_experimental(
+        psi_0=psi_0, n_atoms=n_atoms, n_excitations=16)
+
+    pathlib.Path('./data').mkdir(parents=True, exist_ok=True)
+
+    f_hdf5 = h5py.File(path, mode="w")
+
+    f_hdf5.create_dataset(name="excitations_u", data=excitations_u, dtype=np.float64)
+    f_hdf5.create_dataset(name="excitations_v", data=excitations_v, dtype=np.float64)
+    f_hdf5.create_dataset(name="frequencies_omega", data=frequencies_omega, dtype=np.float64)
+    f_hdf5.create_dataset(name="psi_0", data=psi_0, dtype=np.float64)
+    f_hdf5.create_dataset(name="mue_0", data=mue_0, dtype=float)
+
+    f_hdf5.close()
+
+else:
+
+    f_hdf5 = h5py.File(path, mode='r')
+
+    excitations_u = f_hdf5['excitations_u'][:]
+    excitations_v = f_hdf5['excitations_v'][:]
+
+    frequencies_omega = f_hdf5['frequencies_omega'][:]
+
+    psi_0 = f_hdf5['psi_0'][:]
+    mue_0 = f_hdf5['mue_0'][()]
+
+    print(excitations_u.shape)
+    print(excitations_v.shape)
+    print()
+    print(frequencies_omega.shape)
+    print(psi_0.shape)
+    print()
+    print(frequencies_omega)
+    print()
+    print(mue_0)
+    print()
+    print()
+
+
+figure_eigenstates_bdg = FigureEigenstatesBDG2D(eigenvectors_u=excitations_u,
+                                                eigenvectors_v=excitations_v,
                                                 V=solver.V,
-                                                psi_0=psi_0_bdg,
+                                                psi_0=psi_0,
                                                 x=grid.x,
                                                 y=grid.y,
                                                 x_ticks=[-3, 0, 3],
                                                 y_ticks=[-80, -40, 0, 40, 80])
 
-mue_0 = solver.compute_chemical_potential()
-
-# print(mue_0)
-# print(mue_0_bdg)
-# input()
 
 # =================================================================================================
 # thermal state sampling

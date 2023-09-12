@@ -162,15 +162,42 @@ class SolverGPE2D(object):
                 self._units.unit_wave_function * _eigenstates_batch, \
                 self._units.unit_energy * _eigenvalues_batch
 
+    # def bdg(self, *, psi_0, n_atoms, n, tol=1e-6):
+    #
+    #     _psi_0 = torch.tensor(psi_0 / self._units.unit_wave_function, device=self._device)
+    #
+    #     _mue_0 = qsolve_core.chemical_potential_gpe_2d(
+    #         _psi_0, self._V, self._dx, self._dy, self._hbar, self._m_atom, self._g)
+    #
+    #     _eigenvectors_u, _eigenvectors_v, _eigenvalues_omega, _psi_0, _mue_0 = qsolve_core.bdg_2d(
+    #         _psi_0,
+    #         _mue_0,
+    #         self._V,
+    #         self._dx,
+    #         self._dy,
+    #         self._hbar,
+    #         self._m_atom,
+    #         self._g,
+    #         n_atoms,
+    #         n,
+    #         tol
+    #     )
+    #
+    #     return \
+    #         self._units.unit_wave_function * _eigenvectors_u, \
+    #         self._units.unit_wave_function * _eigenvectors_v, \
+    #         self._units.unit_frequency * _eigenvalues_omega, \
+    #         self._units.unit_wave_function * _psi_0, \
+    #         self._units.unit_energy * _mue_0
 
-    def bdg(self, *, psi_0, n_atoms, n, tol=1e-6):
+    def bdg_experimental(self, *, psi_0, n_atoms, n_excitations):
 
         _psi_0 = torch.tensor(psi_0 / self._units.unit_wave_function, device=self._device)
 
         _mue_0 = qsolve_core.chemical_potential_gpe_2d(
             _psi_0, self._V, self._dx, self._dy, self._hbar, self._m_atom, self._g)
 
-        _eigenvectors_u, _eigenvectors_v, _eigenvalues_omega, _psi_0, _mue_0 = qsolve_core.bdg_2d(
+        _excitations_u, _excitations_v, _frequencies_omega, _psi_0, _mue_0 = qsolve_core.bdg_2d_experimental(
             _psi_0,
             _mue_0,
             self._V,
@@ -180,43 +207,13 @@ class SolverGPE2D(object):
             self._m_atom,
             self._g,
             n_atoms,
-            n,
-            tol
+            n_excitations
         )
 
         return \
-            self._units.unit_wave_function * _eigenvectors_u, \
-            self._units.unit_wave_function * _eigenvectors_v, \
-            self._units.unit_frequency * _eigenvalues_omega, \
-            self._units.unit_wave_function * _psi_0, \
-            self._units.unit_energy * _mue_0
-
-
-    def bdg_experimental(self, *, psi_0, n_atoms, n, tol=1e-6):
-
-        _psi_0 = torch.tensor(psi_0 / self._units.unit_wave_function, device=self._device)
-
-        _mue_0 = qsolve_core.chemical_potential_gpe_2d(
-            _psi_0, self._V, self._dx, self._dy, self._hbar, self._m_atom, self._g)
-
-        _eigenvectors_u, _eigenvectors_v, _eigenvalues_omega, _psi_0, _mue_0 = qsolve_core.bdg_2d_experimental(
-            _psi_0,
-            _mue_0,
-            self._V,
-            self._dx,
-            self._dy,
-            self._hbar,
-            self._m_atom,
-            self._g,
-            n_atoms,
-            n,
-            tol
-        )
-
-        return \
-            self._units.unit_wave_function * _eigenvectors_u, \
-            self._units.unit_wave_function * _eigenvectors_v, \
-            self._units.unit_frequency * _eigenvalues_omega, \
+            self._units.unit_wave_function * _excitations_u, \
+            self._units.unit_wave_function * _excitations_v, \
+            self._units.unit_frequency * _frequencies_omega, \
             self._units.unit_wave_function * _psi_0, \
             self._units.unit_energy * _mue_0
 

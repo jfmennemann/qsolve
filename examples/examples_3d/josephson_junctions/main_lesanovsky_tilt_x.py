@@ -8,6 +8,8 @@ import mkl
 
 import os
 
+import pathlib
+
 import h5py
 
 import numpy as np
@@ -411,11 +413,59 @@ else:
 # compute quasiparticle amplitudes u and v
 # =================================================================================================
 
-# excitations_u, excitations_v, eigenvalues_omega_dummy, psi_0_bdg, mue_0_bdg = (
-#     solver.bdg(psi_0=psi_0, n_atoms=n_atoms, n=2*24))
+# excitations_u, excitations_v, frequencies_omega, psi_0, mue_0 = (
+#     solver.bdg_experimental(psi_0=psi_0, n_atoms=n_atoms, n=64))
 
-excitations_u, excitations_v, eigenvalues_omega_dummy, psi_0_bdg, mue_0_bdg = (
-    solver.bdg_experimental(psi_0=psi_0, n_atoms=n_atoms, n=64))
+
+# =================================================================================================
+# compute quasiparticle amplitudes u and v
+# =================================================================================================
+
+path = "./data/bdg.hdf5"
+
+if not os.path.exists(path):
+
+    # excitations_u, excitations_v, frequencies_omega, psi_0, mue_0 = solver.bdg_experimental(
+    #     psi_0=psi_0, n_atoms=n_atoms, n_excitations=16)
+
+    excitations_u, excitations_v, frequencies_omega, psi_0, mue_0 = (
+        solver.bdg_experimental(psi_0=psi_0, n_atoms=n_atoms, n_excitations=64))
+
+    pathlib.Path('./data').mkdir(parents=True, exist_ok=True)
+
+    f_hdf5 = h5py.File(path, mode="w")
+
+    f_hdf5.create_dataset(name="excitations_u", data=excitations_u, dtype=np.float64)
+    f_hdf5.create_dataset(name="excitations_v", data=excitations_v, dtype=np.float64)
+    f_hdf5.create_dataset(name="frequencies_omega", data=frequencies_omega, dtype=np.float64)
+    f_hdf5.create_dataset(name="psi_0", data=psi_0, dtype=np.float64)
+    f_hdf5.create_dataset(name="mue_0", data=mue_0, dtype=float)
+
+    f_hdf5.close()
+
+else:
+
+    f_hdf5 = h5py.File(path, mode='r')
+
+    excitations_u = f_hdf5['excitations_u'][:]
+    excitations_v = f_hdf5['excitations_v'][:]
+
+    frequencies_omega = f_hdf5['frequencies_omega'][:]
+
+    psi_0 = f_hdf5['psi_0'][:]
+    mue_0 = f_hdf5['mue_0'][()]
+
+    print(excitations_u.shape)
+    print(excitations_v.shape)
+    print()
+    print(frequencies_omega.shape)
+    print(psi_0.shape)
+    print()
+    print(frequencies_omega)
+    print()
+    print(mue_0)
+    print()
+    print()
 
 figure_eigenstates_bdg = FigureEigenstatesBDG3D(excitations_u=excitations_u,
                                                 excitations_v=excitations_v,
@@ -433,11 +483,6 @@ figure_eigenstates_bdg = FigureEigenstatesBDG3D(excitations_u=excitations_u,
                                                 width_ratios=[1, 0.25, 1, 0.25],
                                                 height_ratios=[1, 1, 1, 1, 1])
 
-# mue_0 = solver.compute_chemical_potential()
-
-# print(mue_0)
-# print(mue_0_bdg)
-# input()
 
 # =================================================================================================
 # thermal state sampling

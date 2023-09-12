@@ -340,15 +340,12 @@ plt.draw()
 # compute quasiparticle amplitudes u and v
 # =================================================================================================
 
-# excitations_u, excitations_v, eigenvalues_omega, psi_0_bdg, mue_0_bdg = solver.bdg(
-#     psi_0=psi_0, n_atoms=n_atoms, n=128)
-
 path = "./data/bdg.hdf5"
 
 if not os.path.exists(path):
 
     excitations_u, excitations_v, frequencies_omega, psi_0_bdg, mue_0_bdg = solver.bdg_experimental(
-        n_atoms=n_atoms, n=16)
+        n_atoms=n_atoms, n_excitations=16)
 
     pathlib.Path('./data').mkdir(parents=True, exist_ok=True)
 
