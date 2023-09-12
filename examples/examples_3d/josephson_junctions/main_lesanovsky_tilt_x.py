@@ -137,7 +137,7 @@ z_max = +80e-6
 Jx = 2 * 30
 Jy = 2 * 15
 # Jz = 2 * 2 * 2 * 80  # works
-Jz = 4 * 2 * 80
+Jz = 2 * 2 * 80
 
 dt = 0.0025e-3
 
@@ -415,7 +415,7 @@ else:
 #     solver.bdg(psi_0=psi_0, n_atoms=n_atoms, n=2*24))
 
 excitations_u, excitations_v, eigenvalues_omega_dummy, psi_0_bdg, mue_0_bdg = (
-    solver.bdg_experimental(psi_0=psi_0, n_atoms=n_atoms, n=128))
+    solver.bdg_experimental(psi_0=psi_0, n_atoms=n_atoms, n=64))
 
 figure_eigenstates_bdg = FigureEigenstatesBDG3D(excitations_u=excitations_u,
                                                 excitations_v=excitations_v,
@@ -433,7 +433,7 @@ figure_eigenstates_bdg = FigureEigenstatesBDG3D(excitations_u=excitations_u,
                                                 width_ratios=[1, 0.25, 1, 0.25],
                                                 height_ratios=[1, 1, 1, 1, 1])
 
-mue_0 = solver.compute_chemical_potential()
+# mue_0 = solver.compute_chemical_potential()
 
 # print(mue_0)
 # print(mue_0_bdg)

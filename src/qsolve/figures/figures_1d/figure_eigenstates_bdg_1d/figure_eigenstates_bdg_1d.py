@@ -9,7 +9,7 @@ from qsolve.figures.style import colors
 
 class FigureEigenstatesBDG1D(object):
 
-    def __init__(self, eigenvectors_u, eigenvectors_v, V, x, params):
+    def __init__(self, excitations_u, excitations_v, V, x, params):
 
         x_ticks = params["x_ticks"]
 
@@ -104,15 +104,15 @@ class FigureEigenstatesBDG1D(object):
         # -----------------------------------------------------------------------------------------
 
         # -----------------------------------------------------------------------------------------
-        self.fig_u_v_re_im_1d_00.update(eigenvectors_u[0, :], eigenvectors_v[0, :], V)
-        self.fig_u_v_re_im_1d_10.update(eigenvectors_u[1, :], eigenvectors_v[1, :], V)
-        self.fig_u_v_re_im_1d_20.update(eigenvectors_u[2, :], eigenvectors_v[2, :], V)
-        self.fig_u_v_re_im_1d_30.update(eigenvectors_u[3, :], eigenvectors_v[3, :], V)
+        self.fig_u_v_re_im_1d_00.update(excitations_u[0, :], excitations_v[0, :], V)
+        self.fig_u_v_re_im_1d_10.update(excitations_u[1, :], excitations_v[1, :], V)
+        self.fig_u_v_re_im_1d_20.update(excitations_u[2, :], excitations_v[2, :], V)
+        self.fig_u_v_re_im_1d_30.update(excitations_u[3, :], excitations_v[3, :], V)
 
-        self.fig_u_v_re_im_1d_01.update(eigenvectors_u[4, :], eigenvectors_v[4, :], V)
-        self.fig_u_v_re_im_1d_11.update(eigenvectors_u[5, :], eigenvectors_v[5, :], V)
-        self.fig_u_v_re_im_1d_21.update(eigenvectors_u[6, :], eigenvectors_v[6, :], V)
-        self.fig_u_v_re_im_1d_31.update(eigenvectors_u[-1, :], eigenvectors_v[-1, :], V)
+        self.fig_u_v_re_im_1d_01.update(excitations_u[4, :], excitations_v[4, :], V)
+        self.fig_u_v_re_im_1d_11.update(excitations_u[5, :], excitations_v[5, :], V)
+        self.fig_u_v_re_im_1d_21.update(excitations_u[6, :], excitations_v[6, :], V)
+        self.fig_u_v_re_im_1d_31.update(excitations_u[-1, :], excitations_v[-1, :], V)
         # -----------------------------------------------------------------------------------------
 
         plt.ion()

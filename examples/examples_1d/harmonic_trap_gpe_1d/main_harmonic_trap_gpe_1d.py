@@ -11,8 +11,6 @@ from potential_harmonic_trap_1d import PotentialHarmonicTrap1D
 import os
 os.environ['FOR_DISABLE_CONSOLE_CTRL_HANDLER'] = '1'
 
-import time
-
 import mkl
 
 import numpy as np
@@ -20,6 +18,10 @@ import numpy as np
 import scipy
 
 from scipy.interpolate import pchip_interpolate
+
+import pathlib
+
+import h5py
 
 import matplotlib.pyplot as plt
 
@@ -341,7 +343,45 @@ plt.draw()
 # excitations_u, excitations_v, eigenvalues_omega, psi_0_bdg, mue_0_bdg = solver.bdg(
 #     psi_0=psi_0, n_atoms=n_atoms, n=128)
 
-excitations_u, excitations_v, eigenvalues_omega, psi_0_bdg, mue_0_bdg = solver.bdg_experimental(n_atoms=n_atoms, n=256)
+path = "./data/bdg.hdf5"
+
+if not os.path.exists(path):
+
+    excitations_u, excitations_v, frequencies_omega, psi_0_bdg, mue_0_bdg = solver.bdg_experimental(
+        n_atoms=n_atoms, n=16)
+
+    pathlib.Path('./data').mkdir(parents=True, exist_ok=True)
+
+    f_hdf5 = h5py.File(path, mode="w")
+
+    f_hdf5.create_dataset(name="excitations_u", data=excitations_u, dtype=np.float64)
+    f_hdf5.create_dataset(name="excitations_v", data=excitations_v, dtype=np.float64)
+    f_hdf5.create_dataset(name="frequencies_omega", data=frequencies_omega, dtype=np.float64)
+    f_hdf5.create_dataset(name="psi_0", data=psi_0_bdg, dtype=np.float64)
+    f_hdf5.create_dataset(name="mue_0", data=mue_0_bdg)
+
+    f_hdf5.close()
+
+else:
+
+    f_hdf5 = h5py.File(path, mode='r')
+
+    excitations_u = f_hdf5['excitations_u'][:]
+    excitations_v = f_hdf5['excitations_v'][:]
+
+    frequencies_omega = f_hdf5['frequencies_omega'][:]
+
+    psi_0 = f_hdf5['psi_0'][:]
+    mue_0 = f_hdf5['mue_0']
+
+    print(excitations_u.shape)
+    print(excitations_v.shape)
+    print(frequencies_omega.shape)
+    print(psi_0.shape)
+    print()
+    print(frequencies_omega)
+    print()
+    print()
 
 parameters_figure_eigenstates_bdg = {'u_v_re_im_min': -1.0,
                                      'u_v_re_im_max': +1.0,
