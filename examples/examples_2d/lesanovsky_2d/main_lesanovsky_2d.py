@@ -128,8 +128,8 @@ x_max = +3e-6
 y_min = -80e-6
 y_max = +80e-6
 
-Jx = 30
-Jy = 800
+Jx = 2*30
+Jy = 800 // 2
 
 dt = 0.0025e-3
 
@@ -301,9 +301,18 @@ solver.set_external_potential(t=0.0, u=u_of_times[0])
 # compute ground state solution
 # =================================================================================================
 
+import time
+
+t1 = time.time()
+
 psi_0 = solver.compute_ground_state_solution(n_atoms=n_atoms, n_iter=5000, tau=0.005e-3)
 
+t2 = time.time()
+
+print(t2 - t1)
+
 solver.psi = psi_0
+
 
 N_0 = solver.compute_n_atoms()
 mue_0 = solver.compute_chemical_potential()
@@ -351,10 +360,11 @@ figure_main.fig_control_inputs.update_t(0.0)
 # compute eigenstates of the linear Schrödinger equation
 # =================================================================================================
 
+"""
 # -------------------------------------------------------------------------------------------------
 time_1 = time.time()
 
-eigenstates_lse, energies_lse = solver.eigenstates_lse(n_eigenstates=2000, tol=1e-10)
+eigenstates_lse, energies_lse = solver.eigenstates_lse(n_eigenstates=10, tol=1e-10)
 
 time_2 = time.time()
 
@@ -391,25 +401,45 @@ print('energies_lse / E_cutoff: ')
 print(energies_lse / E_cutoff)
 print()
 # -------------------------------------------------------------------------------------------------
+"""
 
+# -------------------------------------------------------------------------------------------------
+# eigenstates_lse, energies_lse, matrix_res_batch, vec_iter = solver.compute_eigenstates_lse_ite(
+#     n_eigenstates=10,
+#     n_iter_max=20000,
+#     tau_0=0.001e-3,
+#     # tau_0=0.1e-3,
+#     # propagation_method='trotter',
+#     # propagation_method='strang',
+#     # propagation_method='ite_4th',
+#     propagation_method='ite_6th',
+#     # propagation_method='ite_8th',
+#     # propagation_method='ite_10th',
+#     # propagation_method='ite_12th',
+#     return_residuals=False)
 
+t1 = time.time()
 
+eigenstates_lse, energies_lse = solver.compute_eigenstates_lse_ite(
+    n_eigenstates=128,
+    n_iter_max=10000,
+    tau_0=0.0025e-3,
+    order=6,
+    return_residuals=False)
+
+t2 = time.time()
+
+print(t2 - t1)
+
+figure_eigenstates_lse_2d = FigureEigenstatesLSE2D(eigenstates_lse=eigenstates_lse,
+                                                   V=solver.V,
+                                                   x=grid.x,
+                                                   y=grid.y,
+                                                   x_ticks=[-3, 0, 3],
+                                                   y_ticks=[-80, -40, 0, 40, 80])
+# -------------------------------------------------------------------------------------------------
 
 """
-eigenstates_lse, energies_lse, matrix_res_batch, vec_iter = solver.compute_eigenstates_lse_ite(
-    n_eigenstates=64,
-    n_iter_max=50000,
-    tau_0=0.01e-3,
-    # tau_0=0.1e-3,
-    # propagation_method='trotter',
-    # propagation_method='strang',
-    # propagation_method='ite_4th',
-    # propagation_method='ite_6th',
-    propagation_method='ite_8th',
-    # propagation_method='ite_10th',
-    # propagation_method='ite_12th',
-    return_residuals=True)
-
 # =================================================================================================
 # show convergence of linear eigenstate computation
 # =================================================================================================
@@ -462,6 +492,7 @@ fig_conv_lse.canvas.start_event_loop(0.001)
 plt.draw()
 """
 
+"""
 # =================================================================================================
 # compute quasiparticle amplitudes u and v
 # =================================================================================================
@@ -518,7 +549,7 @@ figure_eigenstates_bdg = FigureEigenstatesBDG2D(eigenvectors_u=excitations_u,
                                                 y=grid.y,
                                                 x_ticks=[-3, 0, 3],
                                                 y_ticks=[-80, -40, 0, 40, 80])
-
+"""
 
 # =================================================================================================
 # thermal state sampling
