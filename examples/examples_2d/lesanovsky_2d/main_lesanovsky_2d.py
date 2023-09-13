@@ -354,7 +354,7 @@ figure_main.fig_control_inputs.update_t(0.0)
 # -------------------------------------------------------------------------------------------------
 time_1 = time.time()
 
-eigenstates_lse, energies_lse = solver.eigenstates_lse(n_eigenstates=640, tol=1e-10)
+eigenstates_lse, energies_lse = solver.eigenstates_lse(n_eigenstates=2000, tol=1e-10)
 
 time_2 = time.time()
 
