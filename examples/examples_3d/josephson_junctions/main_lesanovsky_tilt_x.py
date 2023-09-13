@@ -138,8 +138,10 @@ z_max = +80e-6
 
 Jx = 2 * 30
 Jy = 2 * 15
-# Jz = 2 * 2 * 2 * 80  # works
-Jz = 2 * 2 * 2 * 80
+
+# Jz = 2 * 2 * 2 * 80
+Jz = 800
+
 
 dt = 0.0025e-3
 
@@ -427,7 +429,7 @@ path = "./data/bdg.hdf5"
 if not os.path.exists(path):
 
     excitations_u, excitations_v, frequencies_omega, psi_0, mue_0 = (
-        solver.bdg_experimental(psi_0=psi_0, n_atoms=n_atoms, n_excitations=128))
+        solver.bdg_experimental(psi_0=psi_0, n_atoms=n_atoms, n_excitations=256))
 
     pathlib.Path('./data').mkdir(parents=True, exist_ok=True)
 
