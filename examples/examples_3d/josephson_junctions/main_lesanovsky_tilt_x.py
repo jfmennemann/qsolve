@@ -145,6 +145,7 @@ dt = 0.0025e-3
 
 n_mod_times_analysis = 100
 
+
 parameters_potential = {
     'm_atom': m_atom,
     'nu_perp': 3e3,

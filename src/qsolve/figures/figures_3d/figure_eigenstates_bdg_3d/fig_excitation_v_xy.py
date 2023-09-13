@@ -81,7 +81,7 @@ class FigExcitationVXY(object):
         extent = [left, right, bottom, top]
 
         self.image = ax.imshow(
-            v / np.max(np.abs(v)),
+            v,
             extent=extent,
             cmap=cmap,
             aspect='auto',
@@ -119,6 +119,7 @@ class FigExcitationVXY(object):
         ax.set_xlim(left, right)
         ax.set_ylim(bottom, top)
 
-        title = r'$v_{0:d}(x, y, 0)$'.format(nr)
+        # title = r'$v_{0:d}(x, y, 0)$'.format(nr)
+        title = r'$v_{' + '{0:d}'.format(nr+1) + '}(x, y, 0)$'
 
         ax.set_title(title, fontsize=10)

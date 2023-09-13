@@ -1,5 +1,7 @@
 import matplotlib.pyplot as plt
 
+import numpy as np
+
 from .fig_excitation_u_xz import FigExcitationUXZ
 from .fig_excitation_v_xz import FigExcitationVXZ
 
@@ -87,33 +89,41 @@ class FigureEigenstatesBDG3D(object):
 
         # cmap = plt.get_cmap('RdBu')
 
-        import numpy as np
+        n = excitations_u.shape[0]
+
+        tmp = np.max(np.abs(excitations_u), axis=(1, 2, 3), keepdims=True)
+
+        excitations_u = excitations_u / tmp
+        excitations_v = excitations_v / tmp
 
         levels_V = np.linspace(start=0.1, stop=0.9, num=9, endpoint=True)
 
-        FigExcitationUXZ(ax_00, V, excitations_u, 0, x, y, z, label_x, label_z, x_ticks, z_ticks, levels_V, cmap)
-        FigExcitationUXZ(ax_10, V, excitations_u, 1, x, y, z, label_x, label_z, x_ticks, z_ticks, levels_V, cmap)
-        FigExcitationUXZ(ax_20, V, excitations_u, 2, x, y, z, label_x, label_z, x_ticks, z_ticks, levels_V, cmap)
-        FigExcitationUXZ(ax_30, V, excitations_u, 3, x, y, z, label_x, label_z, x_ticks, z_ticks, levels_V, cmap)
-        FigExcitationUXZ(ax_40, V, excitations_u, 4, x, y, z, label_x, label_z, x_ticks, z_ticks, levels_V, cmap)
+        # nrs = [0, 1, 2, 3, 4]
+        nrs = [5, 10, 15, 20, 25]
 
-        FigExcitationUXY(ax_01, V, excitations_u, 0, x, y, z, label_x, label_y, x_ticks, y_ticks, levels_V, cmap)
-        FigExcitationUXY(ax_11, V, excitations_u, 1, x, y, z, label_x, label_y, x_ticks, y_ticks, levels_V, cmap)
-        FigExcitationUXY(ax_21, V, excitations_u, 2, x, y, z, label_x, label_y, x_ticks, y_ticks, levels_V, cmap)
-        FigExcitationUXY(ax_31, V, excitations_u, 3, x, y, z, label_x, label_y, x_ticks, y_ticks, levels_V, cmap)
-        FigExcitationUXY(ax_41, V, excitations_u, 4, x, y, z, label_x, label_y, x_ticks, y_ticks, levels_V, cmap)
+        FigExcitationUXZ(ax_00, V, excitations_u, nrs[0], x, y, z, label_x, label_z, x_ticks, z_ticks, levels_V, cmap)
+        FigExcitationUXZ(ax_10, V, excitations_u, nrs[1], x, y, z, label_x, label_z, x_ticks, z_ticks, levels_V, cmap)
+        FigExcitationUXZ(ax_20, V, excitations_u, nrs[2], x, y, z, label_x, label_z, x_ticks, z_ticks, levels_V, cmap)
+        FigExcitationUXZ(ax_30, V, excitations_u, nrs[3], x, y, z, label_x, label_z, x_ticks, z_ticks, levels_V, cmap)
+        FigExcitationUXZ(ax_40, V, excitations_u, nrs[4], x, y, z, label_x, label_z, x_ticks, z_ticks, levels_V, cmap)
 
-        FigExcitationVXZ(ax_02, V, excitations_v, 0, x, y, z, label_x, label_z, x_ticks, z_ticks, levels_V, cmap)
-        FigExcitationVXZ(ax_12, V, excitations_v, 1, x, y, z, label_x, label_z, x_ticks, z_ticks, levels_V, cmap)
-        FigExcitationVXZ(ax_22, V, excitations_v, 2, x, y, z, label_x, label_z, x_ticks, z_ticks, levels_V, cmap)
-        FigExcitationVXZ(ax_32, V, excitations_v, 3, x, y, z, label_x, label_z, x_ticks, z_ticks, levels_V, cmap)
-        FigExcitationVXZ(ax_42, V, excitations_v, 4, x, y, z, label_x, label_z, x_ticks, z_ticks, levels_V, cmap)
+        FigExcitationUXY(ax_01, V, excitations_u, nrs[0], x, y, z, label_x, label_y, x_ticks, y_ticks, levels_V, cmap)
+        FigExcitationUXY(ax_11, V, excitations_u, nrs[1], x, y, z, label_x, label_y, x_ticks, y_ticks, levels_V, cmap)
+        FigExcitationUXY(ax_21, V, excitations_u, nrs[2], x, y, z, label_x, label_y, x_ticks, y_ticks, levels_V, cmap)
+        FigExcitationUXY(ax_31, V, excitations_u, nrs[3], x, y, z, label_x, label_y, x_ticks, y_ticks, levels_V, cmap)
+        FigExcitationUXY(ax_41, V, excitations_u, nrs[4], x, y, z, label_x, label_y, x_ticks, y_ticks, levels_V, cmap)
 
-        FigExcitationVXY(ax_03, V, excitations_v, 0, x, y, z, label_x, label_y, x_ticks, y_ticks, levels_V, cmap)
-        FigExcitationVXY(ax_13, V, excitations_v, 1, x, y, z, label_x, label_y, x_ticks, y_ticks, levels_V, cmap)
-        FigExcitationVXY(ax_23, V, excitations_v, 2, x, y, z, label_x, label_y, x_ticks, y_ticks, levels_V, cmap)
-        FigExcitationVXY(ax_33, V, excitations_v, 3, x, y, z, label_x, label_y, x_ticks, y_ticks, levels_V, cmap)
-        FigExcitationVXY(ax_43, V, excitations_v, 4, x, y, z, label_x, label_y, x_ticks, y_ticks, levels_V, cmap)
+        FigExcitationVXZ(ax_02, V, excitations_v, nrs[0], x, y, z, label_x, label_z, x_ticks, z_ticks, levels_V, cmap)
+        FigExcitationVXZ(ax_12, V, excitations_v, nrs[1], x, y, z, label_x, label_z, x_ticks, z_ticks, levels_V, cmap)
+        FigExcitationVXZ(ax_22, V, excitations_v, nrs[2], x, y, z, label_x, label_z, x_ticks, z_ticks, levels_V, cmap)
+        FigExcitationVXZ(ax_32, V, excitations_v, nrs[3], x, y, z, label_x, label_z, x_ticks, z_ticks, levels_V, cmap)
+        FigExcitationVXZ(ax_42, V, excitations_v, nrs[4], x, y, z, label_x, label_z, x_ticks, z_ticks, levels_V, cmap)
+
+        FigExcitationVXY(ax_03, V, excitations_v, nrs[0], x, y, z, label_x, label_y, x_ticks, y_ticks, levels_V, cmap)
+        FigExcitationVXY(ax_13, V, excitations_v, nrs[1], x, y, z, label_x, label_y, x_ticks, y_ticks, levels_V, cmap)
+        FigExcitationVXY(ax_23, V, excitations_v, nrs[2], x, y, z, label_x, label_y, x_ticks, y_ticks, levels_V, cmap)
+        FigExcitationVXY(ax_33, V, excitations_v, nrs[3], x, y, z, label_x, label_y, x_ticks, y_ticks, levels_V, cmap)
+        FigExcitationVXY(ax_43, V, excitations_v, nrs[4], x, y, z, label_x, label_y, x_ticks, y_ticks, levels_V, cmap)
         # -----------------------------------------------------------------------------------------
 
         # -----------------------------------------------------------------------------------------
