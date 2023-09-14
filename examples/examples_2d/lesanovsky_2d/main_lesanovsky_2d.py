@@ -421,10 +421,10 @@ print()
 t1 = time.time()
 
 eigenstates_lse, energies_lse = solver.compute_eigenstates_lse_ite(
-    n_eigenstates=128,
+    n_eigenstates=256,
     n_iter_max=10000,
-    tau_0=0.0025e-3,
-    order=6,
+    tau_0=0.1e-3,
+    order=12,
     return_residuals=False)
 
 t2 = time.time()
