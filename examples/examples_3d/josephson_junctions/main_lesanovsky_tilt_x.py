@@ -18,10 +18,13 @@ from scipy import constants
 
 import matplotlib.pyplot as plt
 
+import time
+
 from figures.figure_main.figure_main import FigureMain
 from figures.figure_tof.figure_tof import FigureTof
 from figures.figure_tof_extended.figure_tof_extended import FigureTofExtended
 
+from qsolve.figures import FigureEigenstatesLSE3D
 from qsolve.figures import FigureEigenstatesBDG3D
 
 from evaluation import eval_data
@@ -367,10 +370,77 @@ solver.set_external_potential(t=0.0, u=u_of_times[0])
 
 
 # =================================================================================================
+# compute eigenstates of the linear Schrödinger equation
+# =================================================================================================
+
+path = "./data/lse.hdf5"
+
+if not os.path.exists(path):
+
+    print(time.strftime("%d.%m.%Y %H:%M:%S"))
+
+    print('eigenstates_lse_ite started ...')
+
+    t1 = time.time()
+
+    # eigenstates_lse, energies_lse = solver.eigenstates_lse_ite(n_eigenstates=16, tau_0=0.005e-3, eps_0=1e-7, order=4)
+    # eigenstates_lse, energies_lse = solver.eigenstates_lse_ite(n_eigenstates=16, tau_0=0.01e-3, eps_0=1e-7, order=6)
+    # eigenstates_lse, energies_lse = solver.eigenstates_lse_ite(n_eigenstates=32, tau_0=0.025e-3, eps_0=1e-7, order=8)
+    # eigenstates_lse, energies_lse = solver.eigenstates_lse_ite(n_eigenstates=16, tau_0=0.05e-3, eps_0=1e-7, order=10)
+    eigenstates_lse, energies_lse = solver.eigenstates_lse_ite(n_eigenstates=256, tau_0=0.1e-3, eps_0=1e-8, order=12)
+
+    t2 = time.time()
+
+    print('... eigenstates_lse_ite finished')
+
+    print('elapsed time eigenstates_lse_ite: {0:f} minutes'.format((t2 - t1) / 60))
+
+    print(time.strftime("%d.%m.%Y %H:%M:%S"))
+
+    print()
+
+    pathlib.Path('./data').mkdir(parents=True, exist_ok=True)
+
+    f_hdf5 = h5py.File(path, mode="w")
+
+    f_hdf5.create_dataset(name="eigenstates_lse", data=eigenstates_lse, dtype=np.float64)
+    f_hdf5.create_dataset(name="energies_lse", data=energies_lse, dtype=np.float64)
+
+    f_hdf5.close()
+
+else:
+
+    f_hdf5 = h5py.File(path, mode='r')
+
+    eigenstates_lse = f_hdf5['eigenstates_lse'][:]
+    energies_lse = f_hdf5['energies_lse'][:]
+
+    print(eigenstates_lse.shape)
+    print()
+    print(energies_lse)
+    print()
+    print()
+
+figure_eigenstates_lse = FigureEigenstatesLSE3D(eigenstates=eigenstates_lse,
+                                                V=solver.V,
+                                                x=grid.x,
+                                                y=grid.y,
+                                                z=grid.z,
+                                                x_ticks=[-3, 0, 3],
+                                                y_ticks=[-1.5, 0, 1.5],
+                                                z_ticks=[-80, -40, 0, 40, 80],
+                                                figsize=(12, 10),
+                                                left=0.075, right=0.95,
+                                                bottom=0.075, top=0.9,
+                                                wspace=0.35, hspace=0.7,
+                                                width_ratios=[1, 0.25, 1, 0.25],
+                                                height_ratios=[1, 1, 1, 1, 1])
+
+
+# =================================================================================================
 # compute ground state solution
 # =================================================================================================
 
-# -------------------------------------------------------------------------------------------------
 psi_0, mue_0 = solver.compute_ground_state_solution(n_atoms=n_atoms, n_iter=5000, tau=0.005e-3, adaptive_tau=True)
 
 solver.psi = psi_0
@@ -383,7 +453,7 @@ print('N_0 = {:1.16e}'.format(N_0))
 print('mue_0 / h: {0:1.6} kHz'.format(mue_0 / (1e3 * (2 * pi * hbar))))
 print('E_0 / (N_0*h): {0:1.6} kHz'.format(E_0 / (1e3 * (2 * pi * hbar * N_0))))
 print()
-# -------------------------------------------------------------------------------------------------
+
 
 # =================================================================================================
 # init figure
@@ -410,14 +480,6 @@ if visualization:
 else:
 
     figure_main = None
-
-
-# =================================================================================================
-# compute quasiparticle amplitudes u and v
-# =================================================================================================
-
-# excitations_u, excitations_v, frequencies_omega, psi_0, mue_0 = (
-#     solver.bdg_experimental(psi_0=psi_0, n_atoms=n_atoms, n=64))
 
 
 # =================================================================================================

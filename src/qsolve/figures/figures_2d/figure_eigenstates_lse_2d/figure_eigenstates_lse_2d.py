@@ -121,16 +121,20 @@ class FigureEigenstatesLSE2D(object):
         # -----------------------------------------------------------------------------------------
         FigPotential2D(ax_00, V, settings)
 
-        FigRealPart2D(ax_10, eigenstates_lse[0, :, :], settings)
-        FigRealPart2D(ax_20, eigenstates_lse[1, :, :], settings)
-        FigRealPart2D(ax_30, eigenstates_lse[2, :, :], settings)
-        FigRealPart2D(ax_40, eigenstates_lse[3, :, :], settings)
+        n = eigenstates_lse.shape[0]
 
-        FigRealPart2D(ax_01, eigenstates_lse[-5, :, :], settings)
-        FigRealPart2D(ax_11, eigenstates_lse[-4, :, :], settings)
-        FigRealPart2D(ax_21, eigenstates_lse[-3, :, :], settings)
-        FigRealPart2D(ax_31, eigenstates_lse[-2, :, :], settings)
-        FigRealPart2D(ax_41, eigenstates_lse[-1, :, :], settings)
+        nrs = [0, 1, 2, 3, 4, n-4, n-3, n-2, n-1]
+
+        FigRealPart2D(ax_10, eigenstates_lse[nrs[0], :, :], settings)
+        FigRealPart2D(ax_20, eigenstates_lse[nrs[1], :, :], settings)
+        FigRealPart2D(ax_30, eigenstates_lse[nrs[2], :, :], settings)
+        FigRealPart2D(ax_40, eigenstates_lse[nrs[3], :, :], settings)
+
+        FigRealPart2D(ax_01, eigenstates_lse[nrs[4], :, :], settings)
+        FigRealPart2D(ax_11, eigenstates_lse[nrs[5], :, :], settings)
+        FigRealPart2D(ax_21, eigenstates_lse[nrs[6], :, :], settings)
+        FigRealPart2D(ax_31, eigenstates_lse[nrs[7], :, :], settings)
+        FigRealPart2D(ax_41, eigenstates_lse[nrs[8], :, :], settings)
         # -----------------------------------------------------------------------------------------
 
         # -----------------------------------------------------------------------------------------

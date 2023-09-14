@@ -100,6 +100,25 @@ class SolverGPE3D(object):
 
             return self._units.unit_wave_function * _psi_0.cpu().numpy(), self._units.unit_energy * _mue_0
 
+    def eigenstates_lse_ite(self, *, n_eigenstates, tau_0, eps_0, order):
+
+        _tau_0 = tau_0 / self._units.unit_time
+
+        _eigenstates, _eigenvalues = qsolve_core.compute_eigenstates_lse_3d_ite(
+            self._V,
+            self._dx,
+            self._dy,
+            self._dz,
+            self._hbar,
+            self._m_atom,
+            n_eigenstates,
+            _tau_0,
+            eps_0,
+            order
+        )
+
+        return self._units.unit_wave_function * _eigenstates.cpu().numpy(), self._units.unit_energy * _eigenvalues.cpu().numpy()
+
     # def bdg(self, *, psi_0, n_atoms, n, tol=1e-6):
     #
     #     _psi_0 = torch.tensor(psi_0 / self._units.unit_wave_function, device=self._device)

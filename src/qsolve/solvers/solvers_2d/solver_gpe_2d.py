@@ -104,33 +104,9 @@ class SolverGPE2D(object):
 
             return self._units.unit_wave_function * _psi_0.cpu().numpy()
 
-    def compute_eigenstates_lse_ite(self,
-                                    *,
-                                    n_eigenstates,
-                                    n_iter_max,
-                                    tau_0,
-                                    order,
-                                    return_residuals=False):
+    def eigenstates_lse_ite(self, *, n_eigenstates, tau_0, order):
 
         _tau_0 = tau_0 / self._units.unit_time
-
-        if n_iter_max < 100:
-
-            message = 'compute_ground_state_solution(self, **kwargs): n_iter_max should not be smaller than 100'
-
-            raise Exception(message)
-
-        # _eigenstates, _eigenvalues, matrix_res_batch_of_vec_n_iter, vec_n_iter = qsolve_core.compute_eigenstates_lse_2d_ite(
-        #     self._V,
-        #     self._dx,
-        #     self._dy,
-        #     self._hbar,
-        #     self._m_atom,
-        #     n_eigenstates,
-        #     n_iter_max,
-        #     _tau_0,
-        #     propagation_method
-        # )
 
         _eigenstates, _eigenvalues = qsolve_core.compute_eigenstates_lse_2d_ite(
             self._V,
@@ -139,26 +115,11 @@ class SolverGPE2D(object):
             self._hbar,
             self._m_atom,
             n_eigenstates,
-            n_iter_max,
             _tau_0,
             order
         )
 
-        if return_residuals:
-
-            # return \
-            #     self._units.unit_wave_function * _eigenstates.cpu().numpy(), \
-            #     self._units.unit_energy * _eigenvalues.cpu().numpy(), \
-            #     matrix_res_batch_of_vec_n_iter, \
-            #     vec_n_iter
-
-            pass
-
-        else:
-
-            return \
-                    self._units.unit_wave_function * _eigenstates.cpu().numpy(), \
-                    self._units.unit_energy * _eigenvalues.cpu().numpy()
+        return self._units.unit_wave_function * _eigenstates.cpu().numpy(), self._units.unit_energy * _eigenvalues.cpu().numpy()
 
     def eigenstates_lse(self, *, n_eigenstates, tol=1e-12):
 
