@@ -12,6 +12,8 @@ import pathlib
 
 import h5py
 
+import scipy
+
 import numpy as np
 
 from scipy import constants
@@ -142,9 +144,7 @@ z_max = +80e-6
 Jx = 2 * 30
 Jy = 2 * 15
 
-# Jz = 2 * 2 * 2 * 80
-# Jz = 400
-Jz = 200  # 15.451524 minutes
+Jz = 400
 
 
 dt = 0.0025e-3
@@ -391,7 +391,7 @@ if not os.path.exists(path):
 
     # eigenstates_lse, energies_lse = solver.eigenstates_lse_ite(n_eigenstates=16, tau_0=0.1e-3, eps_0=1e-12, order=12)
 
-    eigenstates_lse, energies_lse = solver.eigenstates_lse(n_eigenstates=128)
+    eigenstates_lse, energies_lse = solver.eigenstates_lse(n_eigenstates=180)
 
     t2 = time.time()
 
@@ -439,6 +439,38 @@ figure_eigenstates_lse = FigureEigenstatesLSE3D(eigenstates=eigenstates_lse,
                                                 wspace=0.35, hspace=0.7,
                                                 width_ratios=[1, 0.25, 1, 0.25],
                                                 height_ratios=[1, 1, 1, 1, 1])
+
+print(eigenstates_lse.shape)
+
+n_eigenstates = eigenstates_lse.shape[0]
+
+# ---------------------------------------------------------------------------------------------
+eigenstates_lse = np.reshape(eigenstates_lse, newshape=(n_eigenstates, Jx * Jy * Jz))
+# ---------------------------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------------------------
+eigenstates_lse = np.transpose(eigenstates_lse)
+# ---------------------------------------------------------------------------------------------
+
+orthonormality_matrix = grid.dx * grid.dy * grid.dz * np.transpose(eigenstates_lse) @ eigenstates_lse
+
+orthonormality_matrix_deviation = scipy.linalg.norm(orthonormality_matrix - np.eye(n_eigenstates), ord="fro")
+
+print('orthonormality_matrix_deviation: {0:1.4e}'.format(orthonormality_matrix_deviation))
+print()
+
+orthonormality_matrix = np.round(orthonormality_matrix, decimals=3)
+
+np.set_printoptions(precision=3, linewidth=512, edgeitems=8)
+
+print('orthonormality_matrix (rounded to 3 digits): ')
+print(orthonormality_matrix)
+print()
+
+np.set_printoptions(precision=None, linewidth=None, edgeitems=None)
+
+print(orthonormality_matrix)
+input()
 
 
 # =================================================================================================
@@ -489,7 +521,7 @@ else:
 # =================================================================================================
 # compute quasiparticle amplitudes u and v
 # =================================================================================================
-
+"""
 path = "./data/bdg.hdf5"
 
 if not os.path.exists(path):
@@ -548,7 +580,7 @@ figure_eigenstates_bdg = FigureEigenstatesBDG3D(excitations_u=excitations_u,
                                                 wspace=0.35, hspace=0.7,
                                                 width_ratios=[1, 0.25, 1, 0.25],
                                                 height_ratios=[1, 1, 1, 1, 1])
-
+"""
 
 # =================================================================================================
 # thermal state sampling
