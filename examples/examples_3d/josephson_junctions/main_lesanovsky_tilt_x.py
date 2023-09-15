@@ -143,7 +143,8 @@ Jx = 2 * 30
 Jy = 2 * 15
 
 # Jz = 2 * 2 * 2 * 80
-Jz = 400
+# Jz = 400
+Jz = 200  # 15.451524 minutes
 
 
 dt = 0.0025e-3
@@ -379,7 +380,7 @@ if not os.path.exists(path):
 
     print(time.strftime("%d.%m.%Y %H:%M:%S"))
 
-    print('eigenstates_lse_ite started ...')
+    print('eigenvalue problem linear Schroedinger equation started ...')
 
     t1 = time.time()
 
@@ -388,12 +389,13 @@ if not os.path.exists(path):
     # eigenstates_lse, energies_lse = solver.eigenstates_lse_ite(n_eigenstates=32, tau_0=0.025e-3, eps_0=1e-7, order=8)
     # eigenstates_lse, energies_lse = solver.eigenstates_lse_ite(n_eigenstates=16, tau_0=0.05e-3, eps_0=1e-7, order=10)
 
-    # eigenstates_lse, energies_lse = solver.eigenstates_lse_ite(n_eigenstates=256, tau_0=0.1e-3, eps_0=1e-12, order=12)
-    eigenstates_lse, energies_lse = solver.eigenstates_lse_ite(n_eigenstates=256, tau_0=0.1e-3, eps_0=1e-12, order=12)
+    # eigenstates_lse, energies_lse = solver.eigenstates_lse_ite(n_eigenstates=16, tau_0=0.1e-3, eps_0=1e-12, order=12)
+
+    eigenstates_lse, energies_lse = solver.eigenstates_lse(n_eigenstates=128)
 
     t2 = time.time()
 
-    print('... eigenstates_lse_ite finished')
+    print('... eigenvalue problem linear Schroedinger equation finished')
 
     print('elapsed time eigenstates_lse_ite: {0:f} minutes'.format((t2 - t1) / 60))
 
