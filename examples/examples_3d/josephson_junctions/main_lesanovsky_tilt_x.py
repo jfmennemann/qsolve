@@ -143,7 +143,7 @@ Jx = 2 * 30
 Jy = 2 * 15
 
 # Jz = 2 * 2 * 2 * 80
-Jz = 800
+Jz = 400
 
 
 dt = 0.0025e-3
@@ -387,7 +387,9 @@ if not os.path.exists(path):
     # eigenstates_lse, energies_lse = solver.eigenstates_lse_ite(n_eigenstates=16, tau_0=0.01e-3, eps_0=1e-7, order=6)
     # eigenstates_lse, energies_lse = solver.eigenstates_lse_ite(n_eigenstates=32, tau_0=0.025e-3, eps_0=1e-7, order=8)
     # eigenstates_lse, energies_lse = solver.eigenstates_lse_ite(n_eigenstates=16, tau_0=0.05e-3, eps_0=1e-7, order=10)
-    eigenstates_lse, energies_lse = solver.eigenstates_lse_ite(n_eigenstates=256, tau_0=0.1e-3, eps_0=1e-8, order=12)
+
+    # eigenstates_lse, energies_lse = solver.eigenstates_lse_ite(n_eigenstates=256, tau_0=0.1e-3, eps_0=1e-12, order=12)
+    eigenstates_lse, energies_lse = solver.eigenstates_lse_ite(n_eigenstates=256, tau_0=0.1e-3, eps_0=1e-12, order=12)
 
     t2 = time.time()
 
