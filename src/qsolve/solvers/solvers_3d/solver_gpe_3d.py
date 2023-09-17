@@ -100,7 +100,7 @@ class SolverGPE3D(object):
 
             return self._units.unit_wave_function * _psi_0.cpu().numpy(), self._units.unit_energy * _mue_0
 
-    def eigenstates_lse(self, *, n_eigenstates):
+    def eigenstates_lse(self, *, n_eigenstates, tol):
 
         _eigenstates, _eigenvalues = qsolve_core.compute_eigenstates_lse_3d(
             self._V,
@@ -109,7 +109,8 @@ class SolverGPE3D(object):
             self._dz,
             self._hbar,
             self._m_atom,
-            n_eigenstates
+            n_eigenstates,
+            tol
         )
 
         return self._units.unit_wave_function * _eigenstates, self._units.unit_energy * _eigenvalues

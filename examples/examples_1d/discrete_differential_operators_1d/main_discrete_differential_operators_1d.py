@@ -77,8 +77,6 @@ print()
 # ---------------------------------------------------------------------------------------------
 # solution via finite differences
 
-# u_d_fd = (np.roll(u, shift=-1) - np.roll(u, shift=+1)) / (2.0 * dx)
-
 # u_dd_fd = (
 #     - np.roll(u, shift=-2)
 #     + 16 * np.roll(u, shift=-1)

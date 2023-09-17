@@ -141,10 +141,10 @@ y_max = +1.5e-6
 z_min = -80e-6
 z_max = +80e-6
 
-Jx = 2 * 30
-Jy = 2 * 15
+Jx = 64
+Jy = 32
 
-Jz = 400
+Jz = 512
 
 
 dt = 0.0025e-3
@@ -389,9 +389,9 @@ if not os.path.exists(path):
     # eigenstates_lse, energies_lse = solver.eigenstates_lse_ite(n_eigenstates=32, tau_0=0.025e-3, eps_0=1e-7, order=8)
     # eigenstates_lse, energies_lse = solver.eigenstates_lse_ite(n_eigenstates=16, tau_0=0.05e-3, eps_0=1e-7, order=10)
 
-    # eigenstates_lse, energies_lse = solver.eigenstates_lse_ite(n_eigenstates=16, tau_0=0.1e-3, eps_0=1e-12, order=12)
+    eigenstates_lse, energies_lse = solver.eigenstates_lse_ite(n_eigenstates=16, tau_0=0.1e-3, eps_0=1e-6, order=12)
 
-    eigenstates_lse, energies_lse = solver.eigenstates_lse(n_eigenstates=180)
+    # eigenstates_lse, energies_lse = solver.eigenstates_lse(n_eigenstates=16, tol=1e-5)
 
     t2 = time.time()
 
@@ -458,19 +458,6 @@ orthonormality_matrix_deviation = scipy.linalg.norm(orthonormality_matrix - np.e
 
 print('orthonormality_matrix_deviation: {0:1.4e}'.format(orthonormality_matrix_deviation))
 print()
-
-orthonormality_matrix = np.round(orthonormality_matrix, decimals=3)
-
-np.set_printoptions(precision=3, linewidth=512, edgeitems=8)
-
-print('orthonormality_matrix (rounded to 3 digits): ')
-print(orthonormality_matrix)
-print()
-
-np.set_printoptions(precision=None, linewidth=None, edgeitems=None)
-
-print(orthonormality_matrix)
-input()
 
 
 # =================================================================================================
