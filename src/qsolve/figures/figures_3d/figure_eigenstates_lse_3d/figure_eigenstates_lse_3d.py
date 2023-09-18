@@ -94,8 +94,8 @@ class FigureEigenstatesLSE3D(object):
 
         levels_V = np.linspace(start=0.1, stop=0.9, num=9, endpoint=True)
 
-        nrs = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-        # nrs = [0, 1, 2, 3, 4, n-5, n-4, n-3, n-2, n-1]
+        # nrs = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+        nrs = [0, 1, 2, 3, 4, n-5, n-4, n-3, n-2, n-1]
 
         FigEigenstatePsiXZ(ax_00, V, eigenstates, nrs[0], x, y, z, label_x, label_z, x_ticks, z_ticks, levels_V, cmap)
         FigEigenstatePsiXZ(ax_10, V, eigenstates, nrs[1], x, y, z, label_x, label_z, x_ticks, z_ticks, levels_V, cmap)
