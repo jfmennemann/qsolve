@@ -142,9 +142,9 @@ z_min = -60e-6
 z_max = +60e-6
 
 
-Jx = 60
-Jy = 30
-Jz = 600
+Jx = 100
+Jy = 50
+Jz = 500
 
 
 dt = 0.0025e-3
@@ -394,7 +394,8 @@ if not os.path.exists(path):
     # eigenstates_lse, energies_lse = solver.eigenstates_lse(n_eigenstates=256, tol=1e-5)
     # eigenstates_lse, energies_lse = solver.eigenstates_lse(n_eigenstates=64, tol=1e-14)
     # eigenstates_lse, energies_lse = solver.eigenstates_lse(n_eigenstates=128, tol=1e-5)
-    eigenstates_lse, energies_lse = solver.eigenstates_lse(n_eigenstates=128, tol=1e-14)
+    # eigenstates_lse, energies_lse = solver.eigenstates_lse(n_eigenstates=256, tol=1e-14)
+    eigenstates_lse, energies_lse = solver.eigenstates_lse(n_eigenstates=16, tol=1e-14)
 
     t2 = time.time()
 
