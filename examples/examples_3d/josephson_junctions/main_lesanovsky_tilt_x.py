@@ -138,16 +138,13 @@ x_max = +3.0e-6
 y_min = -1.5e-6
 y_max = +1.5e-6
 
-z_min = -80e-6
-z_max = +80e-6
+z_min = -60e-6
+z_max = +60e-6
 
-# Jx = (64 // 2) * 3
-# Jy = (32 // 2) * 3
 
-Jx = 64
-Jy = 32
-
-Jz = 512
+Jx = 60
+Jy = 30
+Jz = 600
 
 
 dt = 0.0025e-3
@@ -395,7 +392,9 @@ if not os.path.exists(path):
     # eigenstates_lse, energies_lse = solver.eigenstates_lse_ite(n_eigenstates=16, tau_0=0.1e-3, eps_0=1e-6, order=12)
 
     # eigenstates_lse, energies_lse = solver.eigenstates_lse(n_eigenstates=256, tol=1e-5)
-    eigenstates_lse, energies_lse = solver.eigenstates_lse(n_eigenstates=64, tol=1e-14)
+    # eigenstates_lse, energies_lse = solver.eigenstates_lse(n_eigenstates=64, tol=1e-14)
+    # eigenstates_lse, energies_lse = solver.eigenstates_lse(n_eigenstates=128, tol=1e-5)
+    eigenstates_lse, energies_lse = solver.eigenstates_lse(n_eigenstates=128, tol=1e-14)
 
     t2 = time.time()
 
