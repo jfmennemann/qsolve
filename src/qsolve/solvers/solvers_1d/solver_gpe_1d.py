@@ -162,31 +162,31 @@ class SolverGPE1D(object):
             self._units.unit_wave_function * _eigenstates.cpu().numpy(), \
             self._units.unit_energy * _eigenvalues.cpu().numpy()
 
-    # def bdg(self, *, psi_0, n_atoms, n):
-    #
-    #     _psi_0 = torch.tensor(psi_0 / self._units.unit_wave_function, device=self._device)
-    #
-    #     _mue_0 = qsolve_core.chemical_potential_gpe_1d(
-    #         _psi_0, self._V, self._dx, self._hbar, self._m_atom, self._g)
-    #
-    #     _eigenvectors_u, _eigenvectors_v, _eigenvalues_omega, _psi_0, _mue_0 = qsolve_core.bdg_1d(
-    #         _psi_0,
-    #         _mue_0,
-    #         self._V,
-    #         self._dx,
-    #         self._hbar,
-    #         self._m_atom,
-    #         self._g,
-    #         n_atoms,
-    #         n
-    #     )
-    #
-    #     return \
-    #         self._units.unit_wave_function * _eigenvectors_u, \
-    #         self._units.unit_wave_function * _eigenvectors_v, \
-    #         self._units.unit_frequency * _eigenvalues_omega, \
-    #         self._units.unit_wave_function * _psi_0, \
-    #         self._units.unit_energy * _mue_0
+    def bdg(self, *, psi_0, n_atoms, n_excitations):
+
+        _psi_0 = torch.tensor(psi_0 / self._units.unit_wave_function, device=self._device)
+
+        _mue_0 = qsolve_core.chemical_potential_gpe_1d(
+            _psi_0, self._V, self._dx, self._hbar, self._m_atom, self._g)
+
+        _eigenvectors_u, _eigenvectors_v, _eigenvalues_omega, _psi_0, _mue_0 = qsolve_core.bdg_1d(
+            _psi_0,
+            _mue_0,
+            self._V,
+            self._dx,
+            self._hbar,
+            self._m_atom,
+            self._g,
+            n_atoms,
+            n_excitations
+        )
+
+        return \
+            self._units.unit_wave_function * _eigenvectors_u, \
+            self._units.unit_wave_function * _eigenvectors_v, \
+            self._units.unit_frequency * _eigenvalues_omega, \
+            self._units.unit_wave_function * _psi_0, \
+            self._units.unit_energy * _mue_0
 
     def bdg_experimental(self, *, n_atoms, n_excitations):
 

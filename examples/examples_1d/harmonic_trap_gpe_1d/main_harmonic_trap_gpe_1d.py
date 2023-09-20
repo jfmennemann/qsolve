@@ -332,8 +332,11 @@ path = "./data/bdg.hdf5"
 
 if not os.path.exists(path):
 
-    excitations_u, excitations_v, frequencies_omega, psi_0_bdg, mue_0_bdg = solver.bdg_experimental(
-        n_atoms=n_atoms, n_excitations=16)
+    # excitations_u, excitations_v, frequencies_omega, psi_0_bdg, mue_0_bdg = solver.bdg_experimental(
+    #     n_atoms=n_atoms, n_excitations=16)
+
+    excitations_u, excitations_v, frequencies_omega, psi_0_bdg, mue_0_bdg = solver.bdg(
+        psi_0=psi_0, n_atoms=n_atoms, n_excitations=16)
 
     pathlib.Path('./data').mkdir(parents=True, exist_ok=True)
 
