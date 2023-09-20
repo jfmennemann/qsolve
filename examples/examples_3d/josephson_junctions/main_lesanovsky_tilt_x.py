@@ -142,9 +142,13 @@ z_min = -60e-6
 z_max = +60e-6
 
 
-Jx = 100
-Jy = 50
-Jz = 500
+# Jx = 100
+# Jy = 50
+# Jz = 500
+
+Jx = 60
+Jy = 30
+Jz = 600
 
 
 dt = 0.0025e-3
@@ -384,10 +388,10 @@ if not os.path.exists(path):
 
     t1 = time.time()
 
-    # eigenstates_lse, energies_lse = solver.eigenstates_lse_ite(n_eigenstates=16, tau_0=0.005e-3, eps_0=1e-7, order=4)
+    # eigenstates_lse, energies_lse = solver.eigenstates_lse_ite(n_eigenstates=16, tau_0=0.005e-3, eps_0=1e-3, order=4)
     # eigenstates_lse, energies_lse = solver.eigenstates_lse_ite(n_eigenstates=16, tau_0=0.01e-3, eps_0=1e-7, order=6)
     # eigenstates_lse, energies_lse = solver.eigenstates_lse_ite(n_eigenstates=32, tau_0=0.025e-3, eps_0=1e-7, order=8)
-    # eigenstates_lse, energies_lse = solver.eigenstates_lse_ite(n_eigenstates=16, tau_0=0.05e-3, eps_0=1e-7, order=10)
+    eigenstates_lse, energies_lse = solver.eigenstates_lse_ite(n_eigenstates=16, tau_0=0.05e-3, eps_0=1e-6, order=10)
 
     # eigenstates_lse, energies_lse = solver.eigenstates_lse_ite(n_eigenstates=16, tau_0=0.1e-3, eps_0=1e-6, order=12)
 
@@ -395,7 +399,7 @@ if not os.path.exists(path):
     # eigenstates_lse, energies_lse = solver.eigenstates_lse(n_eigenstates=64, tol=1e-14)
     # eigenstates_lse, energies_lse = solver.eigenstates_lse(n_eigenstates=128, tol=1e-5)
     # eigenstates_lse, energies_lse = solver.eigenstates_lse(n_eigenstates=256, tol=1e-14)
-    eigenstates_lse, energies_lse = solver.eigenstates_lse(n_eigenstates=16, tol=1e-14)
+    # eigenstates_lse, energies_lse = solver.eigenstates_lse(n_eigenstates=16, tol=1e-14)
 
     t2 = time.time()
 

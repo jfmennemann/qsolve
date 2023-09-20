@@ -106,13 +106,14 @@ class SolverGPE1D(object):
                 self._units.unit_wave_function * _psi_0.cpu().numpy(), \
                 self._units.unit_energy * _mue_0
 
-    def compute_eigenstates_lse(self,
-                                *,
-                                n_eigenstates,
-                                n_iter_max,
-                                tau_0,
-                                propagation_method,
-                                return_residuals=False):
+    def compute_eigenstates_lse_ite(
+            self,
+            *,
+            n_eigenstates,
+            n_iter_max,
+            tau_0,
+            propagation_method,
+            return_residuals=False):
 
         _tau_0 = tau_0 / self._units.unit_time
 
@@ -122,7 +123,7 @@ class SolverGPE1D(object):
 
             raise Exception(message)
 
-        _eigenstates_batch, _eigenvalues_batch, matrix_res_batch_of_vec_n_iter, vec_n_iter = qsolve_core.compute_eigenstates_lse_1d(
+        _eigenstates_batch, _eigenvalues_batch, res_batch_of_n_iter, vec_n_iter = qsolve_core.compute_eigenstates_lse_1d_ite(
             self._V,
             self._dx,
             self._hbar,
@@ -138,7 +139,7 @@ class SolverGPE1D(object):
             return \
                 self._units.unit_wave_function * _eigenstates_batch.cpu().numpy(), \
                 self._units.unit_energy * _eigenvalues_batch.cpu().numpy(), \
-                matrix_res_batch_of_vec_n_iter, \
+                res_batch_of_n_iter, \
                 vec_n_iter
 
         else:
@@ -147,9 +148,9 @@ class SolverGPE1D(object):
                     self._units.unit_wave_function * _eigenstates_batch.cpu().numpy(), \
                     self._units.unit_energy * _eigenvalues_batch.cpu().numpy()
 
-    def compute_eigenstates_lse_fd(self, *, n_eigenstates_max):
+    def compute_eigenstates_lse(self, *, n_eigenstates_max):
 
-        _eigenstates_batch, _eigenvalues_batch = qsolve_core.compute_eigenstates_lse_1d_fd(
+        _eigenstates_batch, _eigenvalues_batch = qsolve_core.compute_eigenstates_lse_1d(
             self._V,
             self._dx,
             self._hbar,
@@ -160,10 +161,6 @@ class SolverGPE1D(object):
         return \
             self._units.unit_wave_function * _eigenstates_batch.cpu().numpy(), \
             self._units.unit_energy * _eigenvalues_batch.cpu().numpy()
-
-        # return \
-        #     self._units.unit_wave_function * _eigenstates_batch, \
-        #     self._units.unit_energy * _eigenvalues_batch
 
     # def bdg(self, *, psi_0, n_atoms, n):
     #
