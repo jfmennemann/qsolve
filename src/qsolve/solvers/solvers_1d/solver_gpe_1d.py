@@ -123,7 +123,7 @@ class SolverGPE1D(object):
 
             raise Exception(message)
 
-        _eigenstates_batch, _eigenvalues_batch, res_batch_of_n_iter, vec_n_iter = qsolve_core.compute_eigenstates_lse_1d_ite(
+        _eigenstates, _eigenvalues, res_batch_of_n_iter, vec_n_iter = qsolve_core.compute_eigenstates_lse_1d_ite(
             self._V,
             self._dx,
             self._hbar,
@@ -137,30 +137,30 @@ class SolverGPE1D(object):
         if return_residuals:
 
             return \
-                self._units.unit_wave_function * _eigenstates_batch.cpu().numpy(), \
-                self._units.unit_energy * _eigenvalues_batch.cpu().numpy(), \
+                self._units.unit_wave_function * _eigenstates.cpu().numpy(), \
+                self._units.unit_energy * _eigenvalues.cpu().numpy(), \
                 res_batch_of_n_iter, \
                 vec_n_iter
 
         else:
 
             return \
-                    self._units.unit_wave_function * _eigenstates_batch.cpu().numpy(), \
-                    self._units.unit_energy * _eigenvalues_batch.cpu().numpy()
+                    self._units.unit_wave_function * _eigenstates.cpu().numpy(), \
+                    self._units.unit_energy * _eigenvalues.cpu().numpy()
 
-    def compute_eigenstates_lse(self, *, n_eigenstates_max):
+    def compute_eigenstates_lse(self, *, n_eigenstates):
 
-        _eigenstates_batch, _eigenvalues_batch = qsolve_core.compute_eigenstates_lse_1d(
+        _eigenstates, _eigenvalues = qsolve_core.compute_eigenstates_lse_1d(
             self._V,
             self._dx,
             self._hbar,
             self._m_atom,
-            n_eigenstates_max
+            n_eigenstates
         )
 
         return \
-            self._units.unit_wave_function * _eigenstates_batch.cpu().numpy(), \
-            self._units.unit_energy * _eigenvalues_batch.cpu().numpy()
+            self._units.unit_wave_function * _eigenstates.cpu().numpy(), \
+            self._units.unit_energy * _eigenvalues.cpu().numpy()
 
     # def bdg(self, *, psi_0, n_atoms, n):
     #

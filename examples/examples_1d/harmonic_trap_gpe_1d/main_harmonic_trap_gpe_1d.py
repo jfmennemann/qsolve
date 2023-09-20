@@ -236,21 +236,16 @@ plt.draw()
 # compute eigenstates of the linear Schrödinger equation
 # =================================================================================================
 
-eigenstates_lse, energies_lse, matrix_res_batch, vec_iter = solver.compute_eigenstates_lse_ite(
-    n_eigenstates=128,
-    n_iter_max=1000,
-    tau_0=0.25e-3,
-    propagation_method='ite_12th',
-    return_residuals=True)
+ite = False
 
-figure_eigenstates_lse = FigureEigenstatesLSE1D(eigenstates_lse,
-                                                solver.V,
-                                                grid.x,
-                                                parameters_figure_eigenstates_lse)
+if ite:
 
-show_convergence_lse_computation = True
-
-if show_convergence_lse_computation:
+    eigenstates_lse, energies_lse, matrix_res_batch, vec_iter = solver.compute_eigenstates_lse_ite(
+        n_eigenstates=128,
+        n_iter_max=1000,
+        tau_0=0.25e-3,
+        propagation_method='ite_12th',
+        return_residuals=True)
 
     n_eigenstates_lse = matrix_res_batch.shape[0]
 
@@ -260,12 +255,11 @@ if show_convergence_lse_computation:
 
     cmap_tmp = mpl.colormaps['Spectral']
 
-    norm = mpl.colors.Normalize(vmin=0, vmax=n_lines-1)
+    norm = mpl.colors.Normalize(vmin=0, vmax=n_lines - 1)
     cmap = mpl.cm.ScalarMappable(norm=norm, cmap=cmap_tmp)
     cmap.set_array([])
 
-
-    figure_convergence_lse_1d = plt.figure(num="figure_convergence_lse_1d", figsize=(1.5*6, 1.5*4))
+    figure_convergence_lse_1d = plt.figure(num="figure_convergence_lse_1d", figsize=(1.5 * 6, 1.5 * 4))
 
     figure_convergence_lse_1d.subplots_adjust(left=0.1, right=1.0, bottom=0.125, top=0.925)
 
@@ -291,7 +285,7 @@ if show_convergence_lse_computation:
 
     cbar = figure_convergence_lse_1d.colorbar(cmap, ax=ax, label=r'# eigenstate')
 
-    ticks_true = np.linspace(0, n_eigenstates_lse+1, 4)
+    ticks_true = np.linspace(0, n_eigenstates_lse + 1, 4)
 
     cbar.ax.tick_params(length=6, pad=4, which="major")
 
@@ -299,6 +293,14 @@ if show_convergence_lse_computation:
 
     plt.draw()
 
+else:
+
+    eigenstates_lse, energies_lse = solver.compute_eigenstates_lse(n_eigenstates=128)
+
+figure_eigenstates_lse = FigureEigenstatesLSE1D(eigenstates_lse,
+                                                solver.V,
+                                                grid.x,
+                                                parameters_figure_eigenstates_lse)
 
 # -------------------------------------------------------------------------------------------------
 print('3 * k_B * T / mue_0:' )
