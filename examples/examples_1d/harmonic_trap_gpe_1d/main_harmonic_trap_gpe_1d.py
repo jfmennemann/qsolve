@@ -73,7 +73,7 @@ T = 20e-9
 x_min = -60e-6
 x_max = +60e-6
 
-Jx = 1024
+Jx = 1200
 
 t_final = 8e-3
 
@@ -332,23 +332,23 @@ path = "./data/bdg.hdf5"
 
 if not os.path.exists(path):
 
-    # excitations_u, excitations_v, frequencies_omega, psi_0_bdg, mue_0_bdg = solver.bdg_experimental(
+    # excitations_u, excitations_v, frequencies_omega, psi_0_bdg, mue_0_bdg = solver.bdg(
     #     n_atoms=n_atoms, n_excitations=16)
 
-    excitations_u, excitations_v, frequencies_omega, psi_0_bdg, mue_0_bdg = solver.bdg(
-        psi_0=psi_0, n_atoms=n_atoms, n_excitations=16)
+    excitations_u, excitations_v, frequencies_omega, psi_0_bdg, mue_0_bdg = solver.bdg_sse(
+        n_atoms=n_atoms, n_excitations=128)
 
-    pathlib.Path('./data').mkdir(parents=True, exist_ok=True)
-
-    f_hdf5 = h5py.File(path, mode="w")
-
-    f_hdf5.create_dataset(name="excitations_u", data=excitations_u, dtype=np.float64)
-    f_hdf5.create_dataset(name="excitations_v", data=excitations_v, dtype=np.float64)
-    f_hdf5.create_dataset(name="frequencies_omega", data=frequencies_omega, dtype=np.float64)
-    f_hdf5.create_dataset(name="psi_0", data=psi_0_bdg, dtype=np.float64)
-    f_hdf5.create_dataset(name="mue_0", data=mue_0_bdg)
-
-    f_hdf5.close()
+    # pathlib.Path('./data').mkdir(parents=True, exist_ok=True)
+    #
+    # f_hdf5 = h5py.File(path, mode="w")
+    #
+    # f_hdf5.create_dataset(name="excitations_u", data=excitations_u, dtype=np.float64)
+    # f_hdf5.create_dataset(name="excitations_v", data=excitations_v, dtype=np.float64)
+    # f_hdf5.create_dataset(name="frequencies_omega", data=frequencies_omega, dtype=np.float64)
+    # f_hdf5.create_dataset(name="psi_0", data=psi_0_bdg, dtype=np.float64)
+    # f_hdf5.create_dataset(name="mue_0", data=mue_0_bdg)
+    #
+    # f_hdf5.close()
 
 else:
 
