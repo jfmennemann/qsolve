@@ -378,6 +378,7 @@ solver.set_external_potential(t=0.0, u=u_of_times[0])
 # compute eigenstates of the linear Schrödinger equation
 # =================================================================================================
 
+"""
 path = "./data/lse.hdf5"
 
 if not os.path.exists(path):
@@ -466,7 +467,7 @@ max_orthonormality_deviation = scipy.linalg.norm(orthonormality_matrix - np.eye(
 
 print('max_orthonormality_deviation: {0:1.4e}'.format(max_orthonormality_deviation))
 print()
-
+"""
 
 # =================================================================================================
 # compute ground state solution

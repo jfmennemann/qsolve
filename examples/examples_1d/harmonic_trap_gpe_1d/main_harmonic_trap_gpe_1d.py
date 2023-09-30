@@ -336,7 +336,7 @@ if not os.path.exists(path):
     #     n_atoms=n_atoms, n_excitations=16)
 
     excitations_u, excitations_v, frequencies_omega, psi_0_bdg, mue_0_bdg = solver.bdg_sse(
-        n_atoms=n_atoms, n_excitations=128)
+        n_atoms=n_atoms, n_excitations=100)
 
     # pathlib.Path('./data').mkdir(parents=True, exist_ok=True)
     #
