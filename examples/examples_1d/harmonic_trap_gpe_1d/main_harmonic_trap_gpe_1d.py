@@ -332,11 +332,13 @@ path = "./data/bdg.hdf5"
 
 if not os.path.exists(path):
 
-    # excitations_u, excitations_v, frequencies_omega, psi_0_bdg, mue_0_bdg = solver.bdg(
-    #     n_atoms=n_atoms, n_excitations=16)
+    excitations_u, excitations_v, frequencies_omega, psi_0_bdg, mue_0_bdg = solver.bdg(
+        n_atoms=n_atoms, n_excitations=16)
 
-    excitations_u, excitations_v, frequencies_omega, psi_0_bdg, mue_0_bdg = solver.bdg_sse(
-        n_atoms=n_atoms, n_excitations=100)
+    excitations_u_sse, excitations_v_sse, frequencies_omega_sse, psi_0_bdg_sse, mue_0_bdg_sse = solver.bdg_sse(
+        n_atoms=n_atoms, n_excitations=16)
+
+
 
     # pathlib.Path('./data').mkdir(parents=True, exist_ok=True)
     #
@@ -378,12 +380,33 @@ parameters_figure_eigenstates_bdg = {'u_v_re_im_min': -1.0,
                                      'x_ticks': np.array([-40, -20, 0, 20, 40])
                                      }
 
-figure_eigenstates_bdg = FigureEigenstatesBDG1D(excitations_u,
-                                                excitations_v,
+figure_eigenstates_bdg = FigureEigenstatesBDG1D(excitations_u_sse,
+                                                excitations_v_sse,
                                                 solver.V,
                                                 grid.x,
                                                 parameters_figure_eigenstates_bdg)
 
+
+rel_diff_u = np.linalg.norm(np.abs(excitations_u_sse) - np.abs(excitations_u), axis=1, ord=1) / np.linalg.norm(np.abs(excitations_u), axis=1, ord=1)
+rel_diff_v = np.linalg.norm(np.abs(excitations_v_sse) - np.abs(excitations_v), axis=1, ord=1) / np.linalg.norm(np.abs(excitations_u), axis=1, ord=1)
+
+np.set_printoptions(precision=None, threshold=None, edgeitems=200)
+
+print(rel_diff_u.round(4))
+print()
+print(rel_diff_v.round(4))
+print()
+print(np.max(rel_diff_u))
+print(np.max(rel_diff_v))
+print()
+print()
+
+
+print(frequencies_omega.round(4))
+print()
+print(frequencies_omega_sse.round(4))
+print()
+input()
 
 # =================================================================================================
 # set wave function to ground state solution
