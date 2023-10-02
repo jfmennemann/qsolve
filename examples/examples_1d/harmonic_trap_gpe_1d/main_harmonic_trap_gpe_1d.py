@@ -392,9 +392,9 @@ rel_diff_v = np.linalg.norm(np.abs(excitations_v_sse) - np.abs(excitations_v), a
 
 np.set_printoptions(precision=None, threshold=None, edgeitems=200)
 
-print(rel_diff_u.round(4))
+print(rel_diff_u.round(10))
 print()
-print(rel_diff_v.round(4))
+print(rel_diff_v.round(10))
 print()
 print(np.max(rel_diff_u))
 print(np.max(rel_diff_v))
@@ -406,7 +406,7 @@ print(frequencies_omega.round(4))
 print()
 print(frequencies_omega_sse.round(4))
 print()
-input()
+# input()
 
 # =================================================================================================
 # set wave function to ground state solution
