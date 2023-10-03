@@ -9,7 +9,7 @@ from qsolve.figures.style import colors
 
 class FigureEigenstatesBDG1D(object):
 
-    def __init__(self, excitations_u, excitations_v, V, x, params):
+    def __init__(self, excitations_u, excitations_v, V, x, params, fig_name="figure_eigenstates_bdg_1d"):
 
         x_ticks = params["x_ticks"]
 
@@ -65,8 +65,8 @@ class FigureEigenstatesBDG1D(object):
         # -----------------------------------------------------------------------------------------
 
         # -----------------------------------------------------------------------------------------
-        self.fig_name = "figure_eigenstates_bdg_1d"
-                
+        self.fig_name = fig_name
+
         self.fig = plt.figure(self.fig_name, figsize=(8, 8), facecolor="white")
         # -----------------------------------------------------------------------------------------
 

@@ -207,16 +207,17 @@ class SolverGPE1D(object):
             self._units.unit_wave_function * _psi_0, \
             self._units.unit_energy * _mue_0
 
-    def bdg_sse(self, *, n_atoms, n_excitations):
+    def bdg_sse(self, *, n_atoms, n_excitations, dim_subspace):
 
-        _excitations_u, _excitations_v, _frequencies_omega, _psi_0, _mue_0 = qsolve_core.bdg_1d_sse(
+        _excitations_u, _excitations_v, _frequencies_omega, _psi_0, _mue_0, residual_error = qsolve_core.bdg_1d_sse(
             self._V,
             self._dx,
             self._hbar,
             self._m_atom,
             self._g,
             n_atoms,
-            n_excitations
+            n_excitations,
+            dim_subspace=dim_subspace
         )
 
         return \
@@ -224,7 +225,8 @@ class SolverGPE1D(object):
             self._units.unit_wave_function * _excitations_v, \
             self._units.unit_frequency * _frequencies_omega, \
             self._units.unit_wave_function * _psi_0, \
-            self._units.unit_energy * _mue_0
+            self._units.unit_energy * _mue_0, \
+            residual_error
 
     def init_sgpe(self, **kwargs):
 
