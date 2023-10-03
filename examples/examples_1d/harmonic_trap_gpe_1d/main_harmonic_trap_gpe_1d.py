@@ -332,13 +332,13 @@ path = "./data/bdg.hdf5"
 
 if not os.path.exists(path):
 
-    n_excitations = 100
+    n_excitations = 10
 
-    excitations_u, excitations_v, frequencies_omega, psi_0_bdg, mue_0_bdg = solver.bdg(
+    excitations_u, excitations_v, frequencies_omega, psi_0_bdg, mue_0_bdg, res_max_bdg = solver.bdg(
         n_atoms=n_atoms, n_excitations=n_excitations)
 
-    excitations_u_sse, excitations_v_sse, frequencies_omega_sse, psi_0_bdg_sse, mue_0_bdg_sse, res_bdg_sse = (
-        solver.bdg_sse(n_atoms=n_atoms, n_excitations=n_excitations, dim_subspace=4*n_excitations))
+    excitations_u_sse, excitations_v_sse, frequencies_omega_sse, psi_0_bdg_sse, mue_0_bdg_sse, res_max_bdg_sse = (
+        solver.bdg_sse(n_atoms=n_atoms, n_excitations=n_excitations, dim_subspace=10*n_excitations))
 
     # pathlib.Path('./data').mkdir(parents=True, exist_ok=True)
     #
@@ -373,35 +373,32 @@ else:
     print()
     print()
 
-parameters_figure_eigenstates_bdg = {'u_v_re_im_min': -1.0,
-                                     'u_v_re_im_max': +1.0,
-                                     'V_min': 0.0,
-                                     'V_max': 4.0,
-                                     'x_ticks': np.array([-40, -20, 0, 20, 40])
-                                     }
+figure_eigenstates_bdg = FigureEigenstatesBDG1D(
+    excitations_u,
+    excitations_v,
+    solver.V,
+    grid.x,
+    u_v_re_im_min=-1.0,
+    u_v_re_im_max=+1.0,
+    V_min=0.0,
+    V_max=4.0,
+    x_ticks=np.array([-40, -20, 0, 20, 40]),
+    name="figure_eigenstates_bdg_1d")
 
-figure_eigenstates_bdg = FigureEigenstatesBDG1D(excitations_u_sse,
-                                                excitations_v_sse,
-                                                solver.V,
-                                                grid.x,
-                                                parameters_figure_eigenstates_bdg)
+figure_eigenstates_bdg_sse = FigureEigenstatesBDG1D(
+    excitations_u_sse,
+    excitations_v_sse,
+    solver.V,
+    grid.x,
+    u_v_re_im_min=-1.0,
+    u_v_re_im_max=+1.0,
+    V_min=0.0,
+    V_max=4.0,
+    x_ticks=np.array([-40, -20, 0, 20, 40]),
+    name="figure_eigenstates_bdg_1d_sse")
 
-
-# rel_diff_u = np.linalg.norm(np.abs(excitations_u_sse) - np.abs(excitations_u), axis=1, ord=1) / np.linalg.norm(np.abs(excitations_u), axis=1, ord=1)
-# rel_diff_v = np.linalg.norm(np.abs(excitations_v_sse) - np.abs(excitations_v), axis=1, ord=1) / np.linalg.norm(np.abs(excitations_u), axis=1, ord=1)
-#
-# np.set_printoptions(precision=None, threshold=None, edgeitems=200)
-#
-# print(rel_diff_u.round(10))
-# print()
-# print(rel_diff_v.round(10))
-# print()
-# print(np.max(rel_diff_u))
-# print(np.max(rel_diff_v))
-# print()
-# print()
-
-print('res_bdg_sse: {0:1.4e}'.format(res_bdg_sse))
+print('res_max_bdg:     {0:1.4e}'.format(res_max_bdg))
+print('res_max_bdg_sse: {0:1.4e}'.format(res_max_bdg_sse))
 print()
 # print(frequencies_omega.round(4))
 # print()

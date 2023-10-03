@@ -9,9 +9,19 @@ from qsolve.figures.style import colors
 
 class FigureEigenstatesBDG1D(object):
 
-    def __init__(self, excitations_u, excitations_v, V, x, params, fig_name="figure_eigenstates_bdg_1d"):
+    def __init__(self,
+                 excitations_u,
+                 excitations_v,
+                 V,
+                 x,
+                 u_v_re_im_min,
+                 u_v_re_im_max,
+                 V_min,
+                 V_max,
+                 x_ticks,
+                 name="figure_eigenstates_bdg_1d"):
 
-        x_ticks = params["x_ticks"]
+        # x_ticks = params["x_ticks"]
 
         x = x / 1e-6
 
@@ -29,11 +39,11 @@ class FigureEigenstatesBDG1D(object):
 
         settings.hbar = constants.hbar
 
-        settings.u_v_re_im_min = params["u_v_re_im_min"]
-        settings.u_v_re_im_max = params["u_v_re_im_max"]
+        settings.u_v_re_im_min = u_v_re_im_min
+        settings.u_v_re_im_max = u_v_re_im_max
 
-        settings.V_min = params['V_min']
-        settings.V_max = params['V_max']
+        settings.V_min = V_min
+        settings.V_max = V_max
 
         settings.x = x
 
@@ -65,7 +75,7 @@ class FigureEigenstatesBDG1D(object):
         # -----------------------------------------------------------------------------------------
 
         # -----------------------------------------------------------------------------------------
-        self.fig_name = fig_name
+        self.fig_name = name
 
         self.fig = plt.figure(self.fig_name, figsize=(8, 8), facecolor="white")
         # -----------------------------------------------------------------------------------------
