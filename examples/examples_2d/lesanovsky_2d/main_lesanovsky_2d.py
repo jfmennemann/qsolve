@@ -401,6 +401,7 @@ path = "./data/bdg.hdf5"
 
 if not os.path.exists(path):
 
+    """
     excitations_u, excitations_v, frequencies_omega, psi_0, mue_0, res_max = solver.bdg(
         psi_0=psi_0, n_atoms=n_atoms, n_excitations=32)
 
@@ -416,6 +417,23 @@ if not os.path.exists(path):
     f_hdf5.create_dataset(name="res_max", data=res_max, dtype=float)
 
     f_hdf5.close()
+    """
+
+    excitations_u, excitations_v, frequencies_omega, psi_0, mue_0, res_max = solver.bdg_sse(
+        psi_0=psi_0, n_atoms=n_atoms, n_excitations=32)
+
+    # pathlib.Path('./data').mkdir(parents=True, exist_ok=True)
+    #
+    # f_hdf5 = h5py.File(path, mode="w")
+    #
+    # f_hdf5.create_dataset(name="excitations_u", data=excitations_u, dtype=np.float64)
+    # f_hdf5.create_dataset(name="excitations_v", data=excitations_v, dtype=np.float64)
+    # f_hdf5.create_dataset(name="frequencies_omega", data=frequencies_omega, dtype=np.float64)
+    # f_hdf5.create_dataset(name="psi_0", data=psi_0, dtype=np.float64)
+    # f_hdf5.create_dataset(name="mue_0", data=mue_0, dtype=float)
+    # f_hdf5.create_dataset(name="res_max", data=res_max, dtype=float)
+    #
+    # f_hdf5.close()
 
 else:
 
