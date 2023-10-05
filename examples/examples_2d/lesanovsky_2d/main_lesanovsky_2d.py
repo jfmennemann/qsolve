@@ -401,20 +401,21 @@ path = "./data/bdg.hdf5"
 
 if not os.path.exists(path):
 
-    excitations_u, excitations_v, frequencies_omega, psi_0, mue_0, res_max_bdg = solver.bdg(
-        psi_0=psi_0, n_atoms=n_atoms, n_excitations=10)
+    excitations_u, excitations_v, frequencies_omega, psi_0, mue_0, res_max = solver.bdg(
+        psi_0=psi_0, n_atoms=n_atoms, n_excitations=32)
 
-    # pathlib.Path('./data').mkdir(parents=True, exist_ok=True)
-    #
-    # f_hdf5 = h5py.File(path, mode="w")
-    #
-    # f_hdf5.create_dataset(name="excitations_u", data=excitations_u, dtype=np.float64)
-    # f_hdf5.create_dataset(name="excitations_v", data=excitations_v, dtype=np.float64)
-    # f_hdf5.create_dataset(name="frequencies_omega", data=frequencies_omega, dtype=np.float64)
-    # f_hdf5.create_dataset(name="psi_0", data=psi_0, dtype=np.float64)
-    # f_hdf5.create_dataset(name="mue_0", data=mue_0, dtype=float)
-    #
-    # f_hdf5.close()
+    pathlib.Path('./data').mkdir(parents=True, exist_ok=True)
+
+    f_hdf5 = h5py.File(path, mode="w")
+
+    f_hdf5.create_dataset(name="excitations_u", data=excitations_u, dtype=np.float64)
+    f_hdf5.create_dataset(name="excitations_v", data=excitations_v, dtype=np.float64)
+    f_hdf5.create_dataset(name="frequencies_omega", data=frequencies_omega, dtype=np.float64)
+    f_hdf5.create_dataset(name="psi_0", data=psi_0, dtype=np.float64)
+    f_hdf5.create_dataset(name="mue_0", data=mue_0, dtype=float)
+    f_hdf5.create_dataset(name="res_max", data=res_max, dtype=float)
+
+    f_hdf5.close()
 
 else:
 
@@ -428,6 +429,8 @@ else:
     psi_0 = f_hdf5['psi_0'][:]
     mue_0 = f_hdf5['mue_0'][()]
 
+    res_max = f_hdf5['res_max'][()]
+
     print(excitations_u.shape)
     print(excitations_v.shape)
     print()
@@ -438,19 +441,19 @@ else:
     print()
     print(mue_0)
     print()
+    print(res_max)
+    print()
     print()
 
-figure_eigenstates_bdg = FigureEigenstatesBDG2D(eigenvectors_u=excitations_u,
-                                                eigenvectors_v=excitations_v,
+figure_eigenstates_bdg = FigureEigenstatesBDG2D(excitations_u=excitations_u,
+                                                excitations_v=excitations_v,
                                                 V=solver.V,
-                                                psi_0=psi_0,
                                                 x=grid.x,
                                                 y=grid.y,
                                                 x_ticks=[-3, 0, 3],
                                                 y_ticks=[-80, -40, 0, 40, 80])
 
-
-print('res_max_bdg:     {0:1.4e}'.format(res_max_bdg))
+print('res_max:     {0:1.4e}'.format(res_max))
 # print('res_max_bdg_sse: {0:1.4e}'.format(res_max_bdg_sse))
 print()
 # print(frequencies_omega.round(4))
