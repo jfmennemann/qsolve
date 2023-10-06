@@ -165,7 +165,7 @@ class SolverGPE2D(object):
             self._units.unit_energy * _mue_0, \
             res_max
 
-    def bdg_sse(self, *, psi_0, n_atoms, n_excitations):
+    def bdg_sse(self, *, psi_0, n_atoms, n_excitations, dim_subspace):
 
         _psi_0 = torch.tensor(psi_0 / self._units.unit_wave_function, device=self._device)
 
@@ -182,7 +182,8 @@ class SolverGPE2D(object):
             self._m_atom,
             self._g,
             n_atoms,
-            n_excitations
+            n_excitations,
+            dim_subspace
         )
 
         return \

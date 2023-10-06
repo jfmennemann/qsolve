@@ -128,8 +128,8 @@ x_max = +3e-6
 y_min = -80e-6
 y_max = +80e-6
 
-Jx = 2*30
-Jy = 800 // 2
+Jx = 4*30
+Jy = 200
 
 dt = 0.0025e-3
 
@@ -397,13 +397,14 @@ figure_main.fig_control_inputs.update_t(0.0)
 # compute quasiparticle amplitudes u and v
 # =================================================================================================
 
+n_excitations = 32
+
 path = "./data/bdg.hdf5"
 
 if not os.path.exists(path):
 
-    """
-    excitations_u, excitations_v, frequencies_omega, psi_0, mue_0, res_max = solver.bdg(
-        psi_0=psi_0, n_atoms=n_atoms, n_excitations=32)
+    excitations_u, excitations_v, frequencies_omega, psi_0_bdg, mue_0_bdg, res_max = solver.bdg(
+        psi_0=psi_0, n_atoms=n_atoms, n_excitations=n_excitations)
 
     pathlib.Path('./data').mkdir(parents=True, exist_ok=True)
 
@@ -412,15 +413,14 @@ if not os.path.exists(path):
     f_hdf5.create_dataset(name="excitations_u", data=excitations_u, dtype=np.float64)
     f_hdf5.create_dataset(name="excitations_v", data=excitations_v, dtype=np.float64)
     f_hdf5.create_dataset(name="frequencies_omega", data=frequencies_omega, dtype=np.float64)
-    f_hdf5.create_dataset(name="psi_0", data=psi_0, dtype=np.float64)
-    f_hdf5.create_dataset(name="mue_0", data=mue_0, dtype=float)
+    f_hdf5.create_dataset(name="psi_0", data=psi_0_bdg, dtype=np.float64)
+    f_hdf5.create_dataset(name="mue_0", data=mue_0_bdg, dtype=float)
     f_hdf5.create_dataset(name="res_max", data=res_max, dtype=float)
 
     f_hdf5.close()
-    """
 
-    excitations_u, excitations_v, frequencies_omega, psi_0, mue_0, res_max = solver.bdg_sse(
-        psi_0=psi_0, n_atoms=n_atoms, n_excitations=32)
+    # excitations_u_sse, excitations_v_sse, frequencies_omega_sse, psi_0_sse, mue_0_sse, res_max_sse = solver.bdg_sse(
+    #     psi_0=psi_0, n_atoms=n_atoms, n_excitations=n_excitations, dim_subspace=4*n_excitations)
 
     # pathlib.Path('./data').mkdir(parents=True, exist_ok=True)
     #
@@ -444,8 +444,8 @@ else:
 
     frequencies_omega = f_hdf5['frequencies_omega'][:]
 
-    psi_0 = f_hdf5['psi_0'][:]
-    mue_0 = f_hdf5['mue_0'][()]
+    # psi_0 = f_hdf5['psi_0'][:]
+    # mue_0 = f_hdf5['mue_0'][()]
 
     res_max = f_hdf5['res_max'][()]
 
@@ -463,21 +463,41 @@ else:
     print()
     print()
 
-figure_eigenstates_bdg = FigureEigenstatesBDG2D(excitations_u=excitations_u,
-                                                excitations_v=excitations_v,
-                                                V=solver.V,
-                                                x=grid.x,
-                                                y=grid.y,
-                                                x_ticks=[-3, 0, 3],
-                                                y_ticks=[-80, -40, 0, 40, 80])
+excitations_u_sse, excitations_v_sse, frequencies_omega_sse, psi_0_sse, mue_0_sse, res_max_sse = solver.bdg_sse(
+    psi_0=psi_0, n_atoms=n_atoms, n_excitations=n_excitations, dim_subspace=32*n_excitations)
+
+
+FigureEigenstatesBDG2D(
+    excitations_u=np.abs(excitations_u-excitations_u_sse),
+    excitations_v=np.abs(excitations_v-excitations_v_sse),
+    V=solver.V,
+    x=grid.x,
+    y=grid.y,
+    x_ticks=[-3, 0, 3],
+    y_ticks=[-80, -40, 0, 40, 80])
+
+# FigureEigenstatesBDG2D(
+#     excitations_u=excitations_u_sse,
+#     excitations_v=excitations_v_sse,
+#     V=solver.V,
+#     x=grid.x,
+#     y=grid.y,
+#     x_ticks=[-3, 0, 3],
+#     y_ticks=[-80, -40, 0, 40, 80],
+#     name="figure_eigenstates_bdg_2d_sse")
 
 print('res_max:     {0:1.4e}'.format(res_max))
-# print('res_max_bdg_sse: {0:1.4e}'.format(res_max_bdg_sse))
+print('res_max_sse: {0:1.4e}'.format(res_max_sse))
 print()
-# print(frequencies_omega.round(4))
-# print()
-# print(frequencies_omega_sse.round(4))
-# print()
+print(frequencies_omega.round(4))
+print()
+print(frequencies_omega_sse.round(4))
+print()
+input()
+
+
+nr = 3
+print(np.linalg.norm(np.abs(excitations_u_sse[nr, :, :])-np.abs(excitations_u[nr, :, :]))/np.linalg.norm(np.abs(excitations_u[nr, :, :])))
 input()
 
 
