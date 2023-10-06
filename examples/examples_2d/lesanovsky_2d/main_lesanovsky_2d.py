@@ -128,8 +128,8 @@ x_max = +3e-6
 y_min = -80e-6
 y_max = +80e-6
 
-Jx = 4*30
-Jy = 200
+Jx = 2*30
+Jy = 2*200
 
 dt = 0.0025e-3
 
@@ -397,7 +397,7 @@ figure_main.fig_control_inputs.update_t(0.0)
 # compute quasiparticle amplitudes u and v
 # =================================================================================================
 
-n_excitations = 32
+n_excitations = 64
 
 path = "./data/bdg.hdf5"
 
