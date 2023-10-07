@@ -82,7 +82,8 @@ class FigureEigenstatesBDG2D(object):
         # -----------------------------------------------------------------------------------------
 
         # -----------------------------------------------------------------------------------------
-        tmp = np.max(np.abs(excitations_u), axis=(1, 2), keepdims=True)
+        # tmp = np.max(np.abs(excitations_u), axis=(1, 2), keepdims=True)
+        tmp = np.max(np.abs(excitations_u))
 
         excitations_u = excitations_u / tmp
         excitations_v = excitations_v / tmp
