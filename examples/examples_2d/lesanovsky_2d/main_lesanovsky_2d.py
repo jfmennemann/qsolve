@@ -463,6 +463,7 @@ else:
     print()
     print()
 
+
 excitations_u_sse, excitations_v_sse, frequencies_omega_sse, psi_0_sse, mue_0_sse, res_max_sse = solver.bdg_sse(
     psi_0=psi_0, n_atoms=n_atoms, n_excitations=n_excitations, dim_subspace=200)
 
