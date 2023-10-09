@@ -128,8 +128,8 @@ x_max = +3e-6
 y_min = -80e-6
 y_max = +80e-6
 
-Jx = 2*30
-Jy = 2*200
+Jx = 120
+Jy = 800
 
 dt = 0.0025e-3
 
@@ -397,7 +397,7 @@ figure_main.fig_control_inputs.update_t(0.0)
 # compute quasiparticle amplitudes u and v
 # =================================================================================================
 
-n_excitations = 10
+n_excitations = 100
 
 path = "./data/bdg.hdf5"
 
@@ -464,12 +464,14 @@ else:
     print()
 
 excitations_u_sse, excitations_v_sse, frequencies_omega_sse, psi_0_sse, mue_0_sse, res_max_sse = solver.bdg_sse(
-    psi_0=psi_0, n_atoms=n_atoms, n_excitations=n_excitations, dim_subspace=1000)
+    psi_0=psi_0, n_atoms=n_atoms, n_excitations=n_excitations, dim_subspace=200)
 
 
 FigureEigenstatesBDG2D(
-    excitations_u=np.abs(excitations_u-excitations_u_sse),
-    excitations_v=np.abs(excitations_v-excitations_v_sse),
+    # excitations_u=np.abs(excitations_u-excitations_u_sse),
+    # excitations_v=np.abs(excitations_v-excitations_v_sse),
+    excitations_u=excitations_u_sse,
+    excitations_v=excitations_v_sse,
     V=solver.V,
     x=grid.x,
     y=grid.y,
