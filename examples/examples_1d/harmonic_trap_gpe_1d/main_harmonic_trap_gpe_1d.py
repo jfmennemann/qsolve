@@ -332,7 +332,7 @@ path = "./data/bdg.hdf5"
 
 if not os.path.exists(path):
 
-    n_excitations = 10
+    n_excitations = 100
 
     # excitations_u, excitations_v, frequencies_omega, psi_0_bdg, mue_0_bdg, res_max_bdg = solver.bdg(
     #     n_atoms=n_atoms, n_excitations=n_excitations)
@@ -340,8 +340,8 @@ if not os.path.exists(path):
     excitations_u, excitations_v, frequencies_omega, psi_0_bdg, mue_0_bdg, res_max_bdg = solver.bdg_experimental(
         n_atoms=n_atoms, n_excitations=n_excitations)
 
-    excitations_u_sse, excitations_v_sse, frequencies_omega_sse, psi_0_bdg_sse, mue_0_bdg_sse, res_max_bdg_sse = (
-        solver.bdg_sse(n_atoms=n_atoms, n_excitations=n_excitations, dim_subspace=10*n_excitations))
+    # excitations_u_sse, excitations_v_sse, frequencies_omega_sse, psi_0_bdg_sse, mue_0_bdg_sse, res_max_bdg_sse = (
+    #     solver.bdg_sse(n_atoms=n_atoms, n_excitations=n_excitations, dim_subspace=10*n_excitations))
 
     # pathlib.Path('./data').mkdir(parents=True, exist_ok=True)
     #
@@ -388,20 +388,20 @@ figure_eigenstates_bdg = FigureEigenstatesBDG1D(
     x_ticks=np.array([-40, -20, 0, 20, 40]),
     name="figure_eigenstates_bdg_1d")
 
-figure_eigenstates_bdg_sse = FigureEigenstatesBDG1D(
-    excitations_u_sse,
-    excitations_v_sse,
-    solver.V,
-    grid.x,
-    u_v_re_im_min=-1.0,
-    u_v_re_im_max=+1.0,
-    V_min=0.0,
-    V_max=4.0,
-    x_ticks=np.array([-40, -20, 0, 20, 40]),
-    name="figure_eigenstates_bdg_1d_sse")
+# figure_eigenstates_bdg_sse = FigureEigenstatesBDG1D(
+#     excitations_u_sse,
+#     excitations_v_sse,
+#     solver.V,
+#     grid.x,
+#     u_v_re_im_min=-1.0,
+#     u_v_re_im_max=+1.0,
+#     V_min=0.0,
+#     V_max=4.0,
+#     x_ticks=np.array([-40, -20, 0, 20, 40]),
+#     name="figure_eigenstates_bdg_1d_sse")
 
 print('res_max_bdg:     {0:1.4e}'.format(res_max_bdg))
-print('res_max_bdg_sse: {0:1.4e}'.format(res_max_bdg_sse))
+# print('res_max_bdg_sse: {0:1.4e}'.format(res_max_bdg_sse))
 print()
 # print(frequencies_omega.round(4))
 # print()
