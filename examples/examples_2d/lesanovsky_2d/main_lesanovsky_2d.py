@@ -403,7 +403,10 @@ path = "./data/bdg.hdf5"
 
 if not os.path.exists(path):
 
-    excitations_u, excitations_v, frequencies_omega, psi_0_bdg, mue_0_bdg, res_max = solver.bdg(
+    # excitations_u, excitations_v, frequencies_omega, psi_0_bdg, mue_0_bdg, res_max = solver.bdg(
+    #     psi_0=psi_0, n_atoms=n_atoms, n_excitations=n_excitations)
+
+    excitations_u, excitations_v, frequencies_omega, psi_0_bdg, mue_0_bdg, res_max = solver.bdg_experimental(
         psi_0=psi_0, n_atoms=n_atoms, n_excitations=n_excitations)
 
     pathlib.Path('./data').mkdir(parents=True, exist_ok=True)
@@ -464,15 +467,19 @@ else:
     print()
 
 
-excitations_u_sse, excitations_v_sse, frequencies_omega_sse, psi_0_sse, mue_0_sse, res_max_sse = solver.bdg_sse(
-    psi_0=psi_0, n_atoms=n_atoms, n_excitations=n_excitations, dim_subspace=200)
+excitations_u, excitations_v, frequencies_omega, psi_0_bdg, mue_0_bdg, res_max = solver.bdg_experimental(
+        psi_0=psi_0, n_atoms=n_atoms, n_excitations=n_excitations)
 
+# excitations_u_sse, excitations_v_sse, frequencies_omega_sse, psi_0_sse, mue_0_sse, res_max_sse = solver.bdg_sse(
+#     psi_0=psi_0, n_atoms=n_atoms, n_excitations=n_excitations, dim_subspace=200)
 
 FigureEigenstatesBDG2D(
     # excitations_u=np.abs(excitations_u-excitations_u_sse),
     # excitations_v=np.abs(excitations_v-excitations_v_sse),
-    excitations_u=excitations_u_sse,
-    excitations_v=excitations_v_sse,
+    # excitations_u=excitations_u_sse,
+    # excitations_v=excitations_v_sse,
+    excitations_u=excitations_u,
+    excitations_v=excitations_v,
     V=solver.V,
     x=grid.x,
     y=grid.y,
@@ -490,18 +497,18 @@ FigureEigenstatesBDG2D(
 #     name="figure_eigenstates_bdg_2d_sse")
 
 print('res_max:     {0:1.4e}'.format(res_max))
-print('res_max_sse: {0:1.4e}'.format(res_max_sse))
+# print('res_max_sse: {0:1.4e}'.format(res_max_sse))
 print()
 print(frequencies_omega.round(4))
 print()
-print(frequencies_omega_sse.round(4))
+# print(frequencies_omega_sse.round(4))
 print()
 input()
 
 
-nr = 3
-print(np.linalg.norm(np.abs(excitations_u_sse[nr, :, :])-np.abs(excitations_u[nr, :, :]))/np.linalg.norm(np.abs(excitations_u[nr, :, :])))
-input()
+# nr = 3
+# print(np.linalg.norm(np.abs(excitations_u_sse[nr, :, :])-np.abs(excitations_u[nr, :, :]))/np.linalg.norm(np.abs(excitations_u[nr, :, :])))
+# input()
 
 
 # -------------------------------------------------------------------------------------------------

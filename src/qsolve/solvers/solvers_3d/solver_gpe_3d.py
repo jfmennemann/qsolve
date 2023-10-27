@@ -170,7 +170,7 @@ class SolverGPE3D(object):
         _mue_0 = qsolve_core.chemical_potential_gpe_3d(
             _psi_0, self._V, self._dx, self._dy, self._dz, self._hbar, self._m_atom, self._g)
 
-        _excitations_u, _excitations_v, _frequencies_omega, _psi_0, _mue_0 = qsolve_core.bdg_3d_experimental(
+        _excitations_u, _excitations_v, _frequencies_omega, _psi_0, _mue_0, res_max = qsolve_core.bdg_3d_experimental(
             _psi_0,
             _mue_0,
             self._V,
@@ -189,7 +189,8 @@ class SolverGPE3D(object):
             self._units.unit_wave_function * _excitations_v, \
             self._units.unit_frequency * _frequencies_omega, \
             self._units.unit_wave_function * _psi_0, \
-            self._units.unit_energy * _mue_0
+            self._units.unit_energy * _mue_0, \
+            res_max
 
     def init_sgpe_z_eff(self, **kwargs):
 
