@@ -562,7 +562,7 @@ else:
 #     print()
 
 excitations_u, excitations_v, frequencies_omega, psi_0, mue_0, res_max = (
-    solver.bdg_experimental(psi_0=psi_0, n_atoms=n_atoms, n_excitations=40))
+    solver.bdg_experimental(psi_0=psi_0, n_atoms=n_atoms, n_excitations=5))
 
 figure_eigenstates_bdg = FigureEigenstatesBDG3D(excitations_u=excitations_u,
                                                 excitations_v=excitations_v,

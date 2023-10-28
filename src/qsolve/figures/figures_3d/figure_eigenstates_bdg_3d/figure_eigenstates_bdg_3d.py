@@ -89,17 +89,19 @@ class FigureEigenstatesBDG3D(object):
 
         # cmap = plt.get_cmap('RdBu')
 
-        n = excitations_u.shape[0]
+        # n = excitations_u.shape[0]
 
-        tmp = np.max(np.abs(excitations_u), axis=(1, 2, 3), keepdims=True)
+        # tmp = np.max(np.abs(excitations_u), axis=(1, 2, 3), keepdims=True)
+
+        tmp = np.max(np.abs(excitations_u))
 
         excitations_u = excitations_u / tmp
         excitations_v = excitations_v / tmp
 
         levels_V = np.linspace(start=0.1, stop=0.9, num=9, endpoint=True)
 
-        # nrs = [0, 1, 2, 3, 4]
-        nrs = [5, 10, 15, 20, 25]
+        nrs = [0, 1, 2, 3, 4]
+        # nrs = [5, 10, 15, 20, 25]
 
         FigExcitationUXZ(ax_00, V, excitations_u, nrs[0], x, y, z, label_x, label_z, x_ticks, z_ticks, levels_V, cmap)
         FigExcitationUXZ(ax_10, V, excitations_u, nrs[1], x, y, z, label_x, label_z, x_ticks, z_ticks, levels_V, cmap)
